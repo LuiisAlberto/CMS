@@ -1,0 +1,17 @@
+<div class="imageContainer wb_comp_img_block">
+    <% if (objcomp.wb_comp_img && objcomp.wb_comp_img.length > 0 && objcomp.wb_comp_img[0].fk_id_file &&
+        objcomp.wb_comp_img[0].fk_id_file[0]) {
+        const img = objcomp.wb_comp_img[0].fk_id_file[0];
+        const filePath = img.file_path || '';
+        const storagePath = img.storage_path || '';
+        // Si la ruta ya apunta a /assets/... (imagen de template), usamos solo file_path.
+        // Para imágenes subidas (que no están en /assets), usamos storage_path + file_path (CDN).
+        const src = filePath.startsWith('/assets/')
+          ? filePath
+          : (storagePath + filePath);
+    %>
+        <img src="<%= encodeURI(src) %>" alt="<%= img.file_name %>">
+    <% } else { %>
+        <img src="assets/img/recursos_componentes/banner_amlo_claudia.jpg" alt="Imagen por defecto">
+    <% } %>
+</div>

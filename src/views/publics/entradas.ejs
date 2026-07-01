@@ -1,0 +1,121 @@
+<%- include('partials/header'); %>
+
+<style>
+    .containNews {
+        margin-top: 8%;
+        margin-bottom: 8%;
+    }
+
+    .boxConfotoImageContainer {
+        width: 100%;
+        overflow: hidden;
+        border-radius: 20px;
+    }
+
+    .boxConfotoImage {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .boxConfotoImage--placeholder {
+        width: 100%;
+        height: 220px;
+        background: #f5f5f5;
+        border-radius: 20px;
+    }
+
+    .paginador {
+        grid-column: 1 / -1;      /* span todas las columnas del grid */
+        display: flex;
+        justify-content: center;  /* centra el contenido dentro */
+    }
+</style>
+
+<div class="containNews container">
+    <% if (objPagEntrada && objPagEntrada.length > 0) { %>
+        <% objPagEntrada.forEach(function (entrada) { 
+            const rawContenido = entrada.contenido || '';
+            const contenidoPlano = rawContenido
+                .replace(/<[^>]+>/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+            const preview = contenidoPlano.length > 150
+                ? contenidoPlano.substring(0, 150) + '...'
+                : contenidoPlano;
+        %>
+            <div class="boxConfoto">
+                <h2 class="boxConfotoTitle"><%- entrada.nombre_pagina %></h2>
+                <div class="boxConfotoContent">
+                    <p class="boxConfotoText"><%= preview %></p>
+                    <div class="boxFooterContainer">
+                        <div class="boxPie">
+                            <% if (typeof entrada.detailUrl !== 'undefined' && entrada.detailUrl) { %>
+                            <a href="<%= entrada.detailUrl %>" class="btnContainer">
+                                <button class="btnVer" type="button">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                                <span class="btnText">Ver más</span>
+                            </a>
+                            <% } else { %>
+                            <a href="javascript:void(0)" class="btnContainer">
+                                <button class="btnVer" onclick="mostrarTag('<%= entrada.idpagcy %>')">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                                <span class="btnText">Ver más</span>
+                            </a>
+                            <% } %>
+                        </div>
+                        <div class="boxConfotoImageContainer">
+                            <% if (entrada.image_src) { %>
+                                <img src="<%= encodeURI(entrada.image_src) %>" alt="Imagen adicional" class="boxConfotoImage">
+                            <% } else if (entrada.file_path) { %>
+                                <img src="https://cdn.morena.app/<%= String(entrada.file_path).startsWith('/') ? String(entrada.file_path).slice(1) : String(entrada.file_path) %>" alt="Imagen adicional" class="boxConfotoImage">
+                            <% } else { %>
+                                <div class="boxConfotoImage--placeholder"></div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+
+        <!-- PAGINADOR -->
+        <div class="paginador text-center mt-4">
+            <%- paginador %>
+        </div>
+    <% } else { %>
+        <p>No hay entradas disponibles.</p>
+    <% } %>
+</div>
+
+<script>
+    function mostrarTag(idtagcy) {
+        if (!idtagcy) return;
+        window.location.href = 'detalle?d=' + encodeURIComponent(idtagcy);
+    }
+
+    // Esta función la usa el helper paginate('entradasGoToPage', ...)
+    function entradasGoToPage(page) {
+        const params = new URLSearchParams(window.location.search);
+
+        // Actualizar página
+        params.set('page', page);
+
+        // Aseguramos que el token del tag siga viajando
+        <% if (typeof tokenTag !== 'undefined') { %>
+        if (!params.get('v')) {
+            params.set('v', '<%= tokenTag %>');
+        }
+        <% } %>
+
+        window.location.search = params.toString();
+    }
+</script>
+
+<% if (typeof footerHTML !== 'undefined' && footerHTML) { %>
+<%- footerHTML %>
+<% } else { %>
+<%- include('partials/footer'); %>
+<% } %>

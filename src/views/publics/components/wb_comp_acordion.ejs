@@ -1,0 +1,519 @@
+<!-- Componente Acordeón con jerarquía: Contenedores -> Categorías -> Subcategorías -> Acordeones -->
+<% if (objcomp && objcomp.dataValues && objcomp.dataValues.contenedor_acordeon) { %>
+    <% objcomp.dataValues.contenedor_acordeon.forEach((contenedor, contIndex) => { %>
+        <div class="container mt-5 acordeon-container-main">
+            <div class="acordeon-wrapper">
+                <!-- TÍTULO Y DESCRIPCIÓN DEL CONTENEDOR -->
+                <div class="acordeon-header-section">
+                    <h2 class="titulo-contenedor-principal">
+                        <%= contenedor.titulo %>
+                    </h2>
+                    <% if (contenedor.descripcion) { %>
+                        <p class="descripcion-contenedor">
+                            <%= contenedor.descripcion %>
+                        </p>
+                    <% } %>
+                </div>
+
+                <!-- TABS DE CATEGORÍAS -->
+                <div class="acordeon-tabs-container">
+                    <div class="acordeon-tabs" id="tabs-container-<%= contIndex %>">
+                        <% if (contenedor.categorias && contenedor.categorias.length > 0) { %>
+                            <% contenedor.categorias.forEach((categoria, catIndex) => { %>
+                                <button 
+                                    class="acordeon-tab-btn <%= catIndex === 0 ? 'is-active' : '' %>" 
+                                    data-target="tab-content-<%= contIndex %>-<%= catIndex %>"
+                                    onclick="switchTab(event, 'tab-content-<%= contIndex %>-<%= catIndex %>')">
+                                    <%= categoria.descripcion %>
+                                </button>
+                            <% }) %>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- CONTENIDO DE CADA CATEGORÍA -->
+                <div class="acordeon-tab-content">
+                    <% if (contenedor.categorias && contenedor.categorias.length > 0) { %>
+                        <% contenedor.categorias.forEach((categoria, catIndex) => { %>
+                            <div 
+                                class="acordeon-tab-panel <%= catIndex === 0 ? 'is-active' : '' %>" 
+                                id="tab-content-<%= contIndex %>-<%= catIndex %>">
+                                
+                                <!-- SUBCATEGORÍAS COMO ACORDEONES -->
+                                <div class="acordeon-items-list">
+                                    <% if (categoria.subcategorias && categoria.subcategorias.length > 0) { %>
+                                        <% categoria.subcategorias.forEach((subcategoria, subIndex) => { %>
+                                            <!-- Cada subcategoría es un acordeón desplegable -->
+                                            <div class="acordeon-item" id="acordeon-<%= contIndex %>-<%= catIndex %>-<%= subIndex %>">
+                                                <div class="acordeon-item-header" onclick="toggleAcordeon('<%= contIndex %>', '<%= catIndex %>', '<%= subIndex %>')">
+                                                    <span class="acordeon-item-title">
+                                                        <%= subcategoria.titulo %>
+                                                    </span>
+                                                    <button class="acordeon-chevron" type="button" aria-label="Expandir acordeón">
+                                                        <i class="fas fa-chevron-down"></i>
+                                                    </button>
+                                                </div>
+                                                
+                                                <div class="acordeon-item-body">
+                                                    <div class="acordeon-content">
+                                                        <!-- ACORDEONES DENTRO DE LA SUBCATEGORÍA -->
+                                                        <% if (subcategoria.acordeones && subcategoria.acordeones.length > 0) { %>
+                                                            <div class="subcategoria-items-wrapper">
+                                                                <% subcategoria.acordeones.forEach((acordeon, itemIndex) => { %>
+                                                                    <div class="subcategoria-item">
+                                                                        <% if (acordeon.titulo) { %>
+                                                                            <h4 class="item-titulo"><%= acordeon.titulo %></h4>
+                                                                        <% } %>
+                                                                        <% if (acordeon.texto) { %>
+                                                                            <p class="item-texto"><%= acordeon.texto %></p>
+                                                                        <% } %>
+                                                                        <% if (acordeon.link && acordeon.link !== '#') { %>
+                                                                            <div class="item-actions">
+                                                                                <a href="<%= acordeon.link %>" class="btn-ver-documento" target="_blank" rel="noopener">
+                                                                                    <i class="fas fa-file-pdf"></i> VER DOCUMENTO
+                                                                                </a>
+                                                                            </div>
+                                                                        <% } %>
+                                                                    </div>
+                                                                <% }) %>
+                                                            </div>
+                                                        <% } else { %>
+                                                            <p class="empty-message">No hay acordeones en esta subcategoría.</p>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <p class="empty-message">No hay subcategorías en esta categoría.</p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    <% }) %>
+
+    <script>
+        // Función para cambiar entre tabs de categorías
+        function switchTab(event, targetId) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            // Encontrar el panel objetivo
+            const targetPanel = document.getElementById(targetId);
+            if (!targetPanel) {
+                console.error('No se encontró el panel:', targetId);
+                return;
+            }
+            
+            // Encontrar el wrapper
+            const wrapper = targetPanel.closest('.acordeon-wrapper');
+            if (!wrapper) {
+                console.error('No se encontró el wrapper');
+                return;
+            }
+            
+            // Remover TODAS las clases activas de TODOS los paneles y botones en este wrapper
+            wrapper.querySelectorAll('.acordeon-tab-btn').forEach(btn => {
+                btn.classList.remove('is-active');
+            });
+            
+            wrapper.querySelectorAll('.acordeon-tab-panel').forEach(panel => {
+                panel.classList.remove('is-active');
+            });
+            
+            // Activar el botón clickeado
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('is-active');
+            }
+            
+            // Activar SOLO el panel objetivo
+            targetPanel.classList.add('is-active');
+        }
+
+        // Función para expandir/colapsar subcategorías (acordeones)
+        function toggleAcordeon(contIndex, catIndex, subIndex) {
+            const acordeonItem = document.getElementById(`acordeon-${contIndex}-${catIndex}-${subIndex}`);
+            if (acordeonItem) {
+                acordeonItem.classList.toggle('open');
+            }
+        }
+    </script>
+    </script>
+
+    <style>
+        /* ===== CONTENEDOR PRINCIPAL ===== */
+        .acordeon-container-main {
+            margin-bottom: 3rem;
+        }
+
+        .acordeon-wrapper {
+            background: linear-gradient(to bottom, #f9f9f9 0%, #ffffff 100%);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ===== TÍTULO Y DESCRIPCIÓN DEL CONTENEDOR ===== */
+        .acordeon-header-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #e8e8e8;
+        }
+
+        .titulo-contenedor-principal {
+            margin: 0 0 1rem 0;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #5d2e20;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .descripcion-contenedor {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #666;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* ===== TABS DE CATEGORÍAS ===== */
+        .acordeon-tabs-container {
+            margin-bottom: 2.5rem;
+        }
+
+        .acordeon-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            padding: 0 1rem;
+        }
+
+        .acordeon-tab-btn {
+            padding: 1rem 2rem;
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px 8px 0 0;
+            color: #666;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .acordeon-tab-btn::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #5d2e20;
+            transform: scaleX(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .acordeon-tab-btn:hover {
+            background: #f9f9f9;
+            border-color: #5d2e20;
+            color: #5d2e20;
+            transform: translateY(-2px);
+        }
+
+        .acordeon-tab-btn.is-active {
+            background: #5d2e20;
+            color: #fff;
+            border-color: #5d2e20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(93, 46, 32, 0.2);
+        }
+
+        .acordeon-tab-btn.is-active::before {
+            transform: scaleX(1);
+        }
+
+        /* ===== PANELES DE CONTENIDO ===== */
+        .acordeon-tab-content {
+            background: #fff;
+            border-radius: 0 0 12px 12px;
+            padding: 2.5rem;
+            min-height: 300px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .acordeon-tab-panel {
+            display: none;
+        }
+
+        .acordeon-tab-panel.is-active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* ===== SUBCATEGORÍAS (ACORDEONES) ===== */
+        .acordeon-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .acordeon-item {
+            border-bottom: 1px solid #e8e8e8;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .acordeon-item:last-child {
+            border-bottom: none;
+        }
+
+        .acordeon-item:hover {
+            background: #fafafa;
+        }
+
+        .acordeon-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.3rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .acordeon-item-header:hover {
+            background: #f5f5f5;
+        }
+
+        .acordeon-item-title {
+            font-weight: 600;
+            color: #5d2e20;
+            font-size: 1.15rem;
+            flex: 1;
+            padding-right: 1rem;
+        }
+
+        .acordeon-chevron {
+            background: #5d2e20;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        .acordeon-chevron:hover {
+            background: #4a2419;
+            transform: scale(1.1);
+        }
+
+        .acordeon-chevron i {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .acordeon-item.open .acordeon-chevron i {
+            transform: rotate(180deg);
+        }
+
+        .acordeon-item-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
+            background: #fafafa;
+        }
+
+        .acordeon-item.open .acordeon-item-body {
+            max-height: 3000px;
+        }
+
+        .acordeon-content {
+            padding: 2rem 1.5rem;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        /* ===== ITEMS DENTRO DE SUBCATEGORÍAS ===== */
+        .subcategoria-items-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .subcategoria-item {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .subcategoria-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-color: #5d2e20;
+        }
+
+        .item-titulo {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 0.8rem 0;
+        }
+
+        .item-texto {
+            color: #555;
+            line-height: 1.7;
+            margin: 0 0 1rem 0;
+            font-size: 0.98rem;
+        }
+
+        .item-actions {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        .btn-ver-documento {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 2rem;
+            background: #5d2e20;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(93, 46, 32, 0.2);
+        }
+
+        .btn-ver-documento:hover {
+            background: #4a2419;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(93, 46, 32, 0.3);
+            color: #fff;
+        }
+
+        .btn-ver-documento i {
+            font-size: 1.1rem;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .titulo-contenedor-principal {
+                font-size: 2rem;
+            }
+
+            .descripcion-contenedor {
+                font-size: 1rem;
+            }
+
+            .acordeon-wrapper {
+                padding: 2rem 1.5rem;
+            }
+
+            .acordeon-tab-content {
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .acordeon-tabs {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .acordeon-tab-btn {
+                width: 100%;
+                border-radius: 8px;
+            }
+
+            .titulo-contenedor-principal {
+                font-size: 1.8rem;
+            }
+
+            .acordeon-wrapper {
+                padding: 1.5rem 1rem;
+            }
+
+            .subcategoria-titulo {
+                font-size: 1.2rem;
+            }
+
+            .acordeon-tab-content {
+                padding: 1.5rem;
+            }
+
+            .acordeon-content {
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .titulo-contenedor-principal {
+                font-size: 1.5rem;
+            }
+
+            .acordeon-tab-btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 0.95rem;
+            }
+
+            .acordeon-item-header {
+                padding: 1rem;
+            }
+
+            .acordeon-item-title {
+                font-size: 0.95rem;
+            }
+
+            .btn-ver-documento {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+<% } else { %>
+    <div class="container mt-5">
+        <div class="alert alert-info">
+            <p>No hay contenedores de acordeón disponibles.</p>
+        </div>
+    </div>
+<% } %>

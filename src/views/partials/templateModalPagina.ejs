@@ -1,0 +1,55 @@
+<template id="Nuevapag">
+    <div class="container-fluid px-0">
+        <form id="newpage" class="needs-validation limit-form">
+            <input type="hidden" id="tipopag" name="tipopag" value="">
+            <input type="hidden" id="cyphval" name="cyphval" value="<%-idcypher%>">
+            <input type="hidden" id="idpag" name="idpag" value="0">
+            <div class="row g-3 mb-0">
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label class="form-label-inst d-block" for="tipo_pagina">Tipo de página</label>
+                    <input type="text" id="tipo_pagina" name="tipo_pagina" class="form-control form-basic-lleno" readonly>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label class="form-label-inst d-block" for="namepag">Nombre de la página *</label>
+                    <input type="text" class="form-control form-basic-lleno" id="namepag" name="namepag" placeholder="Ej. Mi entrada" required>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label class="form-label-inst d-block" for="url">URL *</label>
+                    <input type="text" class="form-control form-basic-lleno" id="url" name="url" placeholder="mi-url">
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4" id="wrap_f_pub">
+                    <label class="form-label-inst d-block" for="f_pub">Fecha de publicación *</label>
+                    <input type="date" class="form-control form-basic-lleno" id="f_pub" name="f_pub">
+                </div>
+                <div class="col-12 filepond-row" id="imgcarga" style="display: none;">
+                    <label class="form-label-inst d-block">Imagen</label>
+                    <input type="file" id="cargar-imagpag" name="cargar-imagpag" class="filepond-pagina" accept="image/jpeg,image/png" data-max-file-size="2MB">
+                    <small class="d-block text-muted mt-1">JPG o PNG. Máx. 2 MB. Opcional para entradas.</small>
+                    <div id="imgcargada" class="mt-2"></div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4" id="tagentrada">
+                    <label class="form-label-inst d-block" for="tipo_tag">Tipo de entrada</label>
+                    <select id="tipo_tag" name="tipo_tag" class="form-select form-basic-lleno">
+                        <option value="0" selected>Seleccione un tipo de entrada</option>
+                        <%
+                        for (const tag of tags ) {
+                        %>
+                        <option value="<%-tag.id_cat_tag%>"><%-tag.tag%></option>
+                        <%
+                        }
+                        %>
+                    </select>
+                </div>
+                <div class="col-12" id="desc_entrada">
+                    <label class="form-label-inst d-block" for="cont_alt">Descripción de la página</label>
+                    <small class="d-block text-muted mb-1">Máx. 100 caracteres. Ayuda a los navegadores a encontrar tu página.</small>
+                    <textarea name="cont_alt" id="cont_alt" maxlength="100" rows="3" class="form-control form-basic-lleno" placeholder="Breve descripción..."></textarea>
+                </div>
+                <div class="col-12" id="fullcom">
+                    <label class="form-label-inst d-block" for="cont_full">Contenido</label>
+                    <textarea name="cont_full" id="cont_full" rows="5" class="form-control" style="width: 100%;"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+</template>

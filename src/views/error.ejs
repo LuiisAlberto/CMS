@@ -1,0 +1,30 @@
+<%- include('partials/header'); %>
+<%- include('partials/menu'); %>
+
+<div id="templateDer">
+    <div class="limit-home">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10 col-12 t-c">
+                <h5 class="tit-seccion guinda_t">Acceso restringido</h5>
+                <div class="l-div">
+                    <label class="borde-izq oroMorena"><span class="diagonal gris_t"></span></label>
+                    <label class="borde-der solid_bg"><span></span></label>
+                </div>
+            </div>
+            <div class="subenun ma-t2 col-lg-8 col-md-10 col-12">
+                <p class="subtit">
+                    <%= typeof msg !== 'undefined' && msg ? msg : 'No tienes permiso para usar esta sección.' %>
+                </p>
+                <span></span>
+            </div>
+            <div class="col-12 t-c ma-t2">
+                <button type="button" class="btnGral guinda_t" onclick="history.length > 1 ? history.back() : (location.href = '/admin')">
+                    <span class="btnIcon"><i class="fas fa-arrow-left"></i></span>
+                    <span>Volver</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footerNoMx'); %>

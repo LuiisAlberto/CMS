@@ -1,0 +1,61 @@
+<%- include('partials/header'); %>
+<style>
+    .contImgNote {
+        width: 100%;
+        /* deja que la altura se adapte al tamaño de la imagen */
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        position: relative;
+    }
+
+    .contImgNote img {
+        width: 100%;
+        height: auto !important;
+        object-fit: contain !important; /* NO recorta, la ajusta completa */
+        display: block;
+    }
+
+    .contBody, .bodyDate {
+        margin-left: 10%;
+    }
+</style>
+<% if (objPagEntrada) { %>
+        <div class="containNews container"<% if (!(objPagEntrada && objPagEntrada.archivo && objPagEntrada.archivo.file_path)) { %> style="padding-top: 6% !important;"<% } else {%> style="padding-top: 2% !important;"<% } %>>
+            <div class="containNote">
+                <div class="headerNote">
+                    <div class="contImgNote">
+                        <% if (objPagEntrada && objPagEntrada.archivo && objPagEntrada.archivo.file_path) { %>
+                            <img src="https://cdn.morena.app/<%= objPagEntrada.archivo.file_path %>" alt="Nota">
+                        <% } %>
+                        <div class="contBrown"></div>
+                        <div class="contTitleNote">
+                            <p><%- objPagEntrada.nombre_pagina %></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bodyNote mt-5">
+                    <div class="bodyDate">
+                        <div class="circleBody"></div>
+                        <div>
+                            <p class="bodyFecha"><%= new Date(objPagEntrada.f_publicacion || objPagEntrada.f_reg).toLocaleDateString('es-MX') %></p>
+                            <!-- <p class="noComunicado">Comunicado No. 33</p> -->
+                        </div>
+                    </div>
+                    <div class="contBody">
+                        <p>
+                            <%- objPagEntrada.contenido || objPagEntrada.contenido_alt || '' %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+<% } else { %>
+    <p>No hay contenido disponible.</p>
+<% } %>
+
+<% if (typeof footerHTML !== 'undefined' && footerHTML) { %>
+<%- footerHTML %>
+<% } else { %>
+<%- include('partials/footer'); %>
+<% } %>

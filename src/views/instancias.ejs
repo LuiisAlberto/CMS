@@ -1,0 +1,1911 @@
+<%- include('partials/header'); %>
+<%- include('partials/menu'); %>
+
+<link rel="stylesheet" href="https://unpkg.com/filepond@4/dist/filepond.min.css">
+<script src="https://unpkg.com/filepond@4/dist/filepond.min.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.min.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.min.js"></script>
+
+<style>
+  /* Modal Nueva/Editar Instancia: estilo institucional, inputs redondeados fondo gris claro */
+  #modalGral #newpage .form-label-inst {
+    margin-bottom: 0.4rem; font-size: 13px; font-weight: 500; color: #343a40;
+  }
+  #modalGral .modal-dialog {
+    max-width: 980px;
+  }
+  #modalGral #newpage .form-section {
+    background: #fafafa;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+    padding: 0.9rem;
+    margin-bottom: 0.85rem;
+  }
+  #modalGral #newpage .form-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #8b1538;
+    margin-bottom: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  #modalGral #newpage .form-control,
+  #modalGral #newpage .form-select {
+    background: #f0f0f0; border: 1px solid #e2e2e2; border-radius: 8px;
+    padding: 0.5rem 0.85rem; font-size: 14px; color: #212529;
+  }
+  #modalGral #newpage .form-control::placeholder { color: #6c757d; }
+  #modalGral #newpage .form-control:focus,
+  #modalGral #newpage .form-select:focus {
+    background: #fff; border-color: #8b1538; box-shadow: 0 0 0 0.2rem rgba(139, 21, 56, 0.12);
+    outline: 0;
+  }
+  #modalGral #newpage textarea.form-control { min-height: 88px; resize: vertical; }
+  #modalGral #newpage .url-preview { font-size: 0.75rem; color: #6c757d; margin-top: 0.25rem; }
+
+  /* CURP + Validar: sin hueco exagerado; botón alineado al input (evitar .btnAct 70×30px) */
+  #modalGral #newpage .responsable-nuevo-curp .form-label-inst { margin-bottom: 0.15rem; }
+  #modalGral #newpage .responsable-nuevo-curp .curp-help-instancia {
+    font-size: 12px;
+    line-height: 1.35;
+    color: #6c757d !important;
+    margin-bottom: 0.4rem;
+    margin-top: 0;
+  }
+  #modalGral #newpage .responsable-nuevo-curp .responsable-curp-validar-btn {
+    margin-top: 0 !important;
+    width: auto;
+    min-width: 9.5rem;
+    white-space: nowrap;
+    height: auto;
+    min-height: 35px;
+    line-height: 1.2;
+    padding: 0.4rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* FilePond: un solo contenedor con borde gris, sin contornos rojos */
+  #modalGral #newpage .filepond-row { margin-bottom: 1rem; }
+  #modalGral #newpage .filepond--root {
+    max-height: 120px;
+    min-height: 96px;
+    position: relative;
+    pointer-events: auto !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    background: #f8f9fa !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  #modalGral #newpage .filepond--root:hover,
+  #modalGral #newpage .filepond--root.filepond--drag-over {
+    border-color: #ccc !important;
+    background: #f0f1f2 !important;
+  }
+  #modalGral #newpage .filepond--root *,
+  #modalGral #newpage .filepond--root *:focus {
+    pointer-events: auto !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  #modalGral #newpage .filepond--panel-root,
+  #modalGral #newpage .filepond--panel-top,
+  #modalGral #newpage .filepond--panel-center,
+  #modalGral #newpage .filepond--panel-bottom,
+  #modalGral #newpage .filepond--panel {
+    border: none !important;
+    background: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  #modalGral #newpage .filepond--drop-label {
+    position: absolute !important;
+    left: 0 !important; right: 0 !important; top: 0 !important; bottom: 0 !important;
+    margin: 0 !important; padding: 0 !important; min-height: 0 !important; height: 100% !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    border: none !important; background: transparent !important; border-radius: 0 !important;
+    color: #495057 !important; font-size: 14px !important; text-align: center !important;
+    pointer-events: auto !important; cursor: pointer;
+  }
+  #modalGral #newpage .filepond--drop-label label { cursor: pointer; margin: 0; }
+  #modalGral #newpage .filepond--label-action { color: #8b1538 !important; font-weight: 600; }
+  #modalGral #newpage .filepond--item-panel {
+    background: #fff !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+  }
+  #modalGral #newpage .filepond--item .filepond--file-action-button {
+    background: #6c757d !important;
+    color: #fff !important;
+  }
+  #modalGral #newpage .filepond--item .filepond--file-info,
+  #modalGral #newpage .filepond--item .filepond--file-info-main,
+  #modalGral #newpage .filepond--item .filepond--file-info-sub,
+  #modalGral #newpage .filepond--item .filepond--file-status,
+  #modalGral #newpage .filepond--item .filepond--file-status-main,
+  #modalGral #newpage .filepond--item .filepond--file-status-sub {
+    color: #212529 !important;
+  }
+  #modalGral #newpage .filepond--credits { display: none; }
+
+  /* Cards de instancias - estilo moderno con colores institucionales */
+  :root {
+    --inst-guinda: #8b1538;
+    --inst-guinda-oscuro: #52181E;
+    --inst-oro: #bc955b;
+    --inst-oro-claro: #d4b87a;
+  }
+  .instancias-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
+  .instancia-card {
+    background: #f5f5f5;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .instancia-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(139, 21, 56, 0.1), 0 4px 12px rgba(0,0,0,0.06);
+  }
+  /* Bloque central con borde gradiente guinda→oro (estilo institucional) */
+  .instancia-card-inner {
+    margin: 1rem;
+    padding: 3px;
+    background: linear-gradient(135deg, var(--inst-guinda) 0%, var(--inst-oro) 50%, var(--inst-guinda-oscuro) 100%);
+    border-radius: 16px;
+  }
+  .instancia-card-inner-wrap {
+    background: linear-gradient(145deg, var(--inst-guinda-oscuro) 0%, var(--inst-guinda) 100%);
+    border-radius: 13px;
+    padding: 1.25rem;
+  }
+  .instancia-card-header {
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .instancia-card-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.15);
+  }
+  .instancia-card-title {
+    font-weight: 700;
+    color: #fff;
+    font-size: 1.1rem;
+    margin: 0;
+  }
+  .instancia-card-type {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.75);
+    margin-top: 0.15rem;
+    display: block;
+  }
+  .instancia-card-responsable {
+    font-size: 0.84rem;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0.35rem 0 0;
+    line-height: 1.4;
+    font-weight: 500;
+  }
+  .instancia-card-responsable .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+  .instancia-card-meta {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.9);
+    margin: 0.75rem 0 0 0;
+    line-height: 1.4;
+  }
+  .instancia-card-domain {
+    display: inline-block;
+    margin-top: 0.75rem;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 0.35rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: default;
+  }
+  .instancia-card-domain.placeholder {
+    background: rgba(255,255,255,0.1);
+  }
+  .instancia-badge-pendiente {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.04);
+    color: #555;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .instancia-card-body {
+    padding: 1.25rem;
+    flex: 1;
+    background: #fff;
+    margin: 0 1rem 1rem;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .instancia-checkbox-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #555;
+  }
+  .instancia-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    padding-top: 1rem;
+  }
+  /* Botón Solicitar dominio: estilo destacado con borde gradiente guinda-oro */
+  .btn-solicitar-dominio {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 1.2rem !important;
+    background: #fff !important;
+    color: var(--inst-guinda) !important;
+    border: 2px solid transparent !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    box-shadow: 0 2px 12px rgba(139, 21, 56, 0.2) !important;
+    transition: all 0.2s ease !important;
+    background-image: linear-gradient(#fff, #fff), linear-gradient(135deg, var(--inst-guinda), var(--inst-oro), var(--inst-guinda-oscuro)) !important;
+    background-origin: border-box !important;
+    background-clip: padding-box, border-box !important;
+  }
+  .btn-solicitar-dominio:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 21, 56, 0.25) !important;
+    color: var(--inst-guinda-oscuro) !important;
+  }
+  .btn-solicitar-dominio i {
+    font-size: 1.1rem;
+    color: var(--inst-oro);
+    margin-top: -2px; /* Ajuste visual para centrar ícono */
+  }
+
+  /* Ajuste visual de íconos dentro de las acciones de las cards */
+  .instancia-card-actions .btnAct {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: normal; /* evita baseline raro */
+  }
+  .instancia-card-actions .btnAct i {
+    padding: 0 !important;
+    margin: 0 !important;
+    vertical-align: middle;
+    line-height: 1;
+  }
+  .instancia-card-actions .btnAct img {
+    vertical-align: middle;
+    margin: 0 !important;
+  }
+
+  /* Botón "Baja": evitar que el hover (data-hover) se parta por el ancho fijo de .btnAct */
+  .instancia-card-actions .solicitar-baja.btnAct {
+    width: 70px; /* mantener consistencia con otros btnAct */
+  }
+  .instancia-card-actions .solicitar-baja.btnAct::before {
+    display: none !important; /* no mostrar texto en hover */
+    content: '' !important;
+  }
+  .instancia-card-actions .solicitar-baja.btnAct:hover i,
+  .instancia-card-actions .solicitar-baja.btnAct:hover img {
+    opacity: 1 !important; /* el estilo global los oculta en hover */
+  }
+
+  /* Etiqueta de solicitud enviada: estilo suave institucional */
+  .instancia-badge-solicitada {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(139, 21, 56, 0.08);
+    color: var(--inst-guinda-oscuro);
+    border: 1px solid rgba(139, 21, 56, 0.15);
+  }
+
+  /* Modal Solicitar dominio - estilo institucional */
+  #modalSolicitarDominio .modal-content {
+    border-radius: 18px;
+    border: none;
+  }
+  #modalSolicitarDominio .modal-header {
+    padding: 1.25rem 1.5rem 0.75rem;
+  }
+  #modalSolicitarDominio .modal-title {
+    font-size: 1.05rem;
+  }
+  #modalSolicitarDominio .inst-modal-banner {
+    background: linear-gradient(135deg, var(--inst-guinda-oscuro), var(--inst-guinda));
+    color: #fff;
+    border-radius: 14px;
+    padding: 0.9rem 1rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+  #modalSolicitarDominio .inst-modal-banner strong {
+    color: #fff;
+  }
+  #modalSolicitarDominio .inst-modal-body-inner {
+    background: #f8f5f2;
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    color: #444;
+  }
+  #modalSolicitarDominio .inst-modal-body-inner p {
+    margin-bottom: 0.4rem;
+  }
+  #modalSolicitarDominio .inst-modal-body-inner p:last-child {
+    margin-bottom: 0;
+  }
+  #modalSolicitarDominio .inst-modal-checklist {
+    font-size: 0.85rem;
+    color: #555;
+  }
+  #modalSolicitarDominio .inst-modal-checklist li {
+    margin-bottom: 0.25rem;
+  }
+  #modalSolicitarDominio .modal-footer {
+    padding: 0.75rem 1.5rem 1.25rem;
+  }
+  #modalSolicitarDominio .modal-footer .btnGral {
+    margin: 0 !important;
+    flex-shrink: 0; /* Evita que el botón se haga angosto y el texto se salga */
+  }
+  #modalSolicitarDominio #btnEnviarSolicitud {
+    min-width: 230px;
+  }
+  #modalSolicitarDominio #btnEnviarSolicitud p {
+    font-size: 13px;
+    line-height: 38px;
+    white-space: nowrap;
+  }
+
+  /* Modal Confirmar páginas completadas - estilo institucional */
+  #modalPaginasCompletadas .modal-content {
+    border-radius: 18px;
+    border: none;
+    overflow: hidden;
+  }
+  #modalPaginasCompletadas .modal-header {
+    padding: 1.25rem 1.5rem 0.75rem;
+  }
+  #modalPaginasCompletadas .modal-title {
+    font-size: 1.05rem;
+    color: var(--inst-guinda-oscuro, #5c0d28);
+  }
+  #modalPaginasCompletadas .modal-header .text-muted {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-top: 0.25rem;
+  }
+  #modalPaginasCompletadas .modal-body {
+    padding: 0 1.5rem 1rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: #444;
+  }
+  #modalPaginasCompletadas .inst-modal-intro {
+    background: linear-gradient(135deg, rgba(139, 21, 56, 0.06), rgba(139, 21, 56, 0.03));
+    border-left: 4px solid var(--inst-guinda, #8b1538);
+    border-radius: 0 10px 10px 0;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #444;
+  }
+  #modalPaginasCompletadas .inst-modal-confirm-box {
+    background: #f8f5f2;
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1rem;
+  }
+  #modalPaginasCompletadas .inst-modal-confirm-box .lead {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--inst-guinda-oscuro, #5c0d28);
+    margin-bottom: 0.6rem;
+  }
+  #modalPaginasCompletadas .inst-modal-checklist {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    font-size: 0.875rem;
+    color: #555;
+  }
+  #modalPaginasCompletadas .inst-modal-checklist li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+  #modalPaginasCompletadas .inst-modal-checklist li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.45em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--inst-guinda, #8b1538);
+  }
+  #modalPaginasCompletadas .inst-modal-footer-note {
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.5;
+  }
+  #modalPaginasCompletadas .inst-modal-footer-note strong {
+    color: var(--inst-guinda-oscuro, #5c0d28);
+  }
+  #modalPaginasCompletadas .modal-footer {
+    padding: 0.75rem 1.5rem 1.25rem;
+    gap: 0.75rem;
+  }
+  #modalPaginasCompletadas .modal-footer .btnGral {
+    min-width: 0;
+  }
+  /* Paginador de instancias: estilo pastilla centrada */
+  #paginationHosting {
+    width: 100%;
+  }
+  .inst-pagination-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+  }
+  .inst-page-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.65rem;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+  .inst-page-btn.is-active {
+    background: linear-gradient(135deg, var(--inst-guinda), var(--inst-guinda-oscuro));
+    color: #fff;
+  }
+  .inst-page-btn.inst-page-arrow {
+    color: var(--inst-guinda-oscuro);
+  }
+  .inst-page-btn:disabled,
+  .inst-page-btn[disabled] {
+    opacity: 0.45;
+    cursor: default;
+  }
+  .inst-page-btn:not(:disabled):hover {
+    background: rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+  }
+  .inst-page-btn.is-active:not(:disabled):hover {
+    background: linear-gradient(135deg, var(--inst-guinda-oscuro), var(--inst-guinda));
+  }
+  .inst-page-numbers {
+    display: inline-flex;
+    gap: 0.15rem;
+    margin: 0 0.1rem;
+  }
+  .inst-pagination-meta {
+    margin-top: 0.4rem;
+    font-size: 0.8rem;
+    color: #777;
+    text-align: center;
+  }
+  @media (max-width: 576px) {
+    .inst-pagination-inner {
+      padding: 0.25rem 0.5rem;
+    }
+    .inst-page-btn {
+      min-width: 28px;
+      height: 28px;
+      font-size: 0.8rem;
+    }
+    .inst-pagination-meta {
+      font-size: 0.75rem;
+    }
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<style>
+  /* Select2 dentro del modal: z-index y aspecto alineado al formulario */
+  #modalGral .select2-container { z-index: 10055; }
+  #modalGral .select2-dropdown { z-index: 10056; }
+  #modalGral .select2-container--default .select2-selection--single {
+    min-height: 38px;
+    border-radius: 8px;
+    border: 1px solid #e2e2e2;
+    background: #f0f0f0;
+  }
+  #modalGral .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 36px;
+    padding-left: 0.85rem;
+    color: #212529;
+  }
+  #modalGral .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 36px;
+  }
+  #modalGral .select2-container--default.select2-container--disabled .select2-selection--single {
+    background: #e9ecef;
+    cursor: not-allowed;
+  }
+</style>
+
+<div id="templateDer">
+
+    <div class="limit-home">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-12 col-12  t-c">
+                <h5 class="tit-seccion guinda_t">Administrador<b> de Instancias</b></h5>
+                <div class="l-div">
+                    <label class="borde-izq oroMorena"><span class="diagonal gris_t"></span></label>
+                    <label class="borde-der solid_bg"><span></span></label>
+                </div>
+            </div>
+            <div class="subenun ma-t2">
+                <p class="subtit">
+                    En esta sección se crean nuevas páginas web. Primero configure el dominio deseado, marque las páginas como completadas y solicite el dominio al área de Infraestructura Tecnológica para poder publicar.
+                </p>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="row mb-3">
+            <% if (typeof es_responsable_instancia === 'undefined' || !es_responsable_instancia) { %>
+            <div class="col-auto mb-3">
+                <button class="btnGral guinda_t cargapagina" type="button" id="crear_pagaPrincipal" data-id="0">
+                    <p>NUEVA INSTANCIA</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon guinda"><img src="assets/img/AGREGAR.svg"></div>
+                        <span class="s-guinda"></span>
+                    </div>
+                </button>
+            </div>
+            <% } %>
+        </div>
+
+        <div class="instancias-cards" id="instanciasCards">
+            <%
+            const ESTATUS = { 0: 'Pendiente', 1: 'Solicitado', 2: 'Con dominio', 3: 'Rechazado', 4: 'Baja solicitada', 5: 'Baja procesada' };
+            for (const doc of instanciaslist) {
+                const DateFor = doc.f_reg ? doc.f_reg.toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+                const tipo = doc.fk_id_sysapp_type === 2 ? 'Nacional' : 'Secundaria';
+                const tieneDominio = doc.fk_id_estatus_hosting === 2;
+                const dominioMostrar = tieneDominio ? (doc.dominio_asignado || doc.urluri) : (doc.urluri || 'Sin dominio');
+                const paginasCompletadas = !!doc.paginas_completadas;
+                // Evitar mostrar "Solicitar dominio" cuando la instancia está en baja solicitada/procesada.
+                const puedeSolicitar = paginasCompletadas
+                    && ![1, 2, 4, 5].includes(Number(doc.fk_id_estatus_hosting));
+                const yaSolicitado = doc.fk_id_estatus_hosting === 1;
+                const bloquearCheckbox = yaSolicitado || tieneDominio;
+                const publicada = doc.publicada === true || doc.publicada === 1;
+                const bajaProcesada = doc.fk_id_estatus_hosting === 5;
+                const puedeEliminar = !publicada || bajaProcesada;
+            %>
+            <div class="instancia-card" data-id="<%= doc.id_sysapp %>">
+                <div class="instancia-card-inner">
+                    <div class="instancia-card-inner-wrap">
+                    <div class="instancia-card-header">
+                        <img src="<%= doc.app_logo || '/assets/img/default_morena.png' %>" alt="Logo" class="instancia-card-logo">
+                        <div>
+                            <h3 class="instancia-card-title"><%- doc.sysapp_name %></h3>
+                            <span class="instancia-card-type"><%= tipo %> · <%= DateFor %></span>
+                        </div>
+                    </div>
+                    <p class="instancia-card-meta"><%- doc.app_legend %></p>
+                    <% if (doc.responsable_nombre || doc.responsable_entidad) { %>
+                    <p class="instancia-card-responsable">
+                        <span class="text-muted">Responsable:</span>
+                        <%= doc.responsable_nombre || '—' %>
+                        <% if (doc.responsable_entidad) { %>
+                            <span class="text-muted"> · </span><%= doc.responsable_entidad %>
+                        <% } %>
+                    </p>
+                    <% } %>
+                    <div class="instancia-card-domain <%= tieneDominio ? '' : 'placeholder' %>" title="<%- dominioMostrar %>"><%- dominioMostrar %></div>
+                    <% if (doc.fk_id_estatus_hosting === 0) { %>
+                      <div class="instancia-badge-pendiente"><%= ESTATUS[0] %> de solicitud de dominio</div>
+                    <% } else if (doc.fk_id_estatus_hosting === 4) { %>
+                      <div class="instancia-badge-pendiente">
+                        <%= ESTATUS[4] %> (procesa la baja en <b>Hosting</b> para habilitar la eliminación)
+                      </div>
+                    <% } else if (doc.fk_id_estatus_hosting === 5) { %>
+                      <div class="instancia-badge-pendiente"><%= ESTATUS[5] %> (ya puedes eliminar)</div>
+                    <% } %>
+                    </div>
+                </div>
+                <div class="instancia-card-body">
+                    <div class="instancia-checkbox-wrap">
+                        <input type="checkbox" class="form-check-input chk-completadas" id="chk-<%= doc.id_sysapp %>"
+                               data-id="<%= doc.id_sysapp %>"
+                               <%= paginasCompletadas ? 'checked' : '' %>
+                               <%= bloquearCheckbox ? 'disabled' : '' %>>
+                        <label for="chk-<%= doc.id_sysapp %>">Páginas completadas</label>
+                    </div>
+                    <div class="instancia-card-actions">
+                        <% if (tieneDominio) { %>
+                            <span class="badge bg-success">Con dominio</span>
+                            <button class="btnAct oro btn-sm solicitar-baja" data-id="<%= doc.id_sysapp %>" data-hover="Solicitar baja">Baja</button>
+                        <% } else if (yaSolicitado) { %>
+                            <span class="instancia-badge-solicitada">Solicitud enviada a Infraestructura Tecnológica</span>
+                        <% } else if (puedeSolicitar) { %>
+                            <button class="btn-solicitar-dominio" data-id="<%= doc.id_sysapp %>" data-name="<%- doc.sysapp_name %>" data-hover="Solicitar dominio" title="Solicitar dominio">
+                                <i class="fa-solid fa-globe"></i> Solicitar dominio
+                            </button>
+                        <% } %>
+                        <button class="btnAct oro editentrance btn-sm" data-idtype="5" data-namepag="<%= doc.sysapp_name %>" data-url="<%= doc.urluri %>" data-titlepag="<%= doc.titlepag %>" data-app_legend="<%= doc.app_legend %>" data-app_desc="<%= doc.app_desc %>" data-id="<%= doc.id_sysapp %>" data-fk-id-sysapp-type="<%= doc.fk_id_sysapp_type %>" data-responsable-id="<%= doc.responsable_id_user != null && doc.responsable_id_user !== '' ? doc.responsable_id_user : '' %>" data-logo="<%= doc.app_logo %>" data-favicon="<%= doc.app_favicon %>" data-hover="EDITAR">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                        <% if (puedeEliminar) { %>
+                            <button class="btnAct guinda deletepag btn-sm" data-id="<%= doc.id_sysapp %>" data-hover="BORRAR"><i class="fa-solid fa-trash"></i></button>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+        </div>
+
+        <nav class="mt-4 d-flex justify-content-center align-items-center flex-column" id="paginationHosting" aria-label="Paginación de instancias"></nav>
+    </div>
+
+</div>
+
+<!-- Modal Solicitar dominio -->
+<div class="modal fade" id="modalSolicitarDominio" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <h5 class="modal-title fw-bold">Solicitar dominio</h5>
+                    <p class="mb-0 small text-muted">Antes de solicitar el dominio, asegúrese de que las páginas estén completas y revisadas.</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body pt-3">
+                <div class="inst-modal-banner">
+                    <p class="mb-1">
+                        Esta solicitud se enviará al área de <strong>Infraestructura Tecnológica</strong> para la validación y asignación del dominio.
+                    </p>
+                    <p class="mb-0">
+                        Instancia: <strong id="modalInstanciaNombre"></strong>
+                    </p>
+                </div>
+                <div class="inst-modal-body-inner">
+                    <p class="mb-1"><strong>Antes de continuar, verifica que:</strong></p>
+                    <ul class="inst-modal-checklist ps-3 mb-0">
+                        <li>El contenido público de la instancia está completo y revisado.</li>
+                        <li>Los enlaces del menú, imágenes y documentos funcionan correctamente.</li>
+                        <li>Los textos son institucionales y están listos para ser publicados.</li>
+                    </ul>
+                </div>
+                <p class="small text-muted mb-0">
+                    Una vez enviado, el equipo de Infraestructura Tecnológica revisará la información y se pondrá en contacto con la persona solicitante.
+                </p>
+                <input type="hidden" id="modalInstanciaId" value="">
+            </div>
+            <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+                <button type="button" class="btnGral guinda_t" data-bs-dismiss="modal">
+                    <p>CANCELAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon guinda"><img src="assets/img/TIMES.svg" alt=""></div>
+                        <span class="s-guinda"></span>
+                    </div>
+                </button>
+                <button type="button" class="btnGral verde_t" id="btnEnviarSolicitud">
+                    <p>ENVIAR SOLICITUD</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg" alt=""></div>
+                        <span class="s-verde"></span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal términos para marcar páginas como completadas -->
+<div class="modal fade" id="modalPaginasCompletadas" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0">
+                <div>
+                    <h5 class="modal-title fw-bold">Confirmar páginas completadas</h5>
+                    <p class="mb-0 small text-muted">Antes de continuar, confirma que el sitio está listo para solicitar dominio.</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="inst-modal-intro">
+                    Estás por marcar la casilla <strong>“Páginas completadas”</strong> para esta instancia.
+                </div>
+                <div class="inst-modal-confirm-box">
+                    <p class="lead mb-2">Al hacerlo, confirmas que:</p>
+                    <ul class="inst-modal-checklist">
+                        <li>El recorrido principal del sitio (inicio, secciones y menús) ya está configurado y revisado.</li>
+                        <li>Las imágenes, documentos y enlaces que se muestran al público funcionan correctamente.</li>
+                        <li>Los textos fueron revisados y reflejan la información institucional que se desea publicar.</li>
+                    </ul>
+                </div>
+                <p class="inst-modal-footer-note mb-0">
+                    Con esta confirmación se marcará la instancia como completada y se habilitará el flujo para solicitar dominio con el área de <strong>Infraestructura Tecnológica</strong>.
+                </p>
+                <input type="hidden" id="modalPaginasCompletadasId" value="">
+            </div>
+            <div class="modal-footer border-0 d-flex justify-content-between flex-wrap gap-2">
+                <button type="button" class="btnGral guinda_t" data-bs-dismiss="modal">
+                    <p>CANCELAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon guinda"><img src="assets/img/TIMES.svg" alt=""></div>
+                        <span class="s-guinda"></span>
+                    </div>
+                </button>
+                <button type="button" class="btnGral verde_t" id="btnConfirmarPaginasCompletadas">
+                    <p>ACEPTAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg" alt=""></div>
+                        <span class="s-verde"></span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<template id="Nuevapag">
+    <div class="container-fluid px-0">
+        <form id="newpage" class="needs-validation">
+            <input type="hidden" id="id_edit" name="id_edit" value="0">
+
+            <div class="form-section">
+                <div class="form-section-title">Datos de la instancia</div>
+            <div class="row g-3 mb-0">
+                <div class="col-12 col-lg-6">
+                    <label class="form-label-inst d-block" for="namepag">Nombre de la instancia *</label>
+                    <input type="text" class="form-control form-basic-lleno" id="namepag" name="namepag" placeholder="Ej. Sitio principal" required>
+                    <div class="invalid-feedback">El nombre es obligatorio.</div>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <label class="form-label-inst d-block" for="url">Subdominio deseado *</label>
+                    <input type="text" class="form-control form-basic-lleno" id="url" name="url" placeholder="ejemplo-comite" required>
+                    <div id="preview-url" class="url-preview text-truncate" title=""></div>
+                    <div class="invalid-feedback">El subdominio es obligatorio.</div>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <label class="form-label-inst d-block" for="fk_id_sysapp_type">Tipo de instancia *</label>
+                    <select id="fk_id_sysapp_type" name="fk_id_sysapp_type" class="form-select" required>
+                        <option value="3">Secundaria</option>
+                        <option value="2">Nacional (solo puede existir una)</option>
+                    </select>
+                </div>
+            </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">Responsable</div>
+                <div class="row g-3 mb-0">
+                <div class="col-12 col-lg-6">
+                    <label class="form-label-inst d-block" for="responsable_id">Usuario responsable *</label>
+                    <small class="text-muted d-block mb-1">Escribe para filtrar por nombre, apellidos o entidad.</small>
+                    <select id="responsable_id" name="responsable_id" class="form-select">
+                        <option value=""></option>
+                        <% for (const usr of (responsables_disponibles || [])) { %>
+                            <option value="<%=usr.id_user%>">
+                                <%= [usr.nombre, usr.paterno || usr.primer_apellido, usr.materno || usr.segundo_apellido].filter(Boolean).join(' ') %>
+                                <% if (usr.estado) { %> — <%= usr.estado %><% } else { %> — (sin entidad registrada)<% } %>
+                            </option>
+                        <% } %>
+                    </select>
+                </div>
+
+                <div class="col-12 col-lg-6 only-create d-flex align-items-end">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="responsable_crear_nuevo" name="responsable_crear_nuevo" value="true">
+                        <label class="form-check-label" for="responsable_crear_nuevo">
+                            Crear nuevo responsable
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-12 responsable-nuevo responsable-nuevo-curp only-create d-none">
+                    <label class="form-label-inst d-block" for="responsable_curp">CURP *</label>
+                    <small class="d-block curp-help-instancia">Primero captura y valida la CURP; el resto de los datos se habilitan hasta que la validación sea correcta.</small>
+                    <div class="row g-2 align-items-center">
+                        <div class="col min-w-0">
+                            <input type="text" class="form-control form-basic-lleno" id="responsable_curp" name="responsable_curp" placeholder="18 a 20 caracteres (formato CURP)" maxlength="20" autocomplete="off" inputmode="text" title="18 a 20 caracteres alfanuméricos; no uses el correo aquí">
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btnVal guinda responsable-curp-validar-btn" onclick="validarResponsableInstanciaCurp()">VALIDAR CURP</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6 responsable-nuevo responsable-nuevo-datos only-create d-none">
+                    <label class="form-label-inst d-block" for="responsable_nombre">Nombre *</label>
+                    <input type="text" class="form-control form-basic-lleno" id="responsable_nombre" name="responsable_nombre" placeholder="Nombre del responsable">
+                </div>
+                <div class="col-12 col-lg-6 responsable-nuevo responsable-nuevo-datos only-create d-none">
+                    <label class="form-label-inst d-block" for="responsable_primer_apellido">Primer apellido</label>
+                    <input type="text" class="form-control form-basic-lleno" id="responsable_primer_apellido" name="responsable_primer_apellido" placeholder="Primer apellido">
+                </div>
+                <div class="col-12 col-lg-6 responsable-nuevo responsable-nuevo-datos only-create d-none">
+                    <label class="form-label-inst d-block" for="responsable_segundo_apellido">Segundo apellido</label>
+                    <input type="text" class="form-control form-basic-lleno" id="responsable_segundo_apellido" name="responsable_segundo_apellido" placeholder="Segundo apellido">
+                </div>
+                <div class="col-12 col-lg-6 responsable-nuevo responsable-nuevo-datos only-create d-none">
+                    <label class="form-label-inst d-block" for="responsable_email">Correo *</label>
+                    <input type="email" class="form-control form-basic-lleno" id="responsable_email" name="responsable_email" placeholder="correo@dominio.com">
+                </div>
+                <div class="col-12 col-lg-6 responsable-nuevo responsable-nuevo-datos only-create d-none">
+                    <label class="form-label-inst d-block" for="responsable_fk_id_estado">Entidad federativa *</label>
+                    <select id="responsable_fk_id_estado" name="responsable_fk_id_estado" class="form-select form-basic-lleno">
+                        <option value="">Seleccione estado</option>
+                        <% for (const estado of (cat_entidades_admins || [])) { %>
+                        <option value="<%= estado.id_estado %>"><%= estado.estado %></option>
+                        <% } %>
+                    </select>
+                </div>
+                </div>
+            </div>
+
+            <div class="form-section only-edit">
+                <div class="form-section-title">Datos editoriales (edición)</div>
+                <div class="row g-3 mb-0">
+                <div class="col-12 col-lg-6 only-edit">
+                    <label class="form-label-inst d-block" for="titlepag">Título</label>
+                    <input type="text" class="form-control form-basic-lleno" id="titlepag" name="titlepag" placeholder="Título de la página">
+                </div>
+
+                <div class="col-12 col-lg-6 only-edit">
+                    <label class="form-label-inst d-block" for="cont_alt">Descripción de la página</label>
+                    <small class="d-block text-muted mb-1">Máx. 100 caracteres.</small>
+                    <textarea name="cont_alt" id="cont_alt" maxlength="100" rows="3" class="form-control form-basic-lleno" placeholder="Breve descripción..."></textarea>
+                </div>
+
+                <div class="col-12 col-lg-6 filepond-row only-edit">
+                    <label class="form-label-inst d-block">Logo</label>
+                    <input type="file" id="cargar-logo" name="cargar-logo" class="filepond-instancia" accept="image/jpeg,image/png" data-max-file-size="2MB">
+                    <div id="cargadolg" class="url-preview"></div>
+                </div>
+                <div class="col-12 col-lg-6 filepond-row only-edit">
+                    <label class="form-label-inst d-block">Favicon</label>
+                    <input type="file" id="cargar-favicon" name="cargar-favicon" class="filepond-instancia" accept="image/jpeg,image/png" data-max-file-size="2MB">
+                    <div id="cargadofv" class="url-preview"></div>
+                </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</template>
+
+
+<%- include('partials/footerNoMx'); %>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    /** Perfil «Responsable de instancia»: no crea instancias; en edición solo ve (no edita) nombre, subdominio y tipo. */
+    var ES_RESPONSABLE_INSTANCIA = <%= (typeof es_responsable_instancia !== 'undefined' && es_responsable_instancia) ? 'true' : 'false' %>;
+
+    /** Tras «Validar CURP» en nueva instancia; si el usuario edita la CURP, se invalida. */
+    window._instanciaResponsableCurpValidada = '';
+    window._instanciaResponsableExistente = false;
+
+    /** Misma máscara por posición que usuarios (LLLLDDDDDDLLLLLLAD). */
+    function sanitizeCurpValueInstancia(raw) {
+        var chars = String(raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '').split('');
+        var mask = ['L','L','L','L','D','D','D','D','D','D','L','L','L','L','L','L','A','D','A','A'];
+        var out = [];
+        var i = 0;
+        while (i < chars.length && out.length < mask.length) {
+            var ch = chars[i];
+            var slot = mask[out.length];
+            var ok =
+                (slot === 'L' && /[A-Z]/.test(ch)) ||
+                (slot === 'D' && /[0-9]/.test(ch)) ||
+                (slot === 'A' && /[A-Z0-9]/.test(ch));
+            if (ok) out.push(ch);
+            i++;
+        }
+        return out.join('');
+    }
+    function sanitizeResponsableInstanciaCurpField(el) {
+        if (!el) return;
+        el.value = sanitizeCurpValueInstancia(el.value);
+    }
+    function lockResponsableInstanciaNuevoDatos() {
+        $('#responsable_nombre, #responsable_primer_apellido, #responsable_segundo_apellido, #responsable_email, #responsable_fk_id_estado')
+            .prop('disabled', true)
+            .addClass('bg-light');
+    }
+    function unlockResponsableInstanciaNuevoDatos(existingUser) {
+        var ex = existingUser === true;
+        $('#responsable_fk_id_estado').prop('disabled', false).removeClass('bg-light');
+        $('#responsable_nombre, #responsable_primer_apellido, #responsable_segundo_apellido, #responsable_email').prop('disabled', false);
+        $('#responsable_nombre, #responsable_primer_apellido, #responsable_segundo_apellido').prop('readonly', ex);
+        $('#responsable_email').prop('readonly', ex);
+        if (ex) {
+            $('#responsable_nombre, #responsable_primer_apellido, #responsable_segundo_apellido, #responsable_email').addClass('bg-light');
+        } else {
+            $('#responsable_nombre, #responsable_primer_apellido, #responsable_segundo_apellido, #responsable_email').removeClass('bg-light');
+        }
+    }
+    function resetResponsableInstanciaCurpGate() {
+        window._instanciaResponsableCurpValidada = '';
+        window._instanciaResponsableExistente = false;
+        $('#responsable_curp').val('').prop('readonly', false).removeClass('bg-light');
+        $('#responsable_nombre, #responsable_primer_apellido, #responsable_segundo_apellido, #responsable_email').val('').prop('readonly', false);
+        $('#responsable_fk_id_estado').val('').prop('disabled', false).removeClass('bg-light');
+        lockResponsableInstanciaNuevoDatos();
+    }
+    function instanciaResponsableCurpInvalidateIfStale() {
+        if (!$('#responsable_crear_nuevo').is(':checked')) return;
+        var cur = sanitizeCurpValueInstancia($('#responsable_curp').val());
+        $('#responsable_curp').val(cur);
+        if (window._instanciaResponsableCurpValidada && cur !== window._instanciaResponsableCurpValidada) {
+            window._instanciaResponsableCurpValidada = '';
+            window._instanciaResponsableExistente = false;
+            lockResponsableInstanciaNuevoDatos();
+            $('#responsable_nombre, #responsable_primer_apellido, #responsable_segundo_apellido, #responsable_email').val('');
+            $('#responsable_fk_id_estado').val('').prop('disabled', false).removeClass('bg-light');
+        }
+    }
+    function applyInstanciaResponsableCurpResult(data) {
+        var ex = data.existingUser === true;
+        var d = data.data || {};
+        var curpVal = d.curp || sanitizeCurpValueInstancia($('#responsable_curp').val());
+        $('#responsable_curp').val(curpVal);
+        window._instanciaResponsableCurpValidada = curpVal;
+        window._instanciaResponsableExistente = ex;
+        $('#responsable_nombre').val(d.nombre || '');
+        $('#responsable_primer_apellido').val(d.primerA || '');
+        $('#responsable_segundo_apellido').val(d.segundoA || '');
+        $('#responsable_email').val(d.correo || '');
+        var rawEst = d.fk_id_estado;
+        var hasEstSel = rawEst != null && rawEst !== '' && !Number.isNaN(Number(rawEst));
+        if (hasEstSel) {
+            $('#responsable_fk_id_estado').val(String(Number(rawEst)));
+        } else {
+            $('#responsable_fk_id_estado').val('');
+        }
+        unlockResponsableInstanciaNuevoDatos(ex);
+        if (ex && hasEstSel) {
+            $('#responsable_fk_id_estado').prop('disabled', true).addClass('bg-light');
+        } else {
+            $('#responsable_fk_id_estado').prop('disabled', false).removeClass('bg-light');
+        }
+    }
+    function clearInstanciaResponsableCurpRejected() {
+        window._instanciaResponsableCurpValidada = '';
+        window._instanciaResponsableExistente = false;
+        lockResponsableInstanciaNuevoDatos();
+        $('#responsable_nombre, #responsable_primer_apellido, #responsable_segundo_apellido, #responsable_email').val('').prop('readonly', false);
+        $('#responsable_fk_id_estado').val('').prop('disabled', false).removeClass('bg-light');
+    }
+    function validarResponsableInstanciaCurp() {
+        if (!$('#responsable_crear_nuevo').is(':checked')) return;
+        var CURP = sanitizeCurpValueInstancia($('#responsable_curp').val());
+        $('#responsable_curp').val(CURP);
+        var curpRegex = /^[A-Z]{4}[0-9]{6}[A-Z]{6}[A-Z0-9][0-9][A-Z0-9]{0,2}$/;
+        if (!CURP || !curpRegex.test(CURP)) {
+            $.alert({
+                title: 'Advertencia',
+                content: 'Introduce una CURP válida (18 a 20 caracteres, formato oficial).',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'red'
+            });
+            return;
+        }
+        var param = 'curp=' + encodeURIComponent(CURP);
+        fetch('/NuevoUsuarioValidarCurp', {
+            method: 'POST',
+            body: param,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    var jc = $.alert({
+                        title: 'Correcto',
+                        content: '<strong>' + data.msg + '</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-circle-check',
+                        type: 'blue',
+                        onOpen: function () { setTimeout(function () { jc.close(); }, 4000); }
+                    });
+                    applyInstanciaResponsableCurpResult(data);
+                } else {
+                    if (data.alreadyInCms === true) {
+                        clearInstanciaResponsableCurpRejected();
+                    }
+                    $.alert({
+                        title: 'Advertencia',
+                        content: '<strong>' + data.msg + '</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: 'blue'
+                    });
+                }
+            })
+            .catch(function () {
+                $.alert({
+                    title: 'Error',
+                    content: '<strong>No se pudo validar la CURP.</strong>',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: 'red'
+                });
+            });
+    }
+
+    FilePond.registerPlugin(FilePondPluginFileValidateType, FilePondPluginFileValidateSize);
+
+    function destroyFilePondInstancia() {
+        if (window.pondLogo) { try { FilePond.destroy(window.pondLogo); } catch (e) {} window.pondLogo = null; }
+        if (window.pondFavicon) { try { FilePond.destroy(window.pondFavicon); } catch (e) {} window.pondFavicon = null; }
+    }
+
+    /** Evita contenedores huérfanos al cerrar el modal o reabrir. */
+    function destroyResponsableIdSelect2() {
+        var $sel = $('#responsable_id');
+        if ($sel.length && $sel.data('select2')) {
+            try { $sel.select2('destroy'); } catch (e) {}
+        }
+    }
+
+    function initResponsableIdSelect2() {
+        var $sel = $('#responsable_id');
+        if (!$sel.length || typeof $.fn.select2 !== 'function') return;
+        if ($sel.data('select2')) {
+            try { $sel.select2('destroy'); } catch (e) {}
+        }
+        $sel.select2({
+            width: '100%',
+            placeholder: 'Selecciona o busca por nombre, apellidos o entidad…',
+            allowClear: true,
+            minimumResultsForSearch: 0,
+            dropdownParent: $('#modalGral'),
+            language: {
+                noResults: function () { return 'No se encontraron coincidencias'; },
+                searching: function () { return 'Buscando…'; }
+            }
+        });
+        // Select2 no siempre dispara `change` del <select> al limpiar con la X; sin esto el checkbox
+        // «Crear nuevo responsable» puede quedar deshabilitado y no mostrar el formulario.
+        $sel.off('select2:clear.instResp select2:select.instResp')
+            .on('select2:clear.instResp select2:select.instResp', function () {
+                if (window._instanciaResponsableEvitarRecursion) return;
+                aplicarEstadoResponsableInstancia();
+            });
+    }
+
+    function syncResponsableSelect2Disabled() {
+        var $sel = $('#responsable_id');
+        if ($sel.length && $sel.data('select2')) {
+            $sel.trigger('change.select2');
+        }
+    }
+
+    function initFilePondInstancia() {
+        var inputLogo = document.getElementById('cargar-logo');
+        var inputFavicon = document.getElementById('cargar-favicon');
+        if (!inputLogo || !inputFavicon) return;
+        var fpMaxBytes = 2 * 1024 * 1024;
+        function fpRechazarSiGrande(item) {
+            var sz = item && (typeof item.fileSize === 'number' ? item.fileSize : (item.file && item.file.size));
+            if (sz > fpMaxBytes) {
+                $.alert({
+                    title: 'Archivo demasiado grande',
+                    content: 'El tamaño máximo permitido es 2 MB.',
+                    theme: 'modern',
+                    type: 'red',
+                });
+                return false;
+            }
+            return true;
+        }
+        var fpImg2mb = {
+            labelMaxFileSize: 'Tamaño máximo: {filesize}',
+            labelMaxFileSizeExceeded: 'El archivo supera el tamaño máximo permitido ({filesize}).',
+            labelFileTypeNotAllowed: 'Tipo de archivo no permitido',
+        };
+        window.pondLogo = FilePond.create(inputLogo, Object.assign({
+            allowMultiple: false,
+            allowDrop: true,
+            dropOnElement: true,
+            dropOnPage: false,
+            acceptedFileTypes: ['image/jpeg', 'image/png'],
+            maxFileSize: '2MB',
+            beforeAddFile: fpRechazarSiGrande,
+            labelIdle: 'Arrastre aquí o <span class="filepond--label-action">seleccione</span><br><small class="text-muted">JPG o PNG, máx. 2 MB</small>',
+            labelFileProcessing: 'Subiendo',
+            labelFileProcessingComplete: 'Listo',
+            labelTapToCancel: 'cancelar',
+            labelTapToRetry: 'reintentar',
+        }, fpImg2mb));
+        window.pondFavicon = FilePond.create(inputFavicon, Object.assign({
+            allowMultiple: false,
+            allowDrop: true,
+            dropOnElement: true,
+            dropOnPage: false,
+            acceptedFileTypes: ['image/jpeg', 'image/png'],
+            maxFileSize: '2MB',
+            beforeAddFile: fpRechazarSiGrande,
+            labelIdle: 'Arrastre aquí o <span class="filepond--label-action">seleccione</span><br><small class="text-muted">JPG o PNG, máx. 2 MB</small>',
+            labelFileProcessing: 'Subiendo',
+            labelFileProcessingComplete: 'Listo',
+            labelTapToCancel: 'cancelar',
+            labelTapToRetry: 'reintentar',
+        }, fpImg2mb));
+    }
+
+    (function initPaginacionInstancias() {
+        const CARDS_PER_PAGE = 6;
+        const cards = document.querySelectorAll('#instanciasCards .instancia-card');
+        const nav = document.getElementById('paginationHosting');
+        if (!nav || cards.length === 0) return;
+        if (cards.length <= CARDS_PER_PAGE) return;
+
+        let currentPage = 1;
+        const totalPages = Math.ceil(cards.length / CARDS_PER_PAGE);
+
+        function render() {
+            const start = (currentPage - 1) * CARDS_PER_PAGE;
+            const end = start + CARDS_PER_PAGE;
+            cards.forEach((card, i) => {
+                card.style.display = (i >= start && i < end) ? '' : 'none';
+            });
+
+            let numbersHtml = '';
+            for (let p = 1; p <= totalPages; p++) {
+                numbersHtml += `<button type="button" class="inst-page-btn ${p === currentPage ? 'is-active' : ''}" data-page="${p}">${p}</button>`;
+            }
+
+            nav.innerHTML = `
+                <div class="inst-pagination-inner">
+                    <button type="button" class="inst-page-btn inst-page-arrow" ${currentPage === 1 ? 'disabled' : ''} data-page="prev">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <div class="inst-page-numbers">
+                        ${numbersHtml}
+                    </div>
+                    <button type="button" class="inst-page-btn inst-page-arrow" ${currentPage === totalPages ? 'disabled' : ''} data-page="next">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+                <p class="inst-pagination-meta">
+                    Mostrando ${start + 1}–${Math.min(end, cards.length)} de ${cards.length} instancias
+                </p>
+            `;
+
+            nav.querySelectorAll('.inst-page-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const p = this.dataset.page;
+                    if (p === 'prev' && currentPage > 1) currentPage--;
+                    else if (p === 'next' && currentPage < totalPages) currentPage++;
+                    else if (!isNaN(parseInt(p, 10))) currentPage = parseInt(p, 10);
+                    render();
+                });
+            });
+        }
+        render();
+    })();
+
+    $(function () {
+        $(document).on('input.instRespCurp', '#responsable_curp', function () {
+            sanitizeResponsableInstanciaCurpField(this);
+            instanciaResponsableCurpInvalidateIfStale();
+        });
+        $(document).on('click', ".deletepag", function () {
+            let id = $(this).data('id');
+            $.alert({
+                title: "Advertencia",
+                content: "¿Está seguro de eliminar esta página?",
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "red",
+                buttons: {
+                    Aceptar: {
+                        text: 'Si, Eliminar',
+                        btnClass: 'btn-success',
+                        action: function () {
+                            $.ajax({
+                                url: '/DeleteInst?p='+id,
+                                method: 'GET',
+                                beforeSend(jqXHR, settings) {
+                                    $('#lockscreen').show();
+                                },
+                                success: function(data) {
+                                    window.location.reload();
+                                },
+                                error: function(xhr) {
+                                    $('#lockscreen').hide();
+                                    const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'No se pudo eliminar la instancia.';
+                                    $.alert({ title: 'Atención', content: msg, theme: 'modern', type: 'red' });
+                                }
+                            });
+                        }
+                    },
+                    Cancelar: {
+                        text: 'Cancelar',
+                        btnClass: 'btn-alert',
+                        action: function () {
+                        }
+                    }
+                }
+            });
+        });
+        // Se elimina el botón de publicar a nivel de instancia; la publicación se gestiona desde Hosting/Infra.
+
+        // Botón "Solicitar dominio" en la tarjeta (después de marcar páginas completadas)
+        $(document).on('click', '.btn-solicitar-dominio', function () {
+            const id = $(this).data('id');
+            const name = $(this).data('name');
+            $('#modalInstanciaId').val(id);
+            $('#modalInstanciaNombre').text(name);
+            new bootstrap.Modal(document.getElementById('modalSolicitarDominio')).show();
+        });
+
+        function pollSolicitarDominio(jobId, idSysapp, retries) {
+            var intentos = Number(retries) || 0;
+            var maxReintentos = 30; // ~60s con intervalo de 2s
+            var statusUrl = '/solicitarDominio/status/' + encodeURIComponent(jobId);
+            if (idSysapp) {
+                statusUrl += '?id_sysapp=' + encodeURIComponent(idSysapp);
+            }
+            $.ajax({
+                url: statusUrl,
+                type: 'GET',
+                timeout: 0
+            })
+                .done(function (data) {
+                    if (!data.success) {
+                        var msgData = String((data && data.message) || '');
+                        var esNoEncontradoTemporal = /No se encontró el proceso/i.test(msgData);
+                        if (esNoEncontradoTemporal && intentos < maxReintentos) {
+                            setTimeout(function () { pollSolicitarDominio(jobId, idSysapp, intentos + 1); }, 2000);
+                            return;
+                        }
+                        $('#lockscreen').hide();
+                        $.alert({ title: 'Atención', content: data.message || 'Error', theme: 'modern', type: 'red' });
+                        return;
+                    }
+                    if (data.pending) {
+                        setTimeout(function () { pollSolicitarDominio(jobId, idSysapp, intentos); }, 2000);
+                        return;
+                    }
+                    $('#lockscreen').hide();
+                    const modalEl = document.getElementById('modalSolicitarDominio');
+                    const mi = bootstrap.Modal.getInstance(modalEl);
+                    if (mi) { mi.hide(); }
+                    const r = data.result || {};
+                    if (r.success) {
+                        $.alert({
+                            title: 'Solicitud enviada',
+                            content: r.message || '',
+                            theme: 'modern',
+                            type: 'green',
+                            buttons: { Aceptar: { text: 'Aceptar', action: function () { location.reload(); } } }
+                        });
+                    } else {
+                        $.alert({ title: 'Atención', content: r.message || 'No se pudo completar la solicitud.', theme: 'modern', type: 'red' });
+                    }
+                })
+                .fail(function (xhr) {
+                    // Fallas intermitentes de red/balanceador no deben romper el flujo si el job sigue vivo.
+                    if (intentos < maxReintentos) {
+                        setTimeout(function () { pollSolicitarDominio(jobId, idSysapp, intentos + 1); }, 2000);
+                        return;
+                    }
+                    $('#lockscreen').hide();
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error al consultar el estado del proceso.';
+                    $.alert({ title: 'Error', content: msg, theme: 'modern', type: 'red' });
+                });
+        }
+
+        $('#btnEnviarSolicitud').on('click', function () {
+            const id = $('#modalInstanciaId').val();
+            if (!id) return;
+            $('#lockscreen').show();
+            $.ajax({
+                url: '/solicitarDominio',
+                type: 'POST',
+                data: { id_sysapp: id, acepta_terminos: true },
+                timeout: 0
+            })
+                .done(function (data) {
+                    if (!data.success) {
+                        $('#lockscreen').hide();
+                        $.alert({ title: 'Atención', content: data.message, theme: 'modern', type: 'red' });
+                        return;
+                    }
+                    if (data.async && data.jobId) {
+                        pollSolicitarDominio(data.jobId, id);
+                        return;
+                    }
+                    $('#lockscreen').hide();
+                    bootstrap.Modal.getInstance(document.getElementById('modalSolicitarDominio')).hide();
+                    $.alert({
+                        title: 'Solicitud enviada',
+                        content: data.message,
+                        theme: 'modern',
+                        type: 'green',
+                        buttons: { Aceptar: { text: 'Aceptar', action: function () { location.reload(); } } }
+                    });
+                })
+                .fail(function (xhr) {
+                    $('#lockscreen').hide();
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Error al enviar solicitud';
+                    $.alert({ title: 'Error', content: msg, theme: 'modern', type: 'red' });
+                });
+        });
+
+        $(document).on('click', '.solicitar-baja', function () {
+            const id = $(this).data('id');
+            $.confirm({
+                title: 'Solicitar baja de dominio',
+                content: 'Se enviará una solicitud a Infraestructura para dar de baja el dominio de esta instancia. Luego, en el módulo de <b>Hosting</b> se deberá procesar la baja para que el estatus sea <b>Baja procesada</b> y así puedas eliminar la instancia desde aquí.',
+                theme: 'modern',
+                type: 'orange',
+                buttons: {
+                    Enviar: {
+                        text: 'Enviar',
+                        btnClass: 'btn-warning',
+                        action: function () {
+                            $('#lockscreen').show();
+                            $.post('/solicitarBajaDominio', { id_sysapp: id })
+                                .done(function (data) {
+                                    $('#lockscreen').hide();
+                                    if (data.success) { location.reload(); }
+                                    else { $.alert({ title: 'Atención', content: data.message, theme: 'modern', type: 'red' }); }
+                                })
+                                .fail(function (xhr) {
+                                    $('#lockscreen').hide();
+                                    $.alert({ title: 'Error', content: (xhr.responseJSON && xhr.responseJSON.message) || 'Error', theme: 'modern', type: 'red' });
+                                });
+                        }
+                    },
+                    Cancelar: { text: 'Cancelar' }
+                }
+            });
+        });
+
+        $(document).on('change', '.chk-completadas', function () {
+            const id = $(this).data('id');
+            const checked = $(this).prop('checked');
+            if (!checked) {
+                // Si desmarca, simplemente recargamos para reflejar estado desde servidor (si aplica)
+                location.reload();
+                return;
+            }
+            $('#modalPaginasCompletadasId').val(id);
+            new bootstrap.Modal(document.getElementById('modalPaginasCompletadas')).show();
+        });
+
+        $('#btnConfirmarPaginasCompletadas').on('click', function () {
+            const id = $('#modalPaginasCompletadasId').val();
+            if (!id) return;
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalPaginasCompletadas'));
+            if (modal) modal.hide();
+            $('#lockscreen').show();
+            // Solo marcar páginas completadas; al recargar se habilitará el botón "Solicitar dominio"
+            $.post('/marcarPaginasCompletadas', { id_sysapp: id, acepta_terminos: true })
+                .done(function (data) {
+                    $('#lockscreen').hide();
+                    if (!data.success) {
+                        $('.chk-completadas[data-id=' + id + ']').prop('checked', false);
+                        $.alert({ title: 'Atención', content: data.message, theme: 'modern', type: 'red' });
+                    } else {
+                        location.reload();
+                    }
+                })
+                .fail(function () {
+                    $('#lockscreen').hide();
+                    $('.chk-completadas[data-id=' + id + ']').prop('checked', false);
+                });
+        });
+    });
+
+    function limpiarCamposResponsableNuevoInstancia() {
+        resetResponsableInstanciaCurpGate();
+    }
+
+    /**
+     * Responsable: o bien usuario del listado o bien crear nuevo (no ambos).
+     * Si hay id en el select → no se puede marcar "crear nuevo" ni usar sus campos.
+     */
+    function limpiarCamposInstanciaSoloLecturaResponsable() {
+        $('#namepag, #url').prop('readonly', false).removeClass('bg-light');
+        $('#fk_id_sysapp_type').prop('disabled', false).removeClass('bg-light');
+    }
+
+    function aplicarCamposInstanciaSoloLecturaResponsable() {
+        if (typeof ES_RESPONSABLE_INSTANCIA === 'undefined' || !ES_RESPONSABLE_INSTANCIA) return;
+        $('#namepag, #url').prop('readonly', true).addClass('bg-light');
+        $('#fk_id_sysapp_type').prop('disabled', true).addClass('bg-light');
+    }
+
+    function aplicarEstadoResponsableInstancia() {
+        /** Evita recursión infinita: trigger('change') y Select2 vuelven a invocar esta función. */
+        if (window._instanciaResponsableEvitarRecursion) return;
+
+        var crearNuevo = $('#responsable_crear_nuevo').is(':checked');
+        var idVal = $('#responsable_id').val();
+        var tieneUsuarioLista = idVal !== undefined && idVal !== null && String(idVal).trim() !== '';
+
+        /**
+         * Importante: evaluar «crear nuevo» ANTES que «hay usuario en el listado».
+         * Si no, al marcar el check con un usuario ya elegido en Select2, se tomaba
+         * tieneUsuarioLista === true, se desmarcaba el check y nunca se mostraba el formulario.
+         */
+        if (crearNuevo) {
+            $('#responsable_crear_nuevo').prop('disabled', false);
+            var $rid = $('#responsable_id');
+            $rid.prop('disabled', false);
+            window._instanciaResponsableEvitarRecursion = true;
+            try {
+                if ($rid.data('select2')) {
+                    $rid.val(null).trigger('change');
+                } else {
+                    $rid.val('').trigger('change');
+                }
+                $rid.prop('disabled', true);
+            } finally {
+                /* select2:clear puede dispararse tras este bloque; el flag sigue true un tick */
+                setTimeout(function () {
+                    window._instanciaResponsableEvitarRecursion = false;
+                }, 0);
+            }
+            $('.responsable-nuevo').removeClass('d-none');
+            if (!window._instanciaResponsableCurpValidada) {
+                lockResponsableInstanciaNuevoDatos();
+            } else {
+                unlockResponsableInstanciaNuevoDatos(window._instanciaResponsableExistente);
+            }
+            syncResponsableSelect2Disabled();
+            return;
+        }
+
+        if (tieneUsuarioLista) {
+            $('#responsable_crear_nuevo').prop('checked', false).prop('disabled', true);
+            $('.responsable-nuevo').addClass('d-none');
+            limpiarCamposResponsableNuevoInstancia();
+            $('#responsable_id').prop('disabled', false);
+            syncResponsableSelect2Disabled();
+            return;
+        }
+
+        $('#responsable_crear_nuevo').prop('disabled', false);
+        $('#responsable_id').prop('disabled', false);
+        $('.responsable-nuevo').addClass('d-none');
+        limpiarCamposResponsableNuevoInstancia();
+        syncResponsableSelect2Disabled();
+    }
+
+    //MODAL NUEVA PÁGINA PRINCIPAL
+    $(".cargapagina").on('click', nuevaInstanciaModal);
+    $(".editentrance").on('click', editarInstanciaModal);
+
+    function nuevaInstanciaModal() {
+        if (typeof ES_RESPONSABLE_INSTANCIA !== 'undefined' && ES_RESPONSABLE_INSTANCIA) {
+            return;
+        }
+        destroyResponsableIdSelect2();
+        destroyFilePondInstancia();
+        limpieza_modalGral();
+        limpiarCamposInstanciaSoloLecturaResponsable();
+        modalGral_addTit('NUEVA INSTANCIA');
+        modalGral_addSubtit('Define los datos iniciales de la instancia: tipo, nombre, dominio y usuario responsable.');
+        modalGral_bodyAppend(getHtmlTemplate('Nuevapag'));
+
+        modalGral_addFooter(
+            `<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">
+                <p>CANCELAR</p>
+                <div class="btnIcon">
+                    <div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div>
+                    <span class="s-guinda"></span>
+                </div>
+            </button>
+            <a href="#" class="btnGral verde_t" onclick="CrearPag()">
+                <p>CREAR</p>
+                <div class="btnIcon">
+                    <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                    <span class="s-verde"></span>
+                </div>
+            </a>`
+        );
+
+        (new bootstrap.Modal($('#modalGral')[0], {backdrop: "static", keyboard: false})).show();
+        $('#id_edit').val('0');
+        $('#namepag').val('');
+        $('#url').val('');
+        $('#titlepag').val('');
+        $('#fk_id_sysapp_type').val('3');
+        $('#cont_alt').val('');
+        $('#responsable_id').val('');
+        $('#responsable_crear_nuevo').prop('checked', false);
+        resetResponsableInstanciaCurpGate();
+        $('.responsable-nuevo').addClass('d-none');
+        $('#responsable_id').prop('disabled', false);
+        $('.only-edit').addClass('d-none');
+        $('.only-create').removeClass('d-none');
+        $('#cargadolg').html('');
+        $('#cargadofv').html('');
+
+        setTimeout(function() {
+            initFilePondInstancia();
+            allowDropInModal();
+            initResponsableIdSelect2();
+            $('#responsable_id').off('change.instResp').on('change.instResp', aplicarEstadoResponsableInstancia);
+            $('#responsable_crear_nuevo').off('change.instResp').on('change.instResp', aplicarEstadoResponsableInstancia);
+            aplicarEstadoResponsableInstancia();
+        }, 50);
+        const urlInput = document.getElementById('url');
+        if (urlInput) {
+            urlInput.addEventListener('keyup', updatePreviewUrl);
+            updatePreviewUrl();
+        }
+    }
+
+    function allowDropInModal() {
+        var body = document.querySelector('#modalGral .modal-body');
+        if (!body) return;
+        body.removeEventListener('dragover', preventDefaultFiles);
+        body.removeEventListener('dragenter', preventDefaultFiles);
+        body.removeEventListener('drop', preventDefaultFiles);
+        body.addEventListener('dragover', preventDefaultFiles, false);
+        body.addEventListener('dragenter', preventDefaultFiles, false);
+        body.addEventListener('drop', preventDefaultFiles, false);
+    }
+    function preventDefaultFiles(e) {
+        if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.indexOf('Files') !== -1) {
+            e.preventDefault();
+        }
+    }
+
+    function editarInstanciaModal() {
+        destroyResponsableIdSelect2();
+        destroyFilePondInstancia();
+        limpieza_modalGral();
+        limpiarCamposInstanciaSoloLecturaResponsable();
+        modalGral_addTit('EDITAR INSTANCIA');
+        modalGral_addSubtit(
+            (typeof ES_RESPONSABLE_INSTANCIA !== 'undefined' && ES_RESPONSABLE_INSTANCIA)
+                ? 'Nombre, subdominio y tipo de instancia son solo consulta; puedes editar datos editoriales, logo, favicon y usuario responsable.'
+                : 'Edita los datos de la instancia, incluido el usuario responsable.'
+        );
+        modalGral_bodyAppend(getHtmlTemplate('Nuevapag'));
+
+        modalGral_addFooter(
+            `<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">
+                <p>CANCELAR</p>
+                <div class="btnIcon">
+                    <div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div>
+                    <span class="s-guinda"></span>
+                </div>
+            </button>
+            <a href="#" class="btnGral verde_t" onclick="CrearPag()">
+                <p>EDITAR</p>
+                <div class="btnIcon">
+                    <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                    <span class="s-verde"></span>
+                </div>
+            </a>`
+        );
+
+        (new bootstrap.Modal($('#modalGral')[0], {backdrop: "static", keyboard: false})).show();
+        let id_edit=$(this).data('id');
+        $('#id_edit').val(id_edit);
+        $('.only-edit').removeClass('d-none');
+        $('.only-create').addClass('d-none');
+
+        $('#responsable_crear_nuevo').prop('checked', false);
+        $('#responsable_id').prop('disabled', false);
+        var respId = $(this).attr('data-responsable-id');
+        if (respId !== undefined && respId !== null && String(respId).trim() !== '') {
+            $('#responsable_id').val(String(respId).trim());
+        } else {
+            $('#responsable_id').val('');
+        }
+        $('.responsable-nuevo').addClass('d-none');
+
+        var tipoInst = $(this).data('fk-id-sysapp-type');
+        $('#fk_id_sysapp_type').val(tipoInst === 2 ? '2' : '3');
+        $('#namepag').val($(this).data('namepag'));
+        let url = ($(this).data('url') || '').toString().trim().toLowerCase();
+        url = url.replace(/^https?:\/\//, '').replace(/[?#].*$/, '');
+        if (url.includes('/')) {
+            const parts = url.split('/').filter(Boolean);
+            url = parts.length ? parts[parts.length - 1] : url;
+        }
+        if (url.endsWith('.morena.org')) {
+            url = url.replace(/\.morena\.org$/, '');
+        } else if (url.includes('.')) {
+            url = url.split('.')[0];
+        }
+        $('#url').val(normalizeSubdomain(url));
+        $('#titlepag').val($(this).data('app_legend'));
+        $('#cont_alt').val($(this).data('app_desc'));
+        $('#cargadolg').html('<a href="'+$(this).data('logo')+'" target="_blank" class="aimg">'+$(this).data('logo')+'</a>');
+        $('#cargadofv').html('<a href="'+$(this).data('favicon')+'" target="_blank" class="aimg">'+$(this).data('favicon')+'</a>');
+
+        aplicarCamposInstanciaSoloLecturaResponsable();
+        setTimeout(function() {
+            initFilePondInstancia();
+            allowDropInModal();
+            initResponsableIdSelect2();
+            $('#responsable_id').off('change.instResp').on('change.instResp', aplicarEstadoResponsableInstancia);
+            $('#responsable_crear_nuevo').off('change.instResp').on('change.instResp', aplicarEstadoResponsableInstancia);
+            aplicarEstadoResponsableInstancia();
+        }, 50);
+        const urlInput = document.getElementById('url');
+        if (urlInput) {
+            urlInput.addEventListener('keyup', updatePreviewUrl);
+            updatePreviewUrl();
+        }
+    }
+
+    /** Misma regla que el módulo de usuarios (18 a 20 caracteres, formato CURP). */
+    function isValidCurpInstancia(val) {
+        var s = String(val || '').trim().toUpperCase();
+        if (s.length < 18 || s.length > 20 || s.indexOf('@') !== -1) return false;
+        return /^[A-Z]{4}\d{6}[A-Z]{6}[A-Z0-9]\d[A-Z0-9]{0,2}$/.test(s);
+    }
+
+    function CrearPag (){
+        const form = document.getElementById('newpage');
+        const isCreate = (parseInt($('#id_edit').val(), 10) || 0) === 0;
+
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        var namepag = $('#namepag').val();
+        var id_edit = $('#id_edit').val();
+        var url = normalizeSubdomain($('#url').val() || '');
+        var titlepag = $('#titlepag').val();
+        var cont_alt = $('#cont_alt').val();
+
+        if (!url) {
+            $.alert({
+                title: 'Atención',
+                content: 'Escribe un subdominio válido.',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'red'
+            });
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('id_edit', id_edit);
+        formData.append('namepag', namepag);
+        formData.append('url', url);
+        formData.append('cont_alt', cont_alt);
+        formData.append('titlepag', titlepag);
+        formData.append('fk_id_sysapp_type', $('#fk_id_sysapp_type').val());
+        formData.append('responsable_id', $('#responsable_id').val() || '');
+        formData.append('responsable_crear_nuevo', $('#responsable_crear_nuevo').is(':checked') ? 'true' : 'false');
+        formData.append('responsable_nombre', $('#responsable_nombre').val() || '');
+        formData.append('responsable_primer_apellido', $('#responsable_primer_apellido').val() || '');
+        formData.append('responsable_segundo_apellido', $('#responsable_segundo_apellido').val() || '');
+        formData.append('responsable_email', $('#responsable_email').val() || '');
+        formData.append('responsable_curp', $('#responsable_curp').val() || '');
+        formData.append('responsable_fk_id_estado', $('#responsable_fk_id_estado').val() || '');
+
+        var archivo1 = null, archivo2 = null;
+        if (window.pondFavicon) {
+            var f = window.pondFavicon.getFile();
+            if (f && f.file) archivo1 = f.file;
+        }
+        if (window.pondLogo) {
+            var f = window.pondLogo.getFile();
+            if (f && f.file) archivo2 = f.file;
+        }
+        if (archivo1) formData.append('cargar-favicon', archivo1);
+        if (archivo2) formData.append('cargar-logo', archivo2);
+
+        if (isCreate) {
+            const crearNuevo = $('#responsable_crear_nuevo').is(':checked');
+            if (!crearNuevo && !$('#responsable_id').val()) {
+                $.alert({
+                    title: 'Atención',
+                    content: 'Selecciona un usuario responsable.',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: 'red'
+                });
+                return;
+            }
+            var curpNorm = sanitizeCurpValueInstancia($('#responsable_curp').val());
+            if (crearNuevo && (!window._instanciaResponsableCurpValidada || curpNorm !== window._instanciaResponsableCurpValidada)) {
+                $.alert({
+                    title: 'Atención',
+                    content: 'Debes validar la CURP con el botón «VALIDAR CURP» antes de crear la instancia.',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: 'red'
+                });
+                return;
+            }
+            if (crearNuevo && (!$('#responsable_nombre').val() || !$('#responsable_email').val() || !$('#responsable_curp').val() || !$('#responsable_fk_id_estado').val())) {
+                $.alert({
+                    title: 'Atención',
+                    content: 'Completa nombre, correo, CURP y entidad federativa del nuevo responsable.',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: 'red'
+                });
+                return;
+            }
+            if (crearNuevo && !isValidCurpInstancia($('#responsable_curp').val())) {
+                $.alert({
+                    title: 'Atención',
+                    content: 'La CURP no es válida: debe tener entre 18 y 20 caracteres con formato oficial (no uses el correo ni otros textos en este campo).',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: 'red'
+                });
+                return;
+            }
+        } else {
+            if (!$('#responsable_id').val()) {
+                $.alert({
+                    title: 'Atención',
+                    content: 'Selecciona un usuario responsable.',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: 'red'
+                });
+                return;
+            }
+        }
+
+        $('#lockscreen').show()
+        fetch('/CreateInst', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' },
+            body: formData,
+        })
+            .then(async (response) => {
+                const ct = response.headers.get('content-type') || '';
+                if (!ct.includes('application/json')) {
+                    const txt = await response.text();
+                    throw new Error(
+                        'Respuesta inesperada del servidor (' +
+                            response.status +
+                            '). ¿Sesión vencida? Vuelve a iniciar sesión. ' +
+                            (txt && txt.length < 200 ? txt : '')
+                    );
+                }
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(
+                        (data && data.message) ||
+                            'Solicitud rechazada (' + response.status + '). Vuelve a intentar o inicia sesión de nuevo.'
+                    );
+                }
+                return data;
+            })
+            .then(data => {
+
+                $('#lockscreen').hide()
+                if(data.success){
+                    $.alert({
+                        title: "Se guardó correctamente",
+                        content: "Se ha guardado la instancia correctamente",
+                        theme: 'modern',
+                        icon: 'fa-solid fa-check',
+                        type: "green",
+                        buttons: {
+                            Aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-success',
+                                action: function () {
+                                        window.location.reload();
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    $.alert({
+                        title: "Advertencia",
+                        content: data.message,
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: "red"
+                    });
+                }
+            })
+            .catch(error => {
+                $('#lockscreen').hide();
+                console.error('Error:', error);
+                $.alert({
+                    title: 'Error',
+                    content: '<strong>' + (error && error.message ? error.message : 'No se pudo guardar la instancia.') + '</strong>',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: 'red'
+                });
+            });
+
+    }
+
+    function normalizeSubdomain(value, options = {}) {
+        const allowTrailingHyphen = options.allowTrailingHyphen === true;
+        let normalized = String(value || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/[^a-z0-9-]/g, '')
+            .replace(/-+/g, '-');
+        if (allowTrailingHyphen) {
+            normalized = normalized.replace(/^-+/, '');
+        } else {
+            normalized = normalized.replace(/^-+|-+$/g, '');
+        }
+        return normalized;
+    }
+
+    function composeMorenaDomain(subdomain) {
+        if (!subdomain) return '';
+        return `${subdomain}.morena.org`;
+    }
+
+    function updatePreviewUrl() {
+        const input = document.getElementById('url');
+        const preview = document.getElementById('preview-url');
+        let urlValue = normalizeSubdomain(input.value, { allowTrailingHyphen: true });
+        input.value = urlValue;
+        const fullUrl = composeMorenaDomain(urlValue);
+
+        if (preview) {
+            preview.textContent = fullUrl;
+            preview.title = fullUrl;
+        }
+    }
+</script>

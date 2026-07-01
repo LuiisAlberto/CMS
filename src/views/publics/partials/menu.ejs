@@ -1,0 +1,492 @@
+<div class="overlay" id="overlay"></div>
+
+<nav class="menu">
+    <div class="logo">
+        <% const __rawMenuLogo = (typeof dataapp !== 'undefined' && dataapp && dataapp.app_logo && String(dataapp.app_logo).trim() !== '') ? String(dataapp.app_logo).trim() : ''; %>
+        <% const __rawFavicon = (typeof dataapp !== 'undefined' && dataapp && dataapp.app_favicon && String(dataapp.app_favicon).trim() !== '') ? String(dataapp.app_favicon).trim() : ''; %>
+        <% const __menuLogo = __rawMenuLogo
+            ? (/^https?:\/\//i.test(__rawMenuLogo) ? __rawMenuLogo : `https://cdn.morena.app/${__rawMenuLogo.replace(/^\/+/, '')}`)
+            : (__rawFavicon ? (__rawFavicon.startsWith('http') ? __rawFavicon : `https://cdn.morena.app/${__rawFavicon.replace(/^\/+/, '')}`) : '/assets/img/Logo_morena.png'); %>
+        <a href="/" aria-label="Ir a la página principal de la instancia">
+            <img src="<%= __menuLogo %>" alt="logo" />
+        </a>
+    </div>
+
+    <div class="menu-toggle" id="menu-toggle">
+        <i class="fas fa-bars toggle"></i>
+    </div>
+
+    <ul class="menu-list" id="menu-list">
+        <!-- El menú se generará dinámicamente aquí -->
+    </ul>
+</nav>
+
+
+<script>
+
+function inicializarMenu(){
+    $('#menu-toggle').click(function(){
+        $('#menu-list').slideToggle(300);
+        if ($(window).width() <= 951) {
+            $('#overlay').fadeIn(); 
+        }
+    });
+
+    var menuBreakpoint = 965;
+    var lastViewDesktop = $(window).width() > menuBreakpoint;
+    $(window).off('resize.menuResize').on('resize.menuResize', function() {
+        var nowDesktop = $(window).width() > menuBreakpoint;
+        if (nowDesktop === lastViewDesktop) return;
+        lastViewDesktop = nowDesktop;
+        if (nowDesktop) {
+            $('#menu-list').show().css('display', 'flex');
+            $('.submenu-container').hide().removeClass('active');
+            $('.chevron').removeClass('rotate');
+            $('#overlay').fadeOut();
+        } else {
+            $('#menu-list').hide();
+        }
+    });
+
+    function closeOtherSubmenus(current) {
+        $('.submenu-container').not(current).slideUp(300).removeClass('active align-right').css('max-width', '');
+        $('.submenu-toggle .chevron').not($(current).prev().find('.chevron')).removeClass('rotate');
+        $('#overlay').fadeOut(); 
+    }
+
+    function closeAllSubLevels() {
+        $('.submenu-column.level-3, .submenu-column.level-4').hide().removeClass('active');
+        $('.submenu-container').removeClass('active');
+        $('.chevron').removeClass('rotate');
+    }
+
+    $(document).off('click.menuSub').on('click.menuSub', '.submenu-toggle, .imgMenu, .imgMenu *', function(e){
+        var $act = $(e.target).closest('a');
+        if (!$act.length) return;
+        const isMainToggle = $act.hasClass('submenu-toggle');
+        if (!isMainToggle && $act.find('.chevron').length === 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        
+        let submenu, chevron;
+        
+        if (isMainToggle) {
+            // Es un toggle principal (nivel 1)
+            let target = $act.data('target');
+            submenu = $('#' + target);
+            chevron = $act.find('.chevron');
+            
+            if (submenu.hasClass('active')) {
+                submenu.slideUp(300).removeClass('active align-right').css('max-width', '');
+                chevron.removeClass('rotate');
+                $('#overlay').fadeOut();
+                submenu.find('.submenu-column.level-2, .submenu-column.level-3, .submenu-column.level-4').removeClass('submenu-column-open').hide();
+            } else {
+                closeOtherSubmenus(submenu);
+                submenu.removeClass('align-right').css('max-width', '');
+                submenu.find('.submenu-column.level-2, .submenu-column.level-3, .submenu-column.level-4').removeClass('submenu-column-open').hide();
+                var $li = submenu.closest('li');
+                if ($li.length) {
+                    var margin = 24;
+                    var winW = $(window).width();
+                    var liLeft = $li.offset().left;
+                    var liRight = liLeft + $li.outerWidth();
+                    var maxWLeft = winW - liLeft - margin;
+                    var maxWRight = liRight - margin;
+                    var dropdownMax = 2000;
+                    if (maxWLeft >= maxWRight) {
+                        submenu.removeClass('align-right');
+                        submenu.css('max-width', Math.max(300, Math.min(dropdownMax, maxWLeft)) + 'px');
+                    } else {
+                        submenu.addClass('align-right');
+                        submenu.css('max-width', Math.max(300, Math.min(dropdownMax, maxWRight)) + 'px');
+                    }
+                }
+                submenu.slideDown(300).addClass('active');
+                chevron.addClass('rotate');
+                $('#overlay').fadeIn();
+                submenu.find('.submenu-column.level-3, .submenu-column.level-4').removeClass('submenu-column-open').hide();
+                submenu.find('.submenu-column.level-2').addClass('submenu-column-open').show();
+            }
+        } else {
+            // Es un enlace de submenú (nivel 2, 3, 4) — abrir/cerrar columna del siguiente nivel
+            chevron = $act.find('.chevron');
+            var $container = $act.closest('.submenu-container');
+            const target = $act.data('target');
+            if (!target) return;
+            var $nextColumn = $('#' + target);
+            if ($nextColumn.length === 0) return;
+            var classAttr = $nextColumn.attr('class') || '';
+            var levelMatch = classAttr.match(/level-(\d+)/);
+            if (!levelMatch) return;
+            var nextLevel = parseInt(levelMatch[1], 10);
+
+            if ($nextColumn.hasClass('submenu-column-open')) {
+                $nextColumn.slideUp(300).removeClass('active submenu-column-open');
+                chevron.removeClass('rotate');
+                $nextColumn.nextAll('.submenu-column').hide().removeClass('active submenu-column-open');
+                $nextColumn.find('.chevron').removeClass('rotate');
+            } else {
+                $container.find('.submenu-column.level-' + nextLevel).not($nextColumn).removeClass('submenu-column-open').hide().removeClass('active');
+                $container.find('.submenu-column').each(function() {
+                    var $col = $(this);
+                    var lm = ($col.attr('class') || '').match(/level-(\d+)/);
+                    if (lm && parseInt(lm[1], 10) > nextLevel) {
+                        $col.removeClass('submenu-column-open').hide().removeClass('active');
+                        $col.find('.chevron').removeClass('rotate');
+                    }
+                });
+                $nextColumn.addClass('submenu-column-open active').css('display', 'flex').show();
+                $nextColumn.slideDown(300);
+                chevron.addClass('rotate');
+            }
+        }
+
+        // Ajustar dimensiones después de la animación
+        setTimeout(function() {
+            ajustarAnchoSubmenu();
+            if (typeof ajustarAlturaSubmenu === 'function') ajustarAlturaSubmenu();
+        }, 300);
+    });
+
+    $('#overlay').click(function(){
+        $('.submenu-container').slideUp(300).removeClass('active');
+        $('.chevron').removeClass('rotate');
+        $('#overlay').fadeOut();
+        closeAllSubLevels(); 
+    });
+}
+
+function ajustarAnchoSubmenu() {
+    if ($(window).width() <= 965) {
+        $('.submenu-container.active').each(function() {
+            const $container = $(this);
+            $container.css('width', '100%');
+            $container.css({
+                'left': '0',
+                'transform': 'none'
+            }); 
+        });
+        return;
+    }
+    $('.submenu-container.active').each(function() {
+        const $container = $(this);
+        const $content = $container.find('.submenu-content');
+        
+        let columnasVisibles = 0;
+        let anchoTotal = 0;
+        
+        $content.find('.submenu-column').each(function() {
+            const $columna = $(this);
+            if ($columna.is(':visible')) {
+                columnasVisibles++;
+                if ($columna.hasClass('level-0')) {
+                    anchoTotal += 300; // Columna de imagen
+                } else if ($columna.hasClass('level-2')) {
+                    anchoTotal += 250; // Columna nivel 2
+                } else if ($columna.hasClass('level-3')) {
+                    anchoTotal += 250; // Columna nivel 3
+                } else if ($columna.hasClass('level-4')) {
+                    anchoTotal += 250; // Columna nivel 4
+                }
+            }
+        });
+        
+        const finalWidth = Math.min(anchoTotal, 1200);
+        $container.css('width', finalWidth + 'px');
+        
+        // $container.css({
+        //     'left': '0',
+        //     'transform': 'none'
+        // }); 
+        
+    });
+}
+
+/** Maneja la animación del logo al hacer scroll y obtiene los datos del menú desde el servidor.
+ * returns {void}
+ */
+$(document).ready(function () {
+    $(window).scroll(function () {
+        var scrollTop = $(this).scrollTop();
+        var triggerPoint = 100;
+
+        if (scrollTop > triggerPoint) {
+            $(".container-logo-slide .logo-morena").stop().animate({ opacity: 0 }, 400, function () {
+                $(this).css("visibility", "hidden");
+            }); 
+
+            $(".logo img").css("visibility", "visible").stop().animate({ opacity: 1 }, 400); 
+        } else {
+            $(".container-logo-slide .logo-morena").css("visibility", "visible").stop().animate({ opacity: 1 }, 400);
+
+            // Mantener el logo del menú visible en la carga superior
+            $(".logo img").css("visibility", "visible").stop().animate({ opacity: 1 }, 500);
+        }
+    });
+
+    // Evitar que el logo se oculte al cargar (se mostrará siempre)
+    $(".logo img").css({ opacity: 1, visibility: "visible" });
+
+    obtenerMenu();
+});
+
+/** Obtiene los datos del menú desde el servidor y los renderiza en el DOM.
+ * returns {void}
+ */
+async function obtenerMenu(){
+    const pathname = (new URL(window.location.href)).pathname;
+    const host = window.location.host;
+    
+    // Intentar obtener el id_sysapp desde una variable global o meta tag
+    let appId = null;
+    try {
+        // Buscar en meta tag si existe
+        const metaAppId = document.querySelector('meta[name="app-id"]');
+        if (metaAppId) {
+            appId = metaAppId.getAttribute('content');
+        }
+        // Si no está en meta, buscar en variable global
+        if (!appId && typeof window.appId !== 'undefined') {
+            appId = window.appId;
+        }
+    } catch(e) {
+        // console.log('No se pudo obtener appId desde meta/variable global');
+    }
+    
+    fetch('/menu-data', {
+        method: 'POST',
+        cache: 'no-store',
+        body: JSON.stringify({
+            pathname: pathname,
+            host: host,
+            appId: appId, // Enviar appId directamente si está disponible
+            i: new URLSearchParams(window.location.search).get('i') || null,
+            detalle: new URLSearchParams(window.location.search).get('d') || null,
+            tags: new URLSearchParams(window.location.search).get('v')|| null
+        }),
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // console.log('Respuesta del menú:', data);
+        if(data.success){
+            // console.log('Menú obtenido - cantidad de items:', data.data ? data.data.length : 0);
+            // console.log('Datos del menú:', data.data);
+            if (data.data && data.data.length > 0) {
+                renderizarMenu(data.data);
+                inicializarMenu();
+            } else {
+                // console.warn('El menú está vacío - no hay items para mostrar');
+                $.alert({
+                    title: 'Menú vacío',
+                    content: 'No hay items en el menú configurado. Por favor, contacta al administrador.',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-info-circle',
+                    type: 'blue',
+                    buttons: {
+                        Aceptar: {
+                            text: 'Aceptar',
+                            btnClass: 'btn-blue'
+                        }
+                    }
+                });
+            }
+        } else {
+            console.error('Error al obtener menú:', data.message);
+            $.alert({
+                title: 'Error al cargar el menú',
+                content: data.message || 'No se pudo obtener el menú. Por favor, recarga la página.',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'red',
+                buttons: {
+                    Aceptar: {
+                        text: 'Aceptar',
+                        btnClass: 'btn-red'
+                    }
+                }
+            });
+        }
+    })
+    .catch((error) => {
+        console.error('Error al obtener menú:', error);
+        $.alert({
+            title: 'Error al cargar el menú',
+            content: 'Ocurrió un error al intentar cargar el menú. Por favor, recarga la página.',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: 'red',
+            buttons: {
+                Aceptar: {
+                    text: 'Aceptar',
+                    btnClass: 'btn-red'
+                }
+            }
+        });
+    });
+}
+
+/**
+ * Obtiene los atributos necesarios para un enlace de menú, incluyendo href, clases CSS y data-target.
+ * @param {Object} item - El objeto del enlace del menú.
+ * @param {boolean} isToggle - Indica si el enlace tiene submenús.
+ * @returns {Object} Un objeto con las propiedades href, classes y dataTarget.
+ */
+function obtenerAtributosLink(item, isToggle) {
+    // El editor puede guardar url_link null; el backend lo enriquece con href calculado.
+    let href = item.url_link || '#';
+    let classes = '';
+    let dataTarget = '';
+    const nivel = Number(item.link_nivel);
+
+    
+    if (isToggle) {
+        if (nivel === 1) {
+            // Nivel 1 con hijos: solo despliega submenú, no navega.
+            href = 'javascript:void(0)';
+            classes += `submenu-toggle`;
+            dataTarget = ` data-target="submenu-${item.id_wb_menu_link}"`;
+        } else if(nivel === 2) {
+            classes += `submenu-directorio`;
+            dataTarget = ` data-target="submenu-children-${item.id_wb_menu_link}"`;
+        }else if(nivel === 3) {
+            classes += `submenu-legisladores`;
+            dataTarget = ` data-target="submenu-children-${item.id_wb_menu_link}"`;
+        } else {
+            classes += `submenu-estrados`;
+            dataTarget = ` data-target="submenu-children-${item.id_wb_menu_link}"`;
+        }
+    }
+    
+    return { href, classes, dataTarget };
+}
+
+/**
+ * Renderiza los submenús de manera recursiva.
+ * @param {Array} items - Lista de elementos del menú.
+ * @returns {string} HTML generado para los submenús.
+ */
+function renderizarSubmenus(items, currentLevel = 2, parentId = null) {
+    if (!items || items.length === 0) return '';
+    
+    const columnId = parentId ? ` id="submenu-children-${parentId}"` : '';
+    let html = `<ul class="submenu-column level-${currentLevel}"${columnId}>`;
+    
+    items.forEach(item => {
+        const isToggle = item.submenus && item.submenus.length > 0;
+        const attrs = obtenerAtributosLink(item, isToggle);
+        let linkContent = `<a href="${attrs.href}" class="${attrs.classes}"${attrs.dataTarget}>`;
+        
+        if (currentLevel <= 2) {
+            linkContent += `<img src="../assets/img/arrow-down-solid.svg" class="menuicon">`;
+        }
+        
+        linkContent += `<p class="unopar">${item.nombre}</p>`;
+        
+        if (isToggle) {
+            linkContent += `<i class="fa-solid fa-chevron-right chevron"></i>`;
+        }
+        linkContent += `</a>`;
+        html += `<li class="imgMenu">`;
+        html += linkContent;
+        html += `</li>`;
+    });
+
+    html += `</ul>`;
+    
+    // Renderizar niveles siguientes como columnas separadas
+    items.forEach(item => {
+        if (item.submenus && item.submenus.length > 0) {
+            html += renderizarSubmenus(item.submenus, currentLevel + 1, item.id_wb_menu_link);
+        }
+    });
+    
+    return html;
+}
+
+/**
+ * Renderiza el menú principal y sus submenús en el DOM.
+ * @param {Array} menuData - Datos del menú obtenidos del servidor.
+ * returns {void}
+ */
+function renderizarMenu(menuData) {
+    const menuListElement = document.getElementById('menu-list');
+    if (!menuListElement) {
+        console.error('No se encontró el elemento menu-list en el DOM');
+        return;
+    }
+    
+    if (!menuData || !Array.isArray(menuData) || menuData.length === 0) {
+        console.warn('No hay datos del menú para renderizar');
+        return;
+    }
+    
+    console.log('Renderizando menú con', menuData.length, 'items del nivel 1');
+    
+    const placeholder = '<li><ul class="submenu-imagen"><li><img src="/assets/img/img-menu-responsive.png" alt="Menú Imagen"></li></ul></li>';
+    let finalHTML = '';
+    
+    menuData.forEach(itemNivel1 => {
+        console.log('Procesando item:', itemNivel1.nombre, 'ID:', itemNivel1.id_wb_menu_link);
+        const tieneSubmenus = itemNivel1.submenus && itemNivel1.submenus.length > 0;
+        const attrs = obtenerAtributosLink(itemNivel1, tieneSubmenus);
+        
+        if (attrs.href && !attrs.href.startsWith('http') && attrs.href !== '#' && !attrs.href.startsWith('javascript:')) {
+            attrs.href = attrs.href.startsWith('/') ? attrs.href : '/' + attrs.href;
+        }
+
+        let linkNivel1 = `<a href="${attrs.href}" class="${attrs.classes}"${attrs.dataTarget}>`;
+        linkNivel1 += `<span>${itemNivel1.nombre}</span>`;
+        if (tieneSubmenus) {
+            linkNivel1 += `<i class="fa-solid fa-chevron-down chevron"></i>`;
+        }
+        linkNivel1 += `</a>`;
+        
+        finalHTML += `<li>${linkNivel1}`;
+        if (tieneSubmenus) {
+            finalHTML += `<div class="submenu-container" id="submenu-${itemNivel1.id_wb_menu_link}">`;
+            finalHTML += `<div class="submenu-content">`;
+            const imgUrl = itemNivel1.url_imagen || '/assets/img/img-menu.png'; 
+            finalHTML += `<ul class="submenu-column level-0"><li><img class="submenuImg" src="${imgUrl}" alt="${itemNivel1.nombre}"></li></ul>`;
+            finalHTML += renderizarSubmenus(itemNivel1.submenus, 2, itemNivel1.id_wb_menu_link);
+            
+            finalHTML += `</div></div>`;
+        }
+
+        finalHTML += `</li>`;
+    });
+
+    menuListElement.innerHTML = finalHTML || placeholder;
+}
+
+function construirColumnaSubmenu(items, nivelActual) {
+    if (!items || items.length === 0) return '';
+    let html = `<ul class="submenu-column level-${nivelActual}">`;
+
+    items.forEach(item => {
+        const isToggle = item.submenus && item.submenus.length > 0;
+        const attrs = obtenerAtributosLink(item, isToggle); 
+
+        let liContent = `<a href="${attrs.href}" class="${attrs.classes}"${attrs.dataTarget}>`;
+        liContent += `<img src="../assets/img/arrow-down-solid.svg" class="menuicon">`;
+        liContent += `<p class="unopar">${item.nombre}</p>`;
+
+        if (isToggle) {
+            liContent += `<i class="fa-solid fa-chevron-right chevron"></i>`;
+        }
+        
+        liContent += `</a>`;
+        html += `<li class="imgMenu">${liContent}</li>`;
+    });
+
+    html += `</ul>`;
+    return html;
+}
+
+</script>

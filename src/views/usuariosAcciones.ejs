@@ -1,0 +1,1852 @@
+<%- include('partials/header'); %>
+<!-- MENÚ -->
+<%- include('partials/menu'); %>
+<!-- MENÚ -->
+<div id="templateDer">
+    <div class="limit-administrador">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-10 col-12 ma-b3 t-c">
+                <h5 class="tit-seccion guinda_t">
+                    <% if (usuarios_scope === 'instance') { %>
+                        USUARIOS <b>DE INSTANCIA</b>
+                    <% } else { %>
+                        ADMINISTRADOR <b>DE USUARIOS</b>
+                    <% } %>
+                </h5>
+                <div class="l-div">
+                    <label class="borde-izq oroMorena"><span class="diagonal gris_t"></span></label>
+                    <label class="borde-der solid_bg"><span></span></label>
+                </div>
+            </div>
+            <div class="col-12 sp-bis">
+                <div class="subenun">
+                    <p class="subtit">
+                        <%= usuarios_scope === 'instance'
+                            ? 'Gestiona usuarios de tus instancias asignadas. No se muestran usuarios globales del sistema.'
+                            : 'Para editar la información de un usuario seleccionalo de la lista, filtralo o genera un nuevo usuario.' %>
+                    </p>
+                    <span></span>
+                </div>
+            </div>
+            <div class="col-12 t-r sp-bis">
+                <button class="btnGral auburn_t" type="button" id="NuevoUsuarioButton">
+                    <p>NUEVO USUARIO</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon auburn_bg"><img src="assets/img/AGREGAR.svg"></div>
+                        <span class="s-guinda"></span>
+                    </div>
+                </button>
+            </div>
+            <style>
+                .dataTables_wrapper .dataTables_length,
+                .dataTables_wrapper .dataTables_filter,
+                .dataTables_wrapper .dataTables_info,
+                .dataTables_wrapper .dataTables_paginate
+                {
+                    display: inline-block;
+                    padding: 5px 10px;
+                    color: #7E2D43;
+                    font-size: 15px;
+                    font-weight: 700;
+                }
+                .dataTables_wrapper .dataTables_filter{
+                    display: inline-block;
+                    padding: 5px 10px;
+                    color: #7E2D43;
+                    font-size: 15px;
+                    font-weight: 700;
+
+                    width: 70%;
+                }.dataTables_wrapper .dataTables_filter label{
+                     width: 100%;
+                 }
+                .dataTables_wrapper .dataTables_filter input{
+                    padding: .375rem .75rem;
+                    font-size: 14px;
+                    font-weight: 500;
+                    border: 1.5px solid #cccaca;
+                    background: #f0f0f0;
+                    margin-top: 0;
+                    border-radius: 8px;
+                    display: inline-block;
+                    width: 70%;
+                }
+                .table {
+                    border-collapse: collapse !important;
+                }
+                .table-head th{
+                    text-align: center !important;
+                }
+                /* Cuerpo: texto oscuro; encabezado: blanco como el resto de columnas */
+                .table-head.verde th.usuarios-col-instancias {
+                    color: #fff !important;
+                    font-size: 12px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.03em;
+                }
+                td.usuarios-col-instancias {
+                    max-width: 300px;
+                    min-width: 160px;
+                    text-align: left !important;
+                    font-size: 0.88rem;
+                    line-height: 1.35;
+                    word-break: break-word;
+                    color: #3a3530;
+                }
+            </style>
+            <div class="col-lg-10 col-md-11 col-sm-12 col-12 ma-t2 sp-bis">
+                <div id="bandejaUsu">
+                    <!--div class="headTable row">
+                        <div class="col-lg-4 col-md-6 col-sm-5 col-12 sp-bis">
+                            <label class="formLabel verde_t">Buscar por nombre o CURP:</label>
+                        </div>
+                        <div class="col-lg-8 col-md-6 col-sm-7 col-12">
+                            <input type="text" name="" class="form-control form-text">
+                        </div>
+                    </div-->
+                    <div class="table-responsive">
+                        <table id="Tabla_UsuariosAdministracion" class="table">
+                            <thead class="table-head verde">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">NOMBRE</th>
+                                <th scope="col">CURP</th>
+                                <th scope="col">TIPO DE USUARIO</th>
+                                <% if (usuarios_scope === 'instance') { %>
+                                <th scope="col" class="usuarios-col-instancias">Instancias asignadas</th>
+                                <% } %>
+                                <th scope="col">ESTADO</th>
+                                <th scope="col">ACCIÓN</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            <%for (const usuario of listaUsuarios){%>
+                            <tr>
+                                <th scope="row"><%=usuario.id_user%></th>
+                                <td><%=usuario.nombre%> <%=usuario.paterno%> <%=usuario.materno%></td>
+                                <td><%=usuario.curp%></td>
+                                <td><%=usuario.type_user || ''%></td>
+                                <% if (usuarios_scope === 'instance') { %>
+                                <td class="usuarios-col-instancias"><%= (usuario.instancias_asignadas && String(usuario.instancias_asignadas).trim()) ? usuario.instancias_asignadas : '—' %></td>
+                                <% } %>
+                                <td><%=usuario.estado || ''%></td>
+                                <td>
+                                    <% if (usuarios_scope !== 'instance') { %>
+                                    <button class="btnAct oro" data-hover="EDITAR" onclick="EditarPermisosModal('<%=usuario.id_user%>')"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></button>
+                                    <%if(usuario.activo){%>
+                                    <button class="btnAct guinda" data-hover="Desactivar" onclick="DesactivarUserConfirm('<%=usuario.id_user%>')"><i class="fa-regular fa-trash-alt" aria-hidden="true"></i></button>
+                                    <%if(directorio_activo == "false"){%>
+                                    <button class="btnAct oro" data-hover="Contraseña" onclick="ActualizarContraenaConfirm('<%=usuario.id_user%>')"><i class="fas fa-key" aria-hidden="true"></i></button>
+                                    <%}%>
+                                    <%} else{%>
+                                    <button class="btnAct oro" data-hover="Reactivar" onclick="ReactivarUserConfirm('<%=usuario.id_user%>')"><i class="fa-regular fa-check-circle" aria-hidden="true"></i></button>
+                                    <%}%>
+                                    <% } else { %>
+                                    <button class="btnAct oro" data-hover="Permisos" onclick="EditarPermisosModalInstance('<%=usuario.id_user%>')"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></button>
+                                    <% } %>
+                                </td>
+                            </tr>
+                            <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<template id="NuevoUsuarioModalTemplate">
+    <form id="NuevoUsuarioModal_Form" class="limit-form row">
+        <input type="hidden" id="usuarios_scope" name="usuarios_scope" value="<%= usuarios_scope %>">
+        <% if (usuarios_scope === 'instance') { %>
+        <div class="col-lg-8 ma-g">
+            <label class="titForm verde_t">Instancia(s) asignada(s) *</label>
+            <select id="instancias_ids" name="instancias_ids" class="form-control form-input">
+                <% if (assigned_instances && assigned_instances.length) { %>
+                <option value="" selected disabled>Seleccione instancia</option>
+                <% for(const app of assigned_instances){ %>
+                <option value="<%= app.id_sysapp %>"><%= app.app_legend %></option>
+                <% } %>
+                <% } else { %>
+                <option value="" selected disabled>No hay instancias disponibles para tu usuario</option>
+                <% } %>
+            </select>
+        </div>
+        <% } %>
+        <div class="col-lg-8 ma-g">
+            <label class="titForm verde_t">Tipo de Usuario</label>
+            <select id="NuevoUsuarioTipo" name="NuevoUsuarioTipo" class="form-control form-input">
+                <% for(const type_user of cat_type_users){ %>
+                <option value="<%=type_user.id_cat_type_users%>"><%=type_user.type_user%></option>
+                <% } %>
+            </select>
+        </div>
+        <div class="col-lg-8 ma-g">
+            <label class="titForm verde_t">CURP</label>
+            <input type="text" id="NuevoUsuarioCurp" name="NuevoUsuarioCurp" class="form-control form-input" maxlength="20" autocomplete="off" oninput="sanitizeCurpField(this)">
+            <input type="hidden" id="NuevoUsuarioCurpValidada" name="NuevoUsuarioCurpValidada">
+        </div>
+        <div class="col-lg-4 ma-g">
+            <label class="titForm ghost">CURP</label>
+            <button type="button" class="btnVal guinda" onclick="NuevoUsuarioValidarCurp()">VALIDAR CURP</button>
+        </div>
+        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Nombre (s)</label>
+            <input id="NuevoUsuarioNombre" name="NuevoUsuarioNombre" class="form-control form-basic-lleno" placeholder="NOMBRE" readonly>
+        </div>
+        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Primer apellido</label>
+            <input id="NuevoUsuarioPrimerA" name="NuevoUsuarioPrimerA" class="form-control form-basic-lleno" placeholder="PRIMER APELLIDO" readonly>
+        </div>
+        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Segundo apellido</label>
+            <input id="NuevoUsuarioSegundoA" name="NuevoUsuarioSegundoA" class="form-control form-basic-lleno" placeholder="SEGUNDO APELLIDO" readonly>
+        </div>
+        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Correo electrónico</label>
+            <input id="NuevoUsuarioCorreo" name="NuevoUsuarioCorreo" class="form-control form-input">
+        </div>
+                        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Confirmar Correo electrónico</label>
+            <input id="NuevoUsuarioCorreoConfirmar" name="NuevoUsuarioCorreoConfirmar" class="form-control form-input">
+        </div>
+        <div class="col-lg-8 ma-g">
+            <label class="titForm verde_t">Estado</label>
+            <select id="NuevoUsuarioEntidad" name="NuevoUsuarioEntidad" class="form-control form-input">
+                <option value="">Seleccione estado</option>
+                <% for(const estado of cat_entidades_admins){ %>
+                <option value="<%=estado.id_estado%>"><%=estado.estado%></option>
+                <% } %>
+            </select>
+            <!-- Con select deshabilitado, serialize() no envía el valor; el mirror lleva NuevoUsuarioEntidad -->
+            <input type="hidden" id="NuevoUsuarioEntidadMirror" value="">
+        </div>
+        <!-- <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Teléfono fijo</label>
+            <input id="NuevoUsuarioTelefonoFijo" name="NuevoUsuarioTelefonoFijo" class="form-control form-input">
+        </div>
+        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Teléfono celular</label>
+            <input id="NuevoUsuarioTelefonoCelular" name="NuevoUsuarioTelefonoCelular" class="form-control form-input">
+        </div><br> -->
+        <br>
+        <!-- <div class="col-lg-4 ma-g">
+                <label class="titForm verde_t">Confirmar Teléfono celular</label>
+            <input id="NuevoUsuarioTelefonoConfirmar" name="NuevoUsuarioTelefonoConfirmar" class="form-control form-input">
+        </div> -->
+
+    </form>
+</template>
+<template id="EditarPermisosModalTemplate">
+    <form id="EditarPermisosModal_Form" class="limit-form row">
+        <input type="hidden" id="EditarPermisosIdUser" name="EditarPermisosIdUser">
+        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">CURP</label>
+            <input type="" id="EditarPermisosCurp" name="EditarPermisosCurp" class="form-control form-basic-lleno" placeholder="" readonly>
+        </div>
+        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Usuario</label>
+            <input id="EditarPermisosUS" name="EditarPermisosUS" class="form-control form-basic-lleno" placeholder="" readonly>
+        </div>
+        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Correo electrónico</label>
+            <input id="EditarPermisosCorreo" name="EditarPermisosCorreo" class="form-control form-basic-lleno" placeholder="">
+        </div>
+        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Nombre (s)</label>
+            <input id="EditarPermisosNombre" name="EditarPermisosNombre" class="form-control form-basic-lleno" placeholder="" readonly>
+        </div>
+        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Primer apellido</label>
+            <input id="EditarPermisosPrimerA" name="EditarPermisosPrimerA" class="form-control form-basic-lleno" placeholder="" readonly>
+        </div>
+        <div class="col-lg-4 ma-g">
+            <label class="titForm verde_t">Segundo apellido</label>
+            <input id="EditarPermisosSegundoA" name="EditarPermisosSegundoA" class="form-control form-basic-lleno" placeholder="" readonly>
+        </div>
+
+
+        <div class="container mt-5">
+            <nav class="nav nav-pills flex-column flex-sm-row mb-3">
+                <button class="flex-sm-fill text-sm-center nav-link active" id="tab-active" data-bs-toggle="tab" data-bs-target="#tipousuario" type="button" aria-current="page">Tipo de usuario</button>
+                <button class="flex-sm-fill text-sm-center nav-link" id="tab-longer" data-bs-toggle="tab" data-bs-target="#apps" type="button" onclick="VerAdminPermisos()">Instancias y módulos</button>
+            </nav>
+
+            <div class="tab-content active">
+                <div class="tab-pane fade show active" id="tipousuario" role="tabpanel" aria-labelledby="tab-active">
+                    <div class="col-lg-8 ma-g">
+                        <%for (const type_user of cat_type_users){%>
+                        <div class="input-checkus">
+                            <input type="radio" value="<%=type_user.id_cat_type_users%>" id="EditarPermisos_tipous" name="EditarPermisos_tipous" class="form-radio-input">
+                            <label><%=type_user.type_user%></label>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="apps" role="tabpanel" aria-labelledby="tab-longer">
+                    <div class="col-md-12 text-center">
+                        <button class="btnGral verde_t" type="button" id="RestaurarPermisos_guardar" onclick="restaurar()">
+                            <p>RESTAURAR</p>
+                            <div class="btnIcon">
+                                <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                                <span class="s-verde"></span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="col-lg-12 ma-g" id="muestrapermisos">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+</template>
+
+<style>
+/* Modal permisos: nombre de instancia legible sin “pastilla” gris (antes #EEEEEC) */
+#modalGral #muestrapermisos .accordion-button.aco-perfil .sec-info,
+#modalGral [id^="acordeon-perfil"] .accordion-button.aco-perfil .sec-info {
+    flex: 1 1 auto;
+    min-width: 180px;
+    overflow: visible;
+    padding-right: 0.75rem;
+}
+#modalGral #muestrapermisos .accordion-button.aco-perfil .sec-info label,
+#modalGral [id^="acordeon-perfil"] .accordion-button.aco-perfil .sec-info label {
+    color: #2d2d2d !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative;
+    z-index: 2;
+    background: transparent !important;
+    padding: 0.15rem 0 0.15rem 0.35rem;
+    margin: 0;
+    display: block;
+    font-weight: 600;
+}
+#modalGral #muestrapermisos .accordion-button.aco-perfil,
+#modalGral [id^="acordeon-perfil"] .accordion-button.aco-perfil {
+    color: #2d2d2d !important;
+    overflow: visible;
+}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<style>
+    #modalGral .select2-container { z-index: 10055; }
+    #modalGral .select2-dropdown { z-index: 10056; }
+</style>
+
+<%- include('partials/footerNoMx'); %>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    const USUARIOS_SCOPE = '<%= usuarios_scope %>';
+    let dataTableOptions={
+        language:{
+            info:       'Registro _START_ al  _END_ de _TOTAL_ , (Página _PAGE_ de _PAGES_ Páginas)',
+            paginate: {
+                first:      'Primero',
+                last:       'Último',
+                next:       'Siguiente',
+                previous:   'Anterior'
+            },
+            lengthMenu: 'Ver _MENU_ Registros por página',
+            search:     'Buscar por nombre o CURP:',
+            zeroRecords:'No existe registro'
+        }
+    };
+    $(document).ready(()=>{
+        $('#Tabla_UsuariosAdministracion').dataTable(dataTableOptions);
+    });
+
+    $('#NuevoUsuarioButton').on('click',NuevoUsuarioModal);
+
+
+
+    function restaurar(){
+        $.alert({
+            title: "CAMBIO DE PERMISOS",
+            content: '<strong>Confirma que deseas restaurar todos los permisos de acuerdo al tipo de usuario seleccionado, se seleccionarán los permisos sin embargo deberás dar guardar para hacer permanente el cambio.</strong>',
+            theme: 'modern',
+            icon: 'fa-solid fa-circle-check',
+            type: "blue",
+            buttons: {
+                Aceptar: {
+                    text: 'Aceptar',
+                    btnClass: 'btn-success',
+                    action: function () {
+                        $('input[name="EditarPermisos_submodulo"]').each(function () {
+                            if ($(this).data('perm') === 'user') {
+                                $(this).prop('checked', true);
+                            } else {
+                                $(this).prop('checked', false);
+                            }
+                        });
+                        validaEncabezadoPermiso();
+                    }
+                },
+                Cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-alert',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+    /** Limpia bloqueo de entidad al abrir el modal (alcance global e instancia). */
+    function resetNuevoUsuarioEntidadFieldState() {
+        var $f = $('#NuevoUsuarioModal_Form');
+        if (!$f.length) return;
+        $f.find('#NuevoUsuarioEntidad').prop('disabled', false).removeClass('bg-light').attr('name', 'NuevoUsuarioEntidad');
+        $f.find('#NuevoUsuarioEntidadMirror').removeAttr('name').val('');
+    }
+    function NuevoUsuarioModal(){
+        limpieza_modalGral();
+        modalGral_addTit('NUEVO USUARIO');
+        if (typeof USUARIOS_SCOPE !== 'undefined' && USUARIOS_SCOPE === 'instance') {
+            modalGral_addSubtit(
+                'Usuarios de tus instancias asignadas: valida la CURP primero. Si ya existe en el sistema, se completarán nombre, correos y estado; cuando el estado venga del registro no podrá editarse. El mensaje de validación correcta permanece visible unos segundos.'
+            );
+        } else {
+            modalGral_addSubtit('Completa la información que se solicita.');
+        }
+        modalGral_bodyAppend(getHtmlTemplate('NuevoUsuarioModalTemplate'));
+        modalGral_addFooter(
+            `<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">
+                    <p>CANCELAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div>
+                        <span class="s-guinda"></span>
+                    </div>
+                </button>
+                <button class="btnGral verde_t" type="button" id="NuevoUsuario_guardar">
+                    <p>GUARDAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                        <span class="s-verde"></span>
+                    </div>
+                </button>`
+        );
+        $('#NuevoUsuario_guardar').on('click',NuevoUsuario);
+        (new bootstrap.Modal($('#modalGral')[0], { backdrop: 'static', keyboard: false })).show();
+        resetNuevoUsuarioEntidadFieldState();
+        const scope = $('#NuevoUsuarioModal_Form #usuarios_scope').val();
+        if (scope === 'instance') {
+            $('#NuevoUsuarioTipo').val('13');
+        }
+    }
+    function applyNuevoUsuarioCurpResult(data) {
+        const ex = data.existingUser === true;
+        const d = data.data || {};
+        const curpVal = d.curp || $('#modalGral #NuevoUsuarioCurp').val();
+        $('#NuevoUsuarioModal_Form #NuevoUsuarioCurpValidada').val(curpVal);
+        $('#NuevoUsuarioModal_Form #NuevoUsuarioNombre').val(d.nombre || '').prop('readonly', ex);
+        $('#NuevoUsuarioModal_Form #NuevoUsuarioPrimerA').val(d.primerA || '').prop('readonly', ex);
+        $('#NuevoUsuarioModal_Form #NuevoUsuarioSegundoA').val(d.segundoA || '').prop('readonly', ex);
+        if (ex && d.correo) {
+            $('#NuevoUsuarioModal_Form #NuevoUsuarioCorreo').val(d.correo).prop('readonly', true);
+            $('#NuevoUsuarioModal_Form #NuevoUsuarioCorreoConfirmar').val(d.correo).prop('readonly', true);
+        } else {
+            $('#NuevoUsuarioModal_Form #NuevoUsuarioCorreo').prop('readonly', false);
+            $('#NuevoUsuarioModal_Form #NuevoUsuarioCorreoConfirmar').prop('readonly', false);
+        }
+        if (!ex) {
+            $('#NuevoUsuarioModal_Form #NuevoUsuarioNombre').prop('readonly', false);
+            $('#NuevoUsuarioModal_Form #NuevoUsuarioPrimerA').prop('readonly', false);
+            $('#NuevoUsuarioModal_Form #NuevoUsuarioSegundoA').prop('readonly', false);
+        }
+        var rawEst = d.fk_id_estado;
+        var $ent = $('#NuevoUsuarioModal_Form #NuevoUsuarioEntidad');
+        var $mir = $('#NuevoUsuarioModal_Form #NuevoUsuarioEntidadMirror');
+        var hasEst = rawEst != null && rawEst !== '' && !Number.isNaN(Number(rawEst));
+        if (hasEst) {
+            $ent.val(String(Number(rawEst)));
+        } else {
+            $ent.val('');
+        }
+        if (ex && hasEst) {
+            $ent.prop('disabled', true).addClass('bg-light');
+            $mir.val($ent.val()).attr('name', 'NuevoUsuarioEntidad');
+            $ent.removeAttr('name');
+        } else {
+            $ent.prop('disabled', false).removeClass('bg-light');
+            if (!$ent.attr('name')) {
+                $ent.attr('name', 'NuevoUsuarioEntidad');
+            }
+            $mir.removeAttr('name').val('');
+        }
+        $('#NuevoUsuarioModal_Form').data('existingUser', ex);
+    }
+    function clearNuevoUsuarioResolvedFields(){
+        $('#NuevoUsuarioModal_Form #NuevoUsuarioCurpValidada').val('');
+        $('#NuevoUsuarioModal_Form #NuevoUsuarioNombre').val('').prop('readonly', true);
+        $('#NuevoUsuarioModal_Form #NuevoUsuarioPrimerA').val('').prop('readonly', true);
+        $('#NuevoUsuarioModal_Form #NuevoUsuarioSegundoA').val('').prop('readonly', true);
+        $('#NuevoUsuarioModal_Form #NuevoUsuarioCorreo').val('').prop('readonly', false);
+        $('#NuevoUsuarioModal_Form #NuevoUsuarioCorreoConfirmar').val('').prop('readonly', false);
+        $('#NuevoUsuarioModal_Form #NuevoUsuarioEntidad').val('');
+        resetNuevoUsuarioEntidadFieldState();
+        $('#NuevoUsuarioModal_Form').data('existingUser', false);
+    }
+    // CURP base por posición: LLLLDDDDDDLLLLLLAD (18) + hasta 2 alfanuméricos extra.
+    // L = letra [A-Z], D = dígito [0-9], A = alfanumérico [A-Z0-9]
+    function sanitizeCurpValue(raw) {
+        const chars = String(raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '').split('');
+        const mask = ['L','L','L','L','D','D','D','D','D','D','L','L','L','L','L','L','A','D','A','A'];
+        const out = [];
+        let i = 0;
+        while (i < chars.length && out.length < mask.length) {
+            const ch = chars[i];
+            const slot = mask[out.length];
+            const ok =
+                (slot === 'L' && /[A-Z]/.test(ch)) ||
+                (slot === 'D' && /[0-9]/.test(ch)) ||
+                (slot === 'A' && /[A-Z0-9]/.test(ch));
+            if (ok) out.push(ch);
+            i++;
+        }
+        return out.join('');
+    }
+    function sanitizeCurpField(el) {
+        if (!el) return;
+        el.value = sanitizeCurpValue(el.value);
+    }
+    function NuevoUsuarioValidarCurp(){
+        let CURP = sanitizeCurpValue($('#modalGral #NuevoUsuarioCurp').val());
+        $('#modalGral #NuevoUsuarioCurp').val(CURP);
+        let curpRegex=/^[A-Z]{4}[0-9]{6}[A-Z]{6}[A-Z0-9][0-9][A-Z0-9]{0,2}$/;
+        if(CURP==''||!(curpRegex.test(CURP))){
+            $.alert({
+                title: "Advertencia",
+                content: 'Introduce una CURP Válida',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "red"
+            });
+        } else {
+            let param='curp='+encodeURIComponent(CURP);
+            fetch('/NuevoUsuarioValidarCurp',{
+                method: 'POST',
+                body: param,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            })
+                .then(response=>response.json())
+                .then(data=>{
+                    if (data.success){
+                        let jc=$.alert({
+                            title: "Correcto",
+                            content: '<strong>'+data.msg+'</strong>',
+                            theme: 'modern',
+                            icon: 'fa-solid fa-circle-check',
+                            type: "blue",
+                            onOpen:()=>setTimeout(()=>jc.close(),4000)
+                        });
+                        applyNuevoUsuarioCurpResult(data);
+                    } else {
+                        if (data.alreadyInCms === true) {
+                            clearNuevoUsuarioResolvedFields();
+                        }
+                        $.alert({
+                            title: "Advertencia",
+                            content: '<strong>'+data.msg+'</strong>',
+                            theme: 'modern',
+                            icon: 'fa-solid fa-triangle-exclamation',
+                            type: "blue"
+                        });
+                    }
+                })
+                .catch(function(){
+                    $.alert({
+                        title: "Error",
+                        content: '<strong>No se pudo validar la CURP.</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: "red"
+                    });
+                });
+        }
+    }
+    function NuevoUsuario(){
+        const scope = $('#NuevoUsuarioModal_Form #usuarios_scope').val();
+        if (scope === 'instance') {
+            const rawInst = $('#modalGral #instancias_ids').val();
+            let instList = Array.isArray(rawInst) ? rawInst : rawInst ? [rawInst] : [];
+            instList = instList.filter((v) => v !== '' && v != null && String(v).trim() !== '');
+            if (!instList.length) {
+                $.alert({
+                    title: "Advertencia",
+                    content: '<strong>Selecciona al menos una instancia.</strong>',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: "blue"
+                });
+                return;
+            }
+        }
+        if(
+            $('#NuevoUsuarioModal_Form #NuevoUsuarioCurpValidada').val()==''
+            || $('#NuevoUsuarioModal_Form #NuevoUsuarioCurp').val()!=$('#NuevoUsuarioModal_Form #NuevoUsuarioCurpValidada').val()
+            || !(/^[A-Z]{4}[0-9]{6}[A-Z]{6}[A-Z0-9][0-9][A-Z0-9]{0,2}$/.test($('#NuevoUsuarioModal_Form #NuevoUsuarioCurpValidada').val()))
+        ){
+            $.alert({
+                title: "Advertencia",
+                content: '<strong>Introduce una CURP Válida</strong>',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "blue"
+            });
+        } else if(
+            $('#NuevoUsuarioModal_Form #NuevoUsuarioCorreo').val()==''
+            || $('#NuevoUsuarioModal_Form #NuevoUsuarioCorreoConfirmar').val()==''
+            || $('#NuevoUsuarioModal_Form #NuevoUsuarioCorreo').val()!=$('#NuevoUsuarioModal_Form #NuevoUsuarioCorreoConfirmar').val()
+            || !(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test($('#NuevoUsuarioModal_Form #NuevoUsuarioCorreo').val()))
+        ){
+            $.alert({
+                title: "Advertencia",
+                content: '<strong>Introduce unos Correos Válidos</strong>',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "blue"
+            });
+        } else{
+            let param=$('#NuevoUsuarioModal_Form').serialize();
+            fetch('/NuevoUsuario',{
+                method: 'POST',
+                body:   param,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            })
+                .then(response=>response.json())
+                .then(data=>{
+                    if (data.success){
+                        $.alert({
+                            title: "Correcto",
+                            content: '<strong>'+data.msg+'</strong>',
+                            theme: 'modern',
+                            icon: 'fa-solid fa-circle-check',
+                            type: "blue",
+                            buttons: {
+                                Aceptar: {
+                                    text: 'Aceptar',
+                                    btnClass: 'btn-success',
+                                    action: function () {
+                                        setTimeout(()=>window.location.reload(),250);
+                                    }
+                                }
+                            }
+                        });
+                    } else{
+                        $.alert({
+                            title: "Advertencia",
+                            content: '<strong>'+data.msg+'</strong>',
+                            theme: 'modern',
+                            icon: 'fa-solid fa-triangle-exclamation',
+                            type: "blue"
+                        });
+                    }
+                });
+        }
+    }
+    function VerAdminPermisos(){
+        let id_type = $('input[name="EditarPermisos_tipous"]:checked').val();
+        let id_user=$('#EditarPermisosModal_Form #EditarPermisosIdUser').val();
+        if (id_type == null || id_type === '') {
+            $.alert({
+                title: 'Datos incompletos',
+                content: '<strong>Seleccione el tipo de usuario antes de cargar los módulos.</strong>',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'blue',
+            });
+            return;
+        }
+
+        let param='id_user='+encodeURIComponent(id_user);
+        param+='&id_type='+encodeURIComponent(id_type);
+        fetch('/obtenerAdminView',{
+            method: 'POST',
+            body:   param,
+            headers: {
+                //"Content-Type": "application/json",
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+        })
+            .then(response=>response.json())
+            .then(data=>{
+                if(data.success){
+                    // console.log(data);
+                    if (!data.data || Object.keys(data.data).length === 0) {
+                        $('#EditarPermisosModal_Form #muestrapermisos').html(
+                            '<p class="text-muted mb-0">No hay módulos para mostrar.</p>'
+                        );
+                        return;
+                    }
+                    let html='';
+                    html += '<div class="accordion" id="acordeon-perfil">';
+
+                        Object.values(data.data).forEach(app => {
+                        html += '<div class="accordion-item">' +
+                            '<div class="accordion-header" id="acordeon-perfil-header'+app.id+'">' +
+                            '<button class="accordion-button aco-perfil" type="button" data-bs-toggle="collapse" data-bs-target="#acordeon-perfil-'+app.id+'" aria-expanded="false" aria-controls="acordeon-perfil-'+app.id+'">' +
+                            '<div class="sec-info" id="colorPermiso_'+app.id+'">' +
+                            '<div class="sec-icon psc-inst-clean-icon"><i class="fa-solid fa-layer-group psc-inst-head-icon"></i></div>' +
+                            '<label class="psc-inst-label">'+app.app_name+'</label>' +
+                            '</div>' +
+                            '</button>' +
+                            '</div>' +
+                            '<div id="acordeon-perfil-'+app.id+'" class="accordion-collapse collapse" aria-labelledby="acordeon-perfil-'+app.id+'">' +
+                            '<div class="accordion-body aco-body scroll-hor">' +
+                            '<div id="tablaEducacion" class="min-tab">'
+
+                        Object.values(app.modulos).forEach(modulo => {
+                            html += '<div class="">' +
+                                '<div class="psc-modulo-head"><p class="subtit mb-0"><span class="psc-mod-title">'+modulo.mod_legend+'</span></p><span class="psc-mod-line" aria-hidden="true"></span></div>' +
+                                '<div class="cont-gral row">' +
+                                '<table id="table-gral" class="table">' +
+                                '<thead class="table-head verde">' +
+                                '<tr>' +
+                                '<th scope="col" class="whiteletter">Submódulo</th>' +
+                                '<th scope="col" class="whiteletter">Tipo de usuario autorizado</th>' +
+                                '<th scope="col" class="whiteletter">Permitido</th>' +
+                                '</tr>' +
+                                '</thead>' +
+                                '<tbody>';
+                            Object.values(modulo.submodulos).forEach(submodulo => {
+                                let checkus=submodulo.perm_user? 'checked':'';
+                                let perm_us=submodulo.perm_type? 'user':'times';
+                                let perm_le=submodulo.perm_type? ' Si':' No';
+                                let perm_class=submodulo.perm_type? 'green':'gray';
+                                html += '<tr id="id_submod'+submodulo.id_syssubmod+'" data-app="'+app.id+'">' +
+                                    '<td>'+submodulo.legend+'</td>' +
+                                    '<td><span style="color:'+perm_class+'"><i class="fa fa-'+perm_us+'"></i> '+perm_le+'</span></td>' +
+                                    '<td><input type="checkbox" data-perm="'+perm_us+'" data-idapp="'+app.id+'" id="EditarPermisos_submodulo" value="'+submodulo.id_syssubmod+'" name="EditarPermisos_submodulo" class="form-check-input" '+checkus+' onchange="validaEncabezadoPermiso()"></td>' +
+                                    '</tr>';
+                            })
+                            html += '</tbody>' +
+                                '</table>' +
+                                '</div>' +
+                                '</div>';
+                        })
+
+                        html += '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' ;
+
+                    })
+                    html += '</div>';
+                    $('#EditarPermisosModal_Form #muestrapermisos').html(html);
+                    validaEncabezadoPermiso();
+                } else {
+                    $.alert({
+                        title: 'Advertencia',
+                        content: '<strong>' + (data.msg || 'No se pudieron cargar los permisos') + '</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: 'blue',
+                    });
+                }
+            })
+    }
+    
+    function validaEncabezadoPermiso(){
+        let idAppCounts = {};
+        $('input[name="EditarPermisos_submodulo"]').each(function () {
+            let id_app = $(this).data('idapp');
+            if (!idAppCounts[id_app]) {
+                idAppCounts[id_app] = 0;
+            }
+            if ($(this).is(':checked')) {
+                idAppCounts[id_app]++;
+            }
+        });
+        $.each(idAppCounts, function (id_app, count) {
+            if (count > 0) {
+                $('#colorPermiso_'+id_app).addClass('permisos_activos');
+            } else {
+                $('#colorPermiso_'+id_app).removeClass('permisos_activos');
+            }
+        });
+    }
+    function EditarPermisosModal(id_user){
+        let param='id_user='+id_user;
+        fetch('/obtenerPermisosUser',{
+            method: 'POST',
+            body:   param,
+            headers: {
+                //"Content-Type": "application/json",
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+        })
+            .then(response=>response.json())
+            .then(data=>{
+                if(data.success){
+                    // console.log(data)
+                    limpieza_modalGral();
+                    modalGral_addTit('EDITAR USUARIO');
+                    modalGral_addSubtit('Datos de usuario');
+                    modalGral_bodyAppend(getHtmlTemplate('EditarPermisosModalTemplate'));
+                    modalGral_addFooter(
+                        `<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">
+                                <p>CANCELAR</p>
+                                <div class="btnIcon">
+                                    <div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div>
+                                    <span class="s-guinda"></span>
+                                </div>
+                            </button>
+                            <button class="btnGral verde_t" type="button" id="EditarPermisos_guardar">
+                                <p>GUARDAR</p>
+                                <div class="btnIcon">
+                                    <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                                    <span class="s-verde"></span>
+                                </div>
+                            </button>`
+                    );
+                    // console.log(data.data);
+                    $('#EditarPermisosModal_Form #EditarPermisosIdUser').val(id_user);
+                    $('#EditarPermisosModal_Form #EditarPermisosUS').val(data.data.usuario);
+                    $('input[name="EditarPermisos_tipous"]').prop('checked', false);
+                    const tipoActual = String(data.data.tipo ?? '');
+                    const $tipoActualRadio = $('input[name="EditarPermisos_tipous"][value="' + tipoActual + '"]');
+                    if ($tipoActualRadio.length) {
+                        $tipoActualRadio.prop('checked', true);
+                    } else {
+                        // Si el tipo legado no es editable en UI, forzar una opcion valida.
+                        $('input[name="EditarPermisos_tipous"]').first().prop('checked', true);
+                    }
+                    $('#EditarPermisosModal_Form #EditarPermisosCurp').val(data.data.curp);
+                    $('#EditarPermisosModal_Form #EditarPermisosNombre').val(data.data.nombre);
+                    $('#EditarPermisosModal_Form #EditarPermisosPrimerA').val(data.data.primerA);
+                    $('#EditarPermisosModal_Form #EditarPermisosSegundoA').val(data.data.segundoA);
+                    $('#EditarPermisosModal_Form #EditarPermisosCorreo').val(data.data.correo);
+                    // $('#EditarPermisosModal_Form #EditarPermisosTelefonoFijo').val(data.data.telefonoFijo);
+                    // $('#EditarPermisosModal_Form #EditarPermisosTelefonoCelular').val(data.data.telefonoCelular);
+                    // $('#EditarPermisosModal_Form #EditarPermisosEntidad').val(data.data.entidad);
+
+                    $('#EditarPermisos_guardar').on('click',EditarPermisos);
+                    (new bootstrap.Modal($('#modalGral')[0],{backdrop:"static",keyboard:false})).show();
+                }
+
+            })
+    }
+
+    function pscIsSinAlcance(tiposRaw) {
+        if (tiposRaw == null) return true;
+        if (Array.isArray(tiposRaw)) return tiposRaw.length === 0;
+        if (typeof tiposRaw === 'object') return Object.keys(tiposRaw).length === 0;
+        return true;
+    }
+    const PSC_PAGE_SIZE = 8;
+    const pscPageUiState = {
+        pager: {},
+        pages: {},
+        selected: {},
+    };
+    function pscScopeStateKey(app, tipo) {
+        return String(app) + '|' + String(tipo);
+    }
+    function pscGetSelectedSet(app, tipo) {
+        var sk = pscScopeStateKey(app, tipo);
+        if (!(pscPageUiState.selected[sk] instanceof Set)) {
+            pscPageUiState.selected[sk] = new Set();
+        }
+        return pscPageUiState.selected[sk];
+    }
+    function pscInitTipoSelectionState(app, tipo, pages, st) {
+        var set = pscGetSelectedSet(app, tipo);
+        set.clear();
+        if (!st || !st.checked) return;
+        if (st.all) {
+            (pages || []).forEach(function (p) {
+                set.add(String(p.id));
+            });
+            return;
+        }
+        (st.pageIds || []).forEach(function (pid) {
+            set.add(String(pid));
+        });
+    }
+    function pscEscapeHtml(s) {
+        if (s == null) return '';
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+    function pscBuildPaginaChecklistHtml(key, tipo, pages) {
+        tipo = String(tipo);
+        var html =
+            '<p class="small text-muted mb-2">Marque las páginas a las que aplica el permiso.</p>';
+        if (!pages || !pages.length) {
+            html +=
+                '<p class="small text-muted fst-italic mb-0">No hay páginas de este tipo registradas en la instancia.</p>';
+            return html;
+        }
+        var sk = pscScopeStateKey(key, tipo);
+        var currentPage = Number(pscPageUiState.pager[sk] || 1);
+        var totalPages = Math.max(1, Math.ceil(pages.length / PSC_PAGE_SIZE));
+        if (!Number.isFinite(currentPage) || currentPage < 1) currentPage = 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        pscPageUiState.pager[sk] = currentPage;
+        var start = (currentPage - 1) * PSC_PAGE_SIZE;
+        var end = Math.min(start + PSC_PAGE_SIZE, pages.length);
+        var pageRows = pages.slice(start, end);
+        var selected = pscGetSelectedSet(key, tipo);
+        html +=
+            '<div class="list-group list-group-flush border rounded overflow-hidden psc-page-checklist">';
+        pageRows.forEach(function (p) {
+            var pid = String(p.id);
+            var lineOn = selected.has(pid);
+            var ck = lineOn ? ' checked' : '';
+            var nid = 'psc-pg-' + key + '-' + tipo + '-' + pid;
+            html +=
+                '<label class="list-group-item d-flex align-items-center gap-3 py-3 px-3 mb-0 psc-page-row" for="' +
+                nid +
+                '">';
+            html +=
+                '<input type="checkbox" class="form-check-input flex-shrink-0 psc-page-cb" id="' +
+                nid +
+                '" data-app="' +
+                key +
+                '" data-tipo="' +
+                tipo +
+                '" data-page-id="' +
+                pid +
+                '"' +
+                ck +
+                '>';
+            html += '<span class="small flex-grow-1 min-w-0"><span class="text-body fw-medium">' + pscEscapeHtml(p.nombre || '') + '</span>';
+            html += '</span></label>';
+        });
+        html += '</div>';
+        if (totalPages > 1) {
+            var prevDisabled = currentPage <= 1 ? ' disabled' : '';
+            var nextDisabled = currentPage >= totalPages ? ' disabled' : '';
+            html +=
+                '<div class="d-flex align-items-center justify-content-between gap-2 mt-2 psc-page-pager">' +
+                '<button type="button" class="btn btn-sm btn-outline-secondary psc-page-nav" data-app="' +
+                key +
+                '" data-tipo="' +
+                tipo +
+                '" data-dir="-1"' +
+                prevDisabled +
+                '>Anterior</button>' +
+                '<span class="small text-muted">Página ' +
+                currentPage +
+                ' de ' +
+                totalPages +
+                '</span>' +
+                '<button type="button" class="btn btn-sm btn-outline-secondary psc-page-nav" data-app="' +
+                key +
+                '" data-tipo="' +
+                tipo +
+                '" data-dir="1"' +
+                nextDisabled +
+                '>Siguiente</button>' +
+                '</div>';
+        }
+        return html;
+    }
+    function pscRenderPaginaChecklist(key, tipo) {
+        var sk = pscScopeStateKey(key, tipo);
+        var pages = pscPageUiState.pages[sk] || [];
+        var $slot = $('#psc-pages-list-' + key + '-' + tipo);
+        if (!$slot.length) return;
+        $slot.html(pscBuildPaginaChecklistHtml(key, tipo, pages));
+    }
+    function pscResetSelectionForApp(app) {
+        var pref = String(app) + '|';
+        Object.keys(pscPageUiState.selected).forEach(function (k) {
+            if (k.indexOf(pref) === 0 && pscPageUiState.selected[k] instanceof Set) {
+                pscPageUiState.selected[k].clear();
+            }
+        });
+        Object.keys(pscPageUiState.pages).forEach(function (k) {
+            if (k.indexOf(pref) !== 0) return;
+            var parts = k.split('|');
+            if (parts.length !== 2) return;
+            pscRenderPaginaChecklist(parts[0], parts[1]);
+        });
+    }
+    function pscScopeTipoState(raw, tipo, sinAlcanceGuardado) {
+        var tNum = Number(tipo);
+        if (tNum === 5) {
+            if (sinAlcanceGuardado) return { checked: true, all: true, pageIds: [], esEntrada: true };
+            if (Array.isArray(raw)) {
+                return { checked: raw.indexOf(5) >= 0, all: true, pageIds: [], esEntrada: true };
+            }
+            var sp5 = raw && raw['5'];
+            if (!sp5) return { checked: false, all: true, pageIds: [], esEntrada: true };
+            return { checked: true, all: true, pageIds: [], esEntrada: true };
+        }
+        if (tNum === 6) {
+            if (sinAlcanceGuardado) return { checked: true, all: true, pageIds: [], esEntrada: false };
+            if (Array.isArray(raw)) {
+                return { checked: raw.indexOf(6) >= 0, all: true, pageIds: [], esEntrada: false };
+            }
+            var sp6 = raw && raw['6'];
+            if (!sp6) return { checked: false, all: true, pageIds: [], esEntrada: false };
+            return { checked: true, all: true, pageIds: [], esEntrada: false };
+        }
+        if (sinAlcanceGuardado) return { checked: true, all: true, pageIds: [], esEntrada: false };
+        if (Array.isArray(raw)) {
+            return { checked: raw.indexOf(tipo) >= 0, all: true, pageIds: [], esEntrada: false };
+        }
+        var tStr = String(tipo);
+        var sp = raw && raw[tStr];
+        if (!sp) return { checked: false, all: true, pageIds: [], esEntrada: false };
+        if (sp.all === true) return { checked: true, all: true, pageIds: [], esEntrada: false };
+        if (sp.all === false && Array.isArray(sp.pageIds) && sp.pageIds.length) {
+            return { checked: true, all: false, pageIds: sp.pageIds.map(String), esEntrada: false };
+        }
+        if (sp.all === false && sp.pageId != null && sp.pageId !== '') {
+            return { checked: true, all: false, pageIds: [String(sp.pageId)], esEntrada: false };
+        }
+        return { checked: true, all: true, pageIds: [], esEntrada: false };
+    }
+    function pscInitPaginaScopeChecklists(scopeMap, opcionesPorApp, scopeAppIds, scopeOpts) {
+        var $root = $('#EditarPermisosModal_Form #muestrapermisos');
+        scopeAppIds.forEach(function (aid) {
+            var key = String(aid);
+            var opc = opcionesPorApp[key] || { '1': [], '2': [], '5': [], '6': [] };
+            var tiposRaw = scopeMap[key] != null ? scopeMap[key] : null;
+            var sinAlcanceGuardado = pscIsSinAlcance(tiposRaw);
+            scopeOpts.forEach(function (opt) {
+                if (opt.v === 5 || opt.v === 6) return;
+                var st = pscScopeTipoState(tiposRaw, opt.v, sinAlcanceGuardado);
+                var pages = opc[String(opt.v)] || [];
+                var sk = pscScopeStateKey(key, opt.v);
+                pscPageUiState.pages[sk] = pages;
+                pscPageUiState.pager[sk] = 1;
+                pscInitTipoSelectionState(key, opt.v, pages, st);
+                pscRenderPaginaChecklist(key, opt.v);
+            });
+        });
+        $root.off('change.psc');
+        $root.on('change.psc', '.pagina-scope-cb', function () {
+            var key = String($(this).data('app'));
+            var tv = String($(this).val());
+            $('#psc-ext-' + key + '-' + tv).toggle(this.checked);
+            if (tv === '5' || tv === '6') return;
+            var sk = pscScopeStateKey(key, tv);
+            var pages = pscPageUiState.pages[sk] || [];
+            var selected = pscGetSelectedSet(key, tv);
+            if (this.checked) {
+                pages.forEach(function (p) {
+                    selected.add(String(p.id));
+                });
+            } else {
+                selected.clear();
+            }
+            pscRenderPaginaChecklist(key, tv);
+        });
+        $root.on('change.psc', '.psc-page-cb', function () {
+            var key = String($(this).data('app'));
+            var tv = String($(this).data('tipo'));
+            var pid = String($(this).data('page-id'));
+            var selected = pscGetSelectedSet(key, tv);
+            if (this.checked) selected.add(pid);
+            else selected.delete(pid);
+        });
+        $root.on('click.psc', '.psc-page-nav', function () {
+            var key = String($(this).data('app'));
+            var tv = String($(this).data('tipo'));
+            var dir = Number($(this).data('dir') || 0);
+            var sk = pscScopeStateKey(key, tv);
+            var pages = pscPageUiState.pages[sk] || [];
+            var totalPages = Math.max(1, Math.ceil(pages.length / PSC_PAGE_SIZE));
+            var page = Number(pscPageUiState.pager[sk] || 1);
+            page += dir;
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            pscPageUiState.pager[sk] = page;
+            pscRenderPaginaChecklist(key, tv);
+        });
+    }
+
+    function isPscSubmoduloPaginas(submodulo) {
+        var raw = (submodulo.archivo || '').toString().trim().toLowerCase().replace(/^\//, '').replace(/_/g, '-');
+        try {
+            raw = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        } catch (e) {}
+        if (raw.indexOf('paginas') >= 0 && raw.indexOf('users-instancia') < 0) return true;
+        var leg = (submodulo.legend || '')
+            .toString()
+            .trim()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+        if (leg === 'paginas') return true;
+        return false;
+    }
+
+    function pscBuildAlcanceTipoHtml(key, tiposRaw, sinAlcanceGuardado, inAllowed, scopeOpts) {
+        if (!inAllowed) {
+            return (
+                '<div class="psc-alcance-panel p-3"><p class="small text-muted mb-0"><i class="fa-solid fa-circle-info me-1"></i> Sin alcance de páginas en común para esta instancia.</p></div>'
+            );
+        }
+        var html = '';
+        html += '<div class="psc-alcance-panel">';
+        html +=
+            '<div class="psc-alcance-intro px-3 pt-3 pb-2"><p class="psc-alcance-title mb-2">Alcance de páginas</p><p class="psc-alcance-lead mb-0">Activa cada tipo de página o sección para otorgar acceso. En <strong>Página principal</strong> y <strong>Páginas interiores</strong>, selecciona las páginas permitidas. En <strong>Entradas</strong> y <strong>Regeneración</strong>, el permiso aplica a toda la sección.</p></div>';
+        html += '<div class="pagina-scope-tipo-wrap px-3 pb-3">';
+        scopeOpts.forEach(function (opt) {
+            const st = pscScopeTipoState(tiposRaw, opt.v, sinAlcanceGuardado);
+            const checked = st.checked ? 'checked' : '';
+            const extDisp = st.checked ? '' : ' style="display:none"';
+            const collapseId = 'psc-tipo-collapse-' + key + '-' + opt.v;
+            const idcb = 'psc-' + key + '-' + opt.v;
+            if (opt.v === 5) {
+                html += '<div class="pagina-scope-tipo-item mb-3 border rounded-2 shadow-sm overflow-hidden bg-white">';
+                html +=
+                    '<div class="pagina-scope-tipo-head d-flex align-items-start gap-2 gap-md-3 px-3 py-3 bg-light psc-tipo-head-bar" data-bs-toggle="collapse" data-bs-target="#' +
+                    collapseId +
+                    '">';
+                html +=
+                    '<input type="checkbox" class="form-check-input pagina-scope-cb flex-shrink-0 mt-1 psc-alcance-master-cb" id="' +
+                    idcb +
+                    '" data-app="' +
+                    key +
+                    '" value="' +
+                    opt.v +
+                    '" ' +
+                    checked +
+                    ' onclick="event.stopPropagation();">';
+                html += '<div class="flex-grow-1 min-w-0">';
+                html +=
+                    '<div class="d-flex align-items-center gap-2 flex-wrap"><i class="fa-solid ' +
+                    opt.icon +
+                    ' pagina-scope-tipo-ico flex-shrink-0"></i><span class="fw-semibold text-body">' +
+                    opt.title +
+                    '</span></div>';
+                html += '</div>';
+                html += '<i class="fa-solid fa-chevron-down small text-muted flex-shrink-0 mt-1"></i>';
+                html += '</div>';
+                html += '<div class="collapse" id="' + collapseId + '">';
+                html +=
+                    '<div class="px-3 py-3 psc-alcance-body small text-muted border-0" id="psc-ext-' +
+                    key +
+                    '-' +
+                    opt.v +
+                    '"' +
+                    extDisp +
+                    '">';
+                html +=
+                    '<p class="mb-0">Si está activo, el permiso aplica a <strong>todas</strong> las entradas (alcance global). No se listan ni asignan entradas individuales.</p>';
+                html += '</div></div></div>';
+                return;
+            }
+            if (opt.v === 6) {
+                html += '<div class="pagina-scope-tipo-item mb-3 border rounded-2 shadow-sm overflow-hidden bg-white">';
+                html +=
+                    '<div class="pagina-scope-tipo-head d-flex align-items-start gap-2 gap-md-3 px-3 py-3 bg-light psc-tipo-head-bar" data-bs-toggle="collapse" data-bs-target="#' +
+                    collapseId +
+                    '">';
+                html +=
+                    '<input type="checkbox" class="form-check-input pagina-scope-cb flex-shrink-0 mt-1 psc-alcance-master-cb" id="' +
+                    idcb +
+                    '" data-app="' +
+                    key +
+                    '" value="' +
+                    opt.v +
+                    '" ' +
+                    checked +
+                    ' onclick="event.stopPropagation();">';
+                html += '<div class="flex-grow-1 min-w-0">';
+                html +=
+                    '<div class="d-flex align-items-center gap-2 flex-wrap"><i class="fa-solid ' +
+                    opt.icon +
+                    ' pagina-scope-tipo-ico flex-shrink-0"></i><span class="fw-semibold text-body">' +
+                    opt.title +
+                    '</span></div>';
+                html += '</div>';
+                html += '<i class="fa-solid fa-chevron-down small text-muted flex-shrink-0 mt-1"></i>';
+                html += '</div>';
+                html += '<div class="collapse" id="' + collapseId + '">';
+                html +=
+                    '<div class="px-3 py-3 psc-alcance-body small text-muted border-0" id="psc-ext-' +
+                    key +
+                    '-' +
+                    opt.v +
+                    '"' +
+                    extDisp +
+                    '">';
+                html +=
+                    '<p class="mb-0">Permite administrar la <strong>sección Regeneración</strong> (documentos PDF e imágenes asociadas en el listado del CMS). No son páginas del sitio; el acceso es a toda la sección.</p>';
+                html += '</div></div></div>';
+                return;
+            }
+            html += '<div class="pagina-scope-tipo-item mb-3 border rounded-2 shadow-sm overflow-hidden bg-white">';
+            html +=
+                '<div class="pagina-scope-tipo-head d-flex align-items-start gap-2 gap-md-3 px-3 py-3 bg-light psc-tipo-head-bar" data-bs-toggle="collapse" data-bs-target="#' +
+                collapseId +
+                '">';
+            html +=
+                '<input type="checkbox" class="form-check-input pagina-scope-cb flex-shrink-0 mt-1 psc-alcance-master-cb" id="' +
+                idcb +
+                '" data-app="' +
+                key +
+                '" value="' +
+                opt.v +
+                '" ' +
+                checked +
+                ' onclick="event.stopPropagation();">';
+            html += '<div class="flex-grow-1 min-w-0">';
+            html +=
+                '<div class="d-flex align-items-center gap-2 flex-wrap"><i class="fa-solid ' +
+                opt.icon +
+                ' pagina-scope-tipo-ico flex-shrink-0"></i><span class="fw-semibold text-body">' +
+                opt.title +
+                '</span></div>';
+            html += '</div>';
+            html += '<i class="fa-solid fa-chevron-down small text-muted flex-shrink-0 mt-1"></i>';
+            html += '</div>';
+            html += '<div class="collapse" id="' + collapseId + '">';
+            html +=
+                '<div class="px-3 py-3 psc-alcance-body bg-white border-0" id="psc-ext-' +
+                key +
+                '-' +
+                opt.v +
+                '"' +
+                extDisp +
+                '">';
+            html += '<div id="psc-pages-list-' + key + '-' + opt.v + '"></div>';
+            html += '</div></div></div>';
+        });
+        html += '</div></div>';
+        return html;
+    }
+
+    function VerAdminPermisosInstance(){
+        let id_user = $('#EditarPermisosModal_Form #EditarPermisosIdUser').val();
+        let paramAdmin = 'id_user=' + encodeURIComponent(id_user) + '&id_type=13';
+        let paramScope = 'id_user=' + encodeURIComponent(id_user);
+        const scopeOpts = [
+            { v: 1, title: 'Página principal', hint: 'Inicio del sitio', icon: 'fa-house' },
+            { v: 2, title: 'Páginas interiores', hint: 'Secciones y contenidos', icon: 'fa-file-lines' },
+            { v: 5, title: 'Entradas', hint: 'Blog y notas', icon: 'fa-newspaper' },
+            { v: 6, title: 'Regeneración', hint: 'Sección de documentos', icon: 'fa-file-pdf' },
+        ];
+        Promise.all([
+            fetch('/obtenerAdminViewInstancia', {
+                method: 'POST',
+                body: paramAdmin,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            }).then((r) => r.json()),
+            fetch('/obtenerPaginaScopeUserInstancia', {
+                method: 'POST',
+                body: paramScope,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            }).then((r) => r.json()),
+        ]).then(function (results) {
+            const adminData = results[0];
+            const scopeData = results[1];
+            if (!adminData.success) return;
+            const allowedList = scopeData.success
+                ? scopeData.allowed_instances || []
+                : Object.values(adminData.data).map(function (app) {
+                      return app.id;
+                  });
+            const scopeMap = scopeData.success && scopeData.data ? scopeData.data : {};
+            const scopeAppIds = allowedList.filter(function (aid) {
+                return Object.values(adminData.data).some(function (app) {
+                    return Number(app.id) === Number(aid);
+                });
+            });
+            const finish = function (opcionesPorApp) {
+                opcionesPorApp = opcionesPorApp || {};
+                let html = '';
+                html += '<div class="accordion psc-inst-accordion" id="acordeon-perfil-inst">';
+                Object.values(adminData.data).forEach(function (app) {
+                    const key = String(app.id);
+                    const tiposRaw = scopeMap[key] != null ? scopeMap[key] : null;
+                    const sinAlcanceGuardado = pscIsSinAlcance(tiposRaw);
+                    const inAllowed = allowedList.some(function (a) {
+                        return Number(a) === Number(app.id);
+                    });
+                    var alcHtmlForApp = pscBuildAlcanceTipoHtml(key, tiposRaw, sinAlcanceGuardado, inAllowed, scopeOpts);
+                    html +=
+                        '<div class="accordion-item psc-inst-acc-item">' +
+                        '<div class="accordion-header" id="acordeon-perfil-header-inst' + app.id + '">' +
+                        '<button class="accordion-button aco-perfil" type="button" data-bs-toggle="collapse" data-bs-target="#acordeon-perfil-inst-' + app.id + '" aria-expanded="false" aria-controls="acordeon-perfil-inst-' + app.id + '">' +
+                        '<div class="sec-info" id="colorPermiso_' + app.id + '">' +
+                        '<div class="sec-icon psc-inst-clean-icon"><i class="fa-solid fa-layer-group psc-inst-head-icon"></i></div>' +
+                        '<label class="psc-inst-label">' + app.app_name + '</label>' +
+                        '</div></button></div>' +
+                        '<div id="acordeon-perfil-inst-' + app.id + '" class="accordion-collapse collapse">' +
+                        '<div class="accordion-body aco-body scroll-hor">' +
+                        '<div class="min-tab">';
+                    Object.values(app.modulos).forEach(function (modulo) {
+                        html +=
+                            '<div class="">' +
+                            '<div class="psc-modulo-head"><p class="subtit mb-0"><span class="psc-mod-title">' + modulo.mod_legend + '</span></p><span class="psc-mod-line" aria-hidden="true"></span></div>' +
+                            '<div class="cont-gral row">' +
+                            '<table class="table">' +
+                            '<thead class="table-head verde">' +
+                            '<tr><th class="whiteletter">Submódulo</th><th class="whiteletter">Permitido</th></tr>' +
+                            '</thead><tbody>';
+                        Object.values(modulo.submodulos).forEach(function (submodulo) {
+                            let checkus = submodulo.perm_user ? 'checked' : '';
+                            let perm_us = submodulo.perm_type ? 'user' : 'times';
+                            let dis = submodulo.perm_type ? '' : ' disabled';
+                            if (isPscSubmoduloPaginas(submodulo)) {
+                                var pagCollapseId = 'psc-submod-pag-' + key + '-' + submodulo.id_syssubmod;
+                                html +=
+                                    '<tr id="id_submod' + submodulo.id_syssubmod + '" class="psc-paginas-submod-row" data-app="' + app.id + '">' +
+                                    '<td class="align-middle">';
+                                html +=
+                                    '<button type="button" class="btn btn-link text-start text-dark text-decoration-none p-0 d-inline-flex align-items-center psc-paginas-toggle" data-bs-toggle="collapse" data-bs-target="#' +
+                                    pagCollapseId +
+                                    '" data-psc-alcance-collapse="' +
+                                    pagCollapseId +
+                                    '" aria-expanded="false">';
+                                html +=
+                                    '<i class="fa-solid fa-chevron-right me-2 small psc-paginas-chevron"></i><span>' +
+                                    submodulo.legend +
+                                    '</span>';
+                                html += '</button></td>';
+                                html +=
+                                    '<td class="align-middle"><input type="checkbox" data-perm="' +
+                                    perm_us +
+                                    '" data-idapp="' +
+                                    app.id +
+                                    '" value="' +
+                                    submodulo.id_syssubmod +
+                                    '" name="EditarPermisos_submodulo" class="form-check-input" ' +
+                                    checkus +
+                                    dis +
+                                    ' data-psc-paginas="1" data-psc-alcance-collapse="' +
+                                    pagCollapseId +
+                                    '" onchange="validaEncabezadoPermiso()"></td></tr>';
+                                html +=
+                                    '<tr class="psc-paginas-alcance-row"><td colspan="2" class="p-0 border-top-0 psc-paginas-block-end">';
+                                html +=
+                                    '<div class="collapse pagina-scope-submod-collapse border-top bg-light" id="' +
+                                    pagCollapseId +
+                                    '">';
+                                html += alcHtmlForApp;
+                                html += '</div></td></tr>';
+                                return;
+                            }
+                            html +=
+                                '<tr id="id_submod' + submodulo.id_syssubmod + '" data-app="' + app.id + '">' +
+                                '<td>' +
+                                submodulo.legend +
+                                '</td>' +
+                                '<td><input type="checkbox" data-perm="' +
+                                perm_us +
+                                '" data-idapp="' +
+                                app.id +
+                                '" value="' +
+                                submodulo.id_syssubmod +
+                                '" name="EditarPermisos_submodulo" class="form-check-input" ' +
+                                checkus +
+                                dis +
+                                ' onchange="validaEncabezadoPermiso()"></td>' +
+                                '</tr>';
+                        });
+                        html += '</tbody></table></div></div>';
+                    });
+                    html += '</div></div></div></div>';
+                });
+                html += '</div>';
+                $('#EditarPermisosModal_Form #muestrapermisos').html(html);
+                $('#EditarPermisosModal_Form #muestrapermisos')
+                    .off('click.pscpaglock')
+                    .on('click.pscpaglock', '.psc-paginas-toggle.psc-paginas-panel-locked', function (e) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        return false;
+                    });
+                $('#EditarPermisosModal_Form #muestrapermisos')
+                    .off('change.pscpagparent')
+                    .on(
+                        'change.pscpagparent',
+                        'input[name="EditarPermisos_submodulo"][data-psc-paginas="1"]',
+                        function () {
+                            if (!this.checked) {
+                                var app = String($(this).data('idapp'));
+                                $('.pagina-scope-cb[data-app="' + app + '"]').prop('checked', false);
+                                $('.psc-page-cb[data-app="' + app + '"]').prop('checked', false);
+                                pscResetSelectionForApp(app);
+                            }
+                            pscApplyPaginasAlcanceGate(this);
+                        }
+                    );
+                if (scopeAppIds.length) {
+                    pscInitPaginaScopeChecklists(scopeMap, opcionesPorApp, scopeAppIds, scopeOpts);
+                }
+                pscInitPaginasAlcancePanelGate();
+                validaEncabezadoPermiso();
+            };
+            if (!scopeAppIds.length) {
+                finish({});
+                return;
+            }
+            Promise.all(
+                scopeAppIds.map(function (aid) {
+                    return fetch('/opcionesPaginasAlcanceInstancia', {
+                        method: 'POST',
+                        body: 'fk_id_sysapp=' + encodeURIComponent(aid),
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    }).then(function (r) {
+                        return r.json();
+                    });
+                })
+            ).then(function (opcResponses) {
+                const opcionesPorApp = {};
+                scopeAppIds.forEach(function (aid, i) {
+                    var o = opcResponses[i];
+                    opcionesPorApp[String(aid)] = o && o.success && o.data ? o.data : { '1': [], '2': [], '5': [] };
+                });
+                finish(opcionesPorApp);
+            });
+        });
+    }
+
+    function EditarPermisosModalInstance(id_user){
+        let param = 'id_user=' + id_user;
+        fetch('/obtenerPermisosUserInstancia', {
+            method: 'POST',
+            body: param,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        })
+            .then((r) => r.json())
+            .then((data) => {
+                if (!data.success) return;
+                limpieza_modalGral();
+                modalGral_addTit('PERMISOS DE USUARIO (INSTANCIA)');
+                modalGral_addSubtit('Asigna módulos y alcance de páginas');
+                modalGral_bodyAppend(getHtmlTemplate('EditarPermisosModalTemplate'));
+                modalGral_addFooter(
+                    `<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal"><p>CANCELAR</p><div class="btnIcon"><div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div><span class="s-guinda"></span></div></button>
+                    <button class="btnGral verde_t" type="button" id="EditarPermisos_guardar_inst"><p>GUARDAR</p><div class="btnIcon"><div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div><span class="s-verde"></span></div></button>`
+                );
+                $('#EditarPermisosModal_Form #EditarPermisosIdUser').val(id_user);
+                $('#EditarPermisosModal_Form #EditarPermisosUS').val(data.data.usuario);
+                $('input[name="EditarPermisos_tipous"]').prop('disabled', true);
+                $('input[name="EditarPermisos_tipous"][value="13"]').prop('checked', true);
+                $('#EditarPermisosModal_Form #EditarPermisosCurp').val(data.data.curp);
+                $('#EditarPermisosModal_Form #EditarPermisosNombre').val(data.data.nombre);
+                $('#EditarPermisosModal_Form #EditarPermisosPrimerA').val(data.data.primerA);
+                $('#EditarPermisosModal_Form #EditarPermisosSegundoA').val(data.data.segundoA);
+                $('#EditarPermisosModal_Form #EditarPermisosCorreo').val(data.data.correo);
+                $('#EditarPermisosModal_Form #tab-longer').attr('onclick', '');
+                $('#EditarPermisos_guardar_inst')
+                    .off('click')
+                    .on('click', EditarPermisosInstance);
+                (new bootstrap.Modal($('#modalGral')[0], { backdrop: 'static', keyboard: false })).show();
+                setTimeout(function () {
+                    VerAdminPermisosInstance();
+                }, 0);
+            });
+    }
+
+    function pscPaginasSubmoduloCheckedForApp(appId) {
+        var $m = $(
+            'input[name="EditarPermisos_submodulo"][data-psc-paginas="1"][data-idapp="' +
+                appId +
+                '"]'
+        );
+        return $m.length && $m.is(':checked') && !$m.is(':disabled');
+    }
+    function pscApplyPaginasAlcanceGate(cbEl) {
+        var $cb = $(cbEl);
+        var collapseId = $cb.attr('data-psc-alcance-collapse');
+        if (!collapseId) return;
+        var $col = $('#' + collapseId);
+        var $btn = $cb.closest('tr').find('.psc-paginas-toggle');
+        var on = $cb.is(':checked') && !$cb.is(':disabled');
+        if (on) {
+            $btn.removeClass('psc-paginas-panel-locked').attr('aria-disabled', 'false').css('pointer-events', '');
+        } else {
+            $btn.addClass('psc-paginas-panel-locked').attr('aria-disabled', 'true').css('pointer-events', 'none');
+            if ($col.length && typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                try {
+                    var ci = bootstrap.Collapse.getInstance($col[0]);
+                    if (ci) ci.hide();
+                    else bootstrap.Collapse.getOrCreateInstance($col[0], { toggle: false }).hide();
+                } catch (e) {}
+            }
+        }
+    }
+    function pscInitPaginasAlcancePanelGate() {
+        $('#EditarPermisosModal_Form #muestrapermisos')
+            .find('input[name="EditarPermisos_submodulo"][data-psc-paginas="1"]')
+            .each(function () {
+                pscApplyPaginasAlcanceGate(this);
+            });
+    }
+    function EditarPermisosInstance(){
+        let id_user = $('#EditarPermisosModal_Form #EditarPermisosIdUser').val();
+        let correo = $('#EditarPermisosModal_Form #EditarPermisosCorreo').val();
+        let permisosSeleccionados = [];
+        $('input[name="EditarPermisos_submodulo"]:checked:not(:disabled)').each(function () {
+            permisosSeleccionados.push({
+                id_app: $(this).data('idapp'),
+                id_syssubmod: $(this).val(),
+            });
+        });
+        let pagina_scope = {};
+        let scopeErr = null;
+        $('.pagina-scope-cb:checked').each(function () {
+            var app = String($(this).data('app'));
+            if (!pscPaginasSubmoduloCheckedForApp(app)) {
+                return;
+            }
+            let tipo = String($(this).val());
+            if (!pagina_scope[app]) pagina_scope[app] = {};
+            if (tipo === '5' || tipo === '6') {
+                pagina_scope[app][tipo] = { all: true };
+                return;
+            }
+            var $lines = $(
+                '.psc-page-cb[data-app="' + app + '"][data-tipo="' + tipo + '"]'
+            );
+            var sk = pscScopeStateKey(app, tipo);
+            var pages = pscPageUiState.pages[sk] || [];
+            var selectedSet = pscPageUiState.selected[sk] instanceof Set ? pscPageUiState.selected[sk] : new Set();
+            var selectedIds = Array.from(selectedSet);
+            var total = pages.length || $lines.length;
+            if (!total) {
+                pagina_scope[app][tipo] = { all: true };
+                return;
+            }
+            if (!selectedIds.length) {
+                scopeErr =
+                    'En página principal e interiores: marque al menos una página o desactive el tipo en el acordeón.';
+                return false;
+            }
+            if (selectedIds.length === total) {
+                pagina_scope[app][tipo] = { all: true };
+            } else {
+                pagina_scope[app][tipo] = {
+                    all: false,
+                    pageIds: selectedIds
+                        .map(function (pid) {
+                            return parseInt(pid, 10);
+                        })
+                        .filter(function (n) {
+                            return Number.isFinite(n);
+                        }),
+                };
+            }
+        });
+        if (scopeErr) {
+            $.alert({
+                title: 'Atención',
+                content: '<strong>' + scopeErr + '</strong>',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'blue',
+            });
+            return;
+        }
+        let param = JSON.stringify({
+            id_user: id_user,
+            correo: correo,
+            id_type: 13,
+            permisosSeleccionados: permisosSeleccionados,
+            pagina_scope: pagina_scope,
+        });
+        fetch('/editarPermisosUserInstancia', {
+            method: 'POST',
+            body: param,
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then((r) => r.json())
+            .then((data) => {
+                if (data.success) {
+                    $.alert({
+                        title: 'Correcto',
+                        content: '<strong>Guardado</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-circle-check',
+                        type: 'blue',
+                        buttons: {
+                            Aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-success',
+                                action: function () {
+                                    setTimeout(() => window.location.reload(), 250);
+                                },
+                            },
+                        },
+                    });
+                } else {
+                    $.alert({
+                        title: 'Advertencia',
+                        content: '<strong>' + (data.msg || 'Error') + '</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: 'blue',
+                    });
+                }
+            });
+    }
+
+    function EditarPermisos(){
+
+        let id_user = $('#EditarPermisosModal_Form #EditarPermisosIdUser').val();
+        let correo = $('#EditarPermisosModal_Form #EditarPermisosCorreo').val();
+        let id_type = $('input[name="EditarPermisos_tipous"]:checked').val();
+
+        let permisosSeleccionados = [];
+        $('input[name="EditarPermisos_submodulo"]').each(function () {
+            if ($(this).is(':checked')) {
+                permisosSeleccionados.push({
+                    id_app: $(this).data('idapp'),
+                    id_syssubmod: $(this).val()
+                });
+            }
+        });
+
+        if (id_type == null || id_type === '') {
+            $.alert({
+                title: 'Datos incompletos',
+                content: '<strong>Seleccione el tipo de usuario.</strong>',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'blue',
+            });
+            return;
+        }
+
+        let param = JSON.stringify({
+            id_user: id_user,
+            correo: correo,
+            id_type: id_type,
+            permisosSeleccionados: permisosSeleccionados
+        });
+
+        fetch('/editarPermisosUser',{
+            method: 'POST',
+            body:   param,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response=>response.json())
+            .then(data=>{
+                if(data.success){
+                    $.alert({
+                        title: "Correcto",
+                        content: '<strong></strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-circle-check',
+                        type: "blue",
+                        buttons: {
+                            Aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-success',
+                                action: function () {
+                                    setTimeout(()=>window.location.reload(),250);
+                                }
+                            }
+                        }
+                    });
+                }
+                else{
+                    $.alert({
+                        title: "Advertencia",
+                        content: '<strong>'+data.msg+'</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: "blue"
+                    });
+                }
+            });
+    }
+    function DesactivarUserConfirm(id){
+        $.confirm({
+            title: 'Atención',
+            content: '<strong>Está seguro de Desactivar el Usuario con ID '+id+'</strong>',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: "blue",
+            buttons: {
+                Confirmar: {
+                    text: 'Confirmar',
+                    btnClass: 'btn-success',
+                    action: ()=>{DesactivarUser(id)}
+                },
+                Cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-danger',
+                }
+            }
+        });
+    }
+    function DesactivarUser(id){
+        let param='id='+id;
+        fetch('/desactivarUser',{
+            method: 'POST',
+            body:   param,
+            headers: {
+                //"Content-Type": "application/json",
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+        })
+            .then(response=>response.json())
+            .then(data=>{
+                if(data.success){
+                    $.alert({
+                        title: "Correcto",
+                        content: '<strong>'+data.msg+'</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-circle-check',
+                        type: "blue",
+                        buttons: {
+                            Aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-success',
+                                action: function () {
+                                    setTimeout(()=>window.location.reload(),250);
+                                }
+                            }
+
+                        }
+                    });
+                }
+                else{
+                    $.alert({
+                        title: "Advertencia",
+                        content: '<strong>'+data.msg+'</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: "blue"
+                    });
+                }
+            });
+    }
+    function ReactivarUserConfirm(id){
+        $.confirm({
+            title: 'Atención',
+            content: '<strong>Está seguro de Reactivar el Usuario con ID '+id+'</strong>',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: "blue",
+            buttons: {
+                Confirmar: {
+                    text: 'Confirmar',
+                    btnClass: 'btn-success',
+                    action: ()=>{ReactivarUser(id)}
+                }
+            }
+        });
+    }
+    function ReactivarUser(id){
+        let param='id='+id;
+
+        fetch('/reactivarUser',{
+            method: 'POST',
+            body:   param,
+            headers: {
+                //"Content-Type": "application/json",
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+        })
+            .then(response=>response.json())
+            .then(data=>{
+                if(data.success){
+                    $.alert({
+                        title: "Correcto",
+                        content: '<strong>'+data.msg+'</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-circle-check',
+                        type: "blue",
+                        buttons: {
+                            Aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-success',
+                                action: function () {
+                                    setTimeout(()=>window.location.reload(),250);
+                                }
+                            }
+                        }
+                    });
+                }
+                else{
+                    $.alert({
+                        title: "Advertencia",
+                        content: '<strong>'+data.msg+'</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: "blue"
+                    });
+                }
+            });
+    }
+
+    /*Actualizar Contraseña*/
+    function ActualizarContraenaConfirm(id){
+        $.confirm({
+            title: 'Atención',
+            content: '<strong>Está seguro de Actualizar la contraseña del  Usuario con ID '+id+'</strong>',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: "blue",
+            buttons: {
+                Confirmar: {
+                    text: 'Confirmar',
+                    btnClass: 'btn-success',
+                    action: ()=>{ActualizarContrasena(id)}
+                },
+                Cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-danger',
+
+                }
+            }
+        });
+    }
+
+    function ActualizarContrasena(id){
+        // console.log(id);
+        let param='id='+id;
+        fetch('/actualizarContrasenaUser',{
+            method: 'POST',
+            body:   param,
+            headers: {
+                //"Content-Type": "application/json",
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+        })
+            .then(response=>response.json())
+            .then(data=>{
+                if(data.success){
+                    $.alert({
+                        title: "Correcto",
+                        content: '<strong>'+data.msg+'</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-circle-check',
+                        type: "blue",
+                        buttons: {
+                            Aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-success',
+                                action: function () {
+                                    setTimeout(()=>window.location.reload(),250);
+                                }
+                            }
+                        }
+                    });
+                }
+                else{
+                    $.alert({
+                        title: "Advertencia",
+                        content: '<strong>'+data.msg+'</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: "blue"
+                    });
+                }
+            });
+    }
+    /*Actualizar contraseña*/
+</script>

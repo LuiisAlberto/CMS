@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: none;
+      }
+
+      .cls-3 {
+        filter: url(#drop-shadow-11);
+      }
+
+      .cls-3, .cls-4, .cls-2, .cls-5, .cls-6 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-3, .cls-6 {
+        fill: #fff;
+        stroke: #4d4d4d;
+        stroke-width: .2px;
+      }
+
+      .cls-4 {
+        stroke: #fff;
+      }
+
+      .cls-4, .cls-7 {
+        fill: #d6cfc4;
+      }
+
+      .cls-4, .cls-2, .cls-5 {
+        stroke-width: .25px;
+      }
+
+      .cls-2, .cls-5 {
+        stroke: #333;
+      }
+
+      .cls-5 {
+        fill: #333;
+      }
+
+      .cls-6 {
+        filter: url(#drop-shadow-4);
+      }
+
+      .cls-8 {
+        fill: #1a1a1a;
+        font-family: Montserrat-Light, Montserrat;
+        font-size: 8px;
+        font-weight: 300;
+      }
+
+      .cls-9 {
+        letter-spacing: 0em;
+      }
+
+      .cls-10 {
+        letter-spacing: -.01em;
+      }
+    </style>
+    <filter id="drop-shadow-4" x="60.5" y="-2.5" width="37" height="35" filterUnits="userSpaceOnUse">
+      <feOffset dx="-2" dy="3"/>
+      <feGaussianBlur result="blur" stdDeviation="4"/>
+      <feFlood flood-color="#514c4c" flood-opacity=".2"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="drop-shadow-11" x="60.5" y="9.5" width="37" height="42" filterUnits="userSpaceOnUse">
+      <feOffset dx="-2" dy="3"/>
+      <feGaussianBlur result="blur-2" stdDeviation="4"/>
+      <feFlood flood-color="#514c4c" flood-opacity=".2"/>
+      <feComposite in2="blur-2" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <rect class="cls-1" x="-.75" y="-1.25" width="64" height="63.75" rx="8" ry="8"/>
+  <line class="cls-2" x1="9.5" y1="27.5" x2="53.5" y2="27.5"/>
+  <line class="cls-2" x1="18.5" y1="20.5" x2="18.5" y2="27.5"/>
+  <line class="cls-2" x1="30.5" y1="27.5" x2="30.5" y2="35.5"/>
+  <line class="cls-5" x1="46.5" y1="20.5" x2="46.5" y2="27.5"/>
+  <circle class="cls-7" cx="18.5" cy="17.5" r="2"/>
+  <circle class="cls-4" cx="30.5" cy="37.5" r="2"/>
+  <circle class="cls-4" cx="46.5" cy="18.5" r="2"/>
+  <text class="cls-8" transform="translate(13.67 50.44)"><tspan x="0" y="0">Lí</tspan><tspan class="cls-9" x="6.77" y="0">n</tspan><tspan class="cls-10" x="12.16" y="0">e</tspan><tspan x="16.82" y="0">a del </tspan><tspan x="3.44" y="7">tiempo</tspan></text>
+  <rect class="cls-6" x="75.5" y="7.5" width="11" height="9" rx="1" ry="1"/>
+  <rect class="cls-3" x="75.5" y="19.5" width="11" height="16" rx="1" ry="1"/>
+</svg>

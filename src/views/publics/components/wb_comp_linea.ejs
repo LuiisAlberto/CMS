@@ -1,0 +1,148 @@
+<% 
+// Ordenar por separador (año) de forma descendente - más reciente primero
+if (slidecontent && Array.isArray(slidecontent)) {
+    slidecontent.sort((a, b) => {
+        const yearA = parseInt(a.separador) || 0;
+        const yearB = parseInt(b.separador) || 0;
+        return yearB - yearA;
+    });
+}
+%>
+    <div id="timeLine" class="mb-5">
+        <div class="custom-container"><!--contenedor general de la linea del tiempo-->
+
+            <!-- Columna de Círculos -->
+            <div class="custom-circle-column">
+                <% slidecontent.forEach((slide, index)=> { %>
+                    <div class="custom-circle-item <%= index === 0 ? 'active' : '' %>" data-index="<%= index %>">
+                        <div class="custom-circle <%= index === 0 ? 'custom-circle-border' : '' %>"></div>
+                        <span>
+                            <%= slide.separador %>
+                        </span>
+                    </div>
+                    <% }); %>
+            </div>
+
+            <!-- Contenedores de texto -->
+            <% slidecontent.forEach((slide, index)=> { %>
+                <div class="custom-content-text-container <%= index === 0 ? 'active' : '' %>" data-index="<%= index %>">
+                    <h2>
+                        <%= slide.titulo %>
+                    </h2>
+                    <p>
+                        <%= slide.texto %>
+                    </p>
+                </div>
+                <% }); %>
+
+                    <!-- Franja Roja -->
+                    <div class="franjaRed"></div>
+
+                    <!-- Contenedores de imágenes -->
+                    <% slidecontent.forEach((slide, index)=> { %>
+                        <div class="custom-image-container <%= index === 0 ? 'active' : '' %>"
+                            data-index="<%= index %>">
+                            <% if (slide.fk_id_file && slide.fk_id_file.length> 0 && slide.fk_id_file[0].storage_path &&
+                                slide.fk_id_file[0].file_path) { %>
+                                <img src="<%= slide.fk_id_file[0].storage_path + slide.fk_id_file[0].file_path %>"
+                                    alt="<%= slide.titulo || 'Imagen línea de tiempo' %>">
+                                <% } else { %>
+                                    <!-- Imagen por defecto si no hay imagen en el slide -->
+                                    <img src="/assets/img/default_morena.png" alt="Imagen por defecto">
+                                    <% } %>
+                        </div>
+                        <% }); %>
+
+                            <!-- Flechas de navegación -->
+                            <div class="custom-navigation-buttons">
+                                <button class="custom-nav-button" id="arrow-up">
+                                    <img src="/assets/img/arrow-gallery-up.png">
+                                </button>
+                                <button class="custom-nav-button" id="arrow-down">
+                                    <img src="/assets/img/arrow-gallery-down.png">
+                                </button>
+                            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            const circleItems = $('.custom-circle-item');
+            const textContainers = $('.custom-content-text-container');
+            //const textContainers = $('.custom-text-content');
+            const imageContainers = $('.custom-image-container');
+            const arrowUp = $('#arrow-up');
+            const arrowDown = $('#arrow-down');
+            const franjaRed = $('.franjaRed');
+
+            let activeIndex = 0;
+            let isInitialized = false;
+
+            function updateActiveItem(index) {
+                // Si es la primera vez que se inicializa, solo mostrar la franja roja sin animar elementos
+                if (!isInitialized && index === 0) {
+                    isInitialized = true;
+                    // Animar la franja roja de arriba hacia abajo (creciendo en altura)
+                    franjaRed.stop().animate({ height: '100%' }, 500, 'swing');
+                    // Deshabilitar botones si estamos en los extremos
+                    arrowUp.prop('disabled', index === 0);
+                    arrowDown.prop('disabled', index === circleItems.length - 1);
+                    return;
+                }
+
+                // Desactivar elementos actuales con animaciones suaves
+                circleItems.removeClass('active');
+                textContainers.filter('.active').animate({ opacity: 0 }, 500, 'swing', function () {
+                    $(this).removeClass('active');
+                });
+                imageContainers.filter('.active').animate({ bottom: '-50%', opacity: 0 }, 500, 'swing', function () {
+                    $(this).removeClass('active');
+                });
+
+                // Resetear la franja roja fuera de la pantalla antes de animar
+                franjaRed.css({ height: '0%' });
+
+                // Activar nuevos elementos con animaciones suaves de entrada
+                setTimeout(() => {
+                    circleItems.eq(index).addClass('active');
+                    textContainers.eq(index).css({ opacity: 0 }).addClass('active').animate({ opacity: 1 }, 500, 'swing');
+                    imageContainers.eq(index).css({ bottom: '-50%', opacity: 0 }).addClass('active').animate({ bottom: '0%', opacity: 1 }, 500, 'swing');
+
+                    // Animar la franja roja de arriba hacia abajo (creciendo en altura)
+                    franjaRed.stop().animate({ height: '100%' }, 500, 'swing');
+
+                    // Deshabilitar botones si estamos en los extremos
+                    arrowUp.prop('disabled', index === 0);
+                    arrowDown.prop('disabled', index === circleItems.length - 1);
+                }, 500); // Coincide con el tiempo de desactivación
+            }
+
+            // Navegar hacia arriba
+            arrowUp.click(function () {
+                if (activeIndex > 0) {
+                    activeIndex--;
+                    updateActiveItem(activeIndex);
+                }
+            });
+
+            // Navegar hacia abajo
+            arrowDown.click(function () {
+                if (activeIndex < circleItems.length - 1) {
+                    activeIndex++;
+                    updateActiveItem(activeIndex);
+                }
+            });
+
+            // Configurar propiedades iniciales para textos e imágenes (excepto la primera activa)
+            textContainers.not('.active').css({ opacity: 0 });
+            imageContainers.not('.active').css({ bottom: '-50%', opacity: 0 });
+
+            // Configurar la primera imagen activa para que sea visible desde el inicio
+            imageContainers.filter('.active').css({ bottom: '0%', opacity: 1 });
+            textContainers.filter('.active').css({ opacity: 1 });
+
+            // Inicializar (esto animará la franja roja)
+            updateActiveItem(activeIndex);
+        });
+
+    </script>

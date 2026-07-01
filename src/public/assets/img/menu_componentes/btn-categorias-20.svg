@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #1a1a1a;
+        font-family: MinionConceptRoman-Bold, 'Minion Variable Concept';
+        font-size: 5px;
+        font-variation-settings: 'wght' 700, 'opsz' 11;
+        font-weight: 700;
+      }
+
+      .cls-2 {
+        fill: #b18e6d;
+      }
+
+      .cls-3 {
+        fill: #8e2c2d;
+      }
+
+      .cls-4 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-5 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-6 {
+        letter-spacing: 0em;
+      }
+
+      .cls-7 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-8 {
+        letter-spacing: 0em;
+      }
+
+      .cls-9 {
+        letter-spacing: 0em;
+      }
+
+      .cls-10 {
+        letter-spacing: .02em;
+      }
+
+      .cls-11 {
+        letter-spacing: .02em;
+      }
+
+      .cls-12 {
+        letter-spacing: .04em;
+      }
+
+      .cls-13 {
+        letter-spacing: 0em;
+      }
+
+      .cls-14 {
+        letter-spacing: 0em;
+      }
+
+      .cls-15 {
+        letter-spacing: 0em;
+      }
+
+      .cls-16 {
+        letter-spacing: 0em;
+      }
+
+      .cls-17 {
+        letter-spacing: 0em;
+      }
+
+      .cls-18 {
+        letter-spacing: 0em;
+      }
+    </style>
+  </defs>
+  <rect class="cls-2" x="20.5" y="10.25" width="7" height="30" rx="3.5" ry="3.5" transform="translate(-1.25 49.25) rotate(-90)"/>
+  <rect class="cls-3" x="35" y="-.25" width="9" height="31" transform="translate(24.25 54.75) rotate(-90)"/>
+  <text class="cls-1" transform="translate(10.1 39.27)"><tspan class="cls-10" x="0" y="0">L</tspan><tspan x="3.04" y="0">or</tspan><tspan class="cls-13" x="7.75" y="0">e</tspan><tspan x="10.03" y="0">m i</tspan><tspan class="cls-14" x="16.78" y="0">p</tspan><tspan class="cls-9" x="19.54" y="0">s</tspan><tspan x="21.46" y="0">um </tspan><tspan class="cls-13" x="29.49" y="0">dol</tspan><tspan x="36.44" y="0">or </tspan><tspan x="0" y="6">s</tspan><tspan class="cls-8" x="1.96" y="6">i</tspan><tspan x="3.4" y="6">t a</tspan><tspan class="cls-14" x="8.56" y="6">m</tspan><tspan class="cls-16" x="12.75" y="6">e</tspan><tspan x="15.02" y="6">t </tspan><tspan class="cls-15" x="17.81" y="6">c</tspan><tspan x="19.99" y="6">o</tspan><tspan class="cls-6" x="22.65" y="6">n</tspan><tspan class="cls-18" x="25.47" y="6">s</tspan><tspan class="cls-11" x="27.47" y="6">e</tspan><tspan class="cls-17" x="29.81" y="6">c</tspan><tspan class="cls-4" x="32.01" y="6">t</tspan><tspan class="cls-16" x="33.61" y="6">e</tspan><tspan class="cls-7" x="35.89" y="6">t</tspan><tspan x="37.51" y="6">ur </tspan><tspan x="0" y="12">adipis</tspan><tspan class="cls-14" x="12.8" y="12">i</tspan><tspan class="cls-18" x="14.3" y="12">c</tspan><tspan x="16.49" y="12">i</tspan><tspan class="cls-5" x="17.97" y="12">n</tspan><tspan x="20.74" y="12">g </tspan><tspan class="cls-14" x="24.3" y="12">e</tspan><tspan x="26.58" y="12">l</tspan><tspan class="cls-8" x="28.01" y="12">i</tspan><tspan class="cls-12" x="29.44" y="12">t</tspan><tspan x="31.32" y="12">.</tspan></text>
+</svg>

@@ -1,0 +1,325 @@
+<%- include('partials/header'); %>
+<%- include('partials/menu'); %>
+
+<div id="templateDer">
+
+    <div class="limit-home">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-12 col-12 t-c">
+                <h5 class="tit-seccion guinda_t">Administrador de <b>Menús</b></h5>
+                <div class="l-div">
+                    <label class="borde-izq oroMorena"><span class="diagonal gris_t"></span></label>
+                    <label class="borde-der solid_bg"><span></span></label>
+                </div>
+            </div>
+            <div class="subenun ma-t2">
+                <p class="subtit">En esta sección puedes administrar las listas de menús y su información.</p>
+                <span></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <button class="btnAco rojo_guinda auburn_t" id="NuevoMenuButton">
+            <span class="disNo">NUEVO MENÚ</span><i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <div class="container mt-4">
+        <div class="tablefont">
+            <table class="table-s" id="tb-docs">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Número de registros</th>
+                    <th>Fecha creación</th>
+                    <th>Tipo de página</th>
+                    <th>Editar</th>
+                    <th>Estatus</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <% if (menus && menus.length > 0) { %>
+                        <% menus.forEach((menu, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td><%= menu.nombre %></td>
+                                <td><%= menu.menus ? menu.menus.length : 0 %></td>
+                                <td><%= menu.f_reg.toLocaleDateString() %></td>
+                                <td><%= menu.sysapp ? menu.sysapp.sysapp_name : 'N/A' %></td>
+                                <td>
+                                    <button class="btnAct <%= (menu.vigente) ? 'oro' : 'gris' %> editentrance" data-cy="<%= menu.id_wb_menu %>" data-hover="EDITAR" <%= (menu.vigente) ? '' : 'disabled' %> >
+                                        <i class="fa-regular fa-pen-to-square"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <% if (menu.vigente) { %>
+                                        <button class="btnAct verde_b deletemenu" data-cy="<%= menu.id_wb_menu %>" data-hover="DESACTIVAR">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                        </button>
+                                    <% } else { %>
+                                        <button class="btnAct guinda deletemenu" data-cy="<%= menu.id_wb_menu %>" data-hover="ACTIVAR">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% }  %>
+                        
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<!-- TEMPLATE MODAL -->
+<template id="NuevoMenuModalTemplate">
+    <form id="NuevoMenuModal_Form" class="limit-form row">
+        <div class="col-lg-6 ma-g">
+            <label class="titForm verde_t">Nombre del menú*</label>
+            <input type="text" id="NuevoMenuNombre" name="NuevoMenuNombre" class="form-control form-input" required>
+        </div>
+        <div class="col-lg-8 ma-g" hidden>
+            <label class="titForm verde_t">Aplicación</label>
+            <input id="NuevoMenuApp" name="NuevoMenuApp" value="<%= app_seleccionada %>">
+        </div>
+    </form>
+</template>
+
+
+
+</div>
+
+<%- include('partials/footerNoMx'); %>
+
+<script>
+$(document).ready(function() {
+    $('#tb-docs').DataTable({
+        "language": {
+            "emptyTable": "No hay menús registrados." // La leyenda que quieres mostrar
+        }
+    });
+
+    // Editar menú
+    $('.editentrance').on('click', function () {
+        const menuId = $(this).data('cy');
+        window.location.href = `/menudetalle?menuId=${menuId}`;
+    });
+
+    // Eliminar menú
+    $('#tb-docs').on('click', '.deletemenu', function () {
+        const menuId = $(this).data('cy');
+        const row = $(this).closest('tr');
+
+        $.confirm({
+            title: 'Confirmación',
+            content: '¿Estás seguro de cambiar el estado de este menú?',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: 'red',
+            buttons: {
+                Aceptar: {
+                    text: 'Aceptar',
+                    btnClass: 'btn-red',
+                    action: function () {
+                        const formData = new FormData();
+                        fetch(`/api/menu/${menuId}`, { method: 'POST', body: JSON.stringify({ id_menu: menuId, id_sysapp: `<%= app_seleccionada %>`}), headers: { 'Content-Type': 'application/json' } })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                $.alert({
+                                    title: 'Correcto',
+                                    content: 'Estado del menú actualizado correctamente',
+                                    theme: 'modern',
+                                    icon: 'fa-solid fa-circle-check',
+                                    type: 'blue',
+                                    onClose: function() {
+                                        window.location.reload();
+                                    }
+                                });
+
+                                //$('#tb-docs').DataTable().row(row).remove().draw();
+                            } else {
+                                $.alert({
+                                    title: 'Error',
+                                    content: data.message || 'No se pudo cambiar el estado del menú',
+                                    theme: 'modern',
+                                    icon: 'fa-solid fa-triangle-exclamation',
+                                    type: 'red'
+                                });
+                            }
+                        })
+                        .catch(err => console.error(err));
+                    }
+                },
+                Cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-gray'
+                }
+            }
+        });
+    });
+
+    // Abrir modal NUEVO MENÚ
+    $('#NuevoMenuButton').on('click', function() {
+        NuevoMenuModal();
+    });
+});
+function NuevoMenuModal(){
+    // Limpia modal general
+    limpieza_modalGral();
+
+    // Encabezado
+    modalGral_addTit('NUEVO MENÚ');
+    modalGral_addSubtit('Completa la información que se solicita.');
+
+    // Inyecta template
+    modalGral_bodyAppend(getHtmlTemplate('NuevoMenuModalTemplate'));
+
+    // Footer con botones
+    modalGral_addFooter(
+        `<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">
+            <p>CANCELAR</p>
+            <div class="btnIcon">
+                <div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div>
+                <span class="s-guinda"></span>
+            </div>
+        </button>
+        <button class="btnGral verde_t" type="button" id="NuevoMenu_guardar">
+            <p>GUARDAR</p>
+            <div class="btnIcon">
+                <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                <span class="s-verde"></span>
+            </div>
+        </button>`
+    );
+
+    $('#NuevoMenu_guardar').off('click').on('click', NuevoMenu);
+
+    (new bootstrap.Modal($('#modalGral')[0], {backdrop:"static", keyboard:false})).show();
+}
+
+/* Guardar nuevo menú vía API*/
+function NuevoMenu(){
+    const nombre = $('#NuevoMenuNombre').val().trim();
+    const app = $('#NuevoMenuApp').val();
+
+    if (!nombre || !app) {
+        $.alert({
+            title: "Advertencia",
+            content: '<strong>Todos los campos son obligatorios</strong>',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: "red"
+        });
+        return;
+    }
+    console.log({ nombre, fk_id_sysapp: app });
+
+    fetch('/api/menu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            nombre,
+            fk_id_sysapp: app
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const menu = data.menu;
+
+            // Agregar fila a la tabla DataTable
+            const table = $('#tb-docs').DataTable();
+            table.row.add([
+                menu.id_wb_menu,
+                menu.nombre,
+                menu.menus ? menu.menus.length : 0,
+                new Date(menu.f_reg).toLocaleDateString(),
+                menu.sysapp ? menu.sysapp.sysapp_name : 'N/A',
+                `<button class="btnAct oro editentrance" data-cy="${menu.id_wb_menu}" data-hover="EDITAR">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                </button>`,
+                `<button class="btnAct guinda deletemenu" data-cy="${menu.id_wb_menu}" data-hover="ACTIVAR">
+                    <i class="fa-solid fa-eye"></i>
+                </button>`
+            ]).draw(false);
+
+            // Reasignar eventos de los botones
+            $('.editentrance').off('click').on('click', function () {
+                const menuId = $(this).data('cy');
+                window.location.href = `/menudetalle?menuId=${menuId}`;
+            });
+            $('.deletemenu').off('click').on('click', function () {
+    const menuId = $(this).data('cy');
+    const row = $(this).parents('tr');
+    
+            $.confirm({
+                title: 'Confirmación',
+                content: '¿Estás seguro de eliminar este menú?',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'red',
+                buttons: {
+                    Aceptar: {
+                        text: 'Aceptar',
+                        btnClass: 'btn-red',
+                        action: function () {
+                            fetch(`/api/menu/${menuId}`, { method: 'DELETE' })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        $.alert({
+                                            title: 'Eliminado',
+                                            content: 'Menú eliminado correctamente',
+                                            theme: 'modern',
+                                            icon: 'fa-solid fa-circle-check',
+                                            type: 'blue'
+                                        });
+                                        $('#tb-docs').DataTable().row(row).remove().draw();
+                                    } else {
+                                        $.alert({
+                                            title: 'Error',
+                                            content: data.message,
+                                            theme: 'modern',
+                                            icon: 'fa-solid fa-triangle-exclamation',
+                                            type: 'red'
+                                        });
+                                    }
+                                })
+                                .catch(err => console.error(err));
+                        }
+                    },
+                    Cancelar: {
+                        text: 'Cancelar',
+                        btnClass: 'btn-gray'
+                    }
+                }
+            });
+        });
+
+
+            $('#modalGral').modal('hide'); // cerrar modal
+        } else {
+            $.alert({
+                title: "Error",
+                content: '<strong>'+(data.message || 'Error al crear menú')+'</strong>',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "red"
+            });
+        }
+    })
+    .catch(err => {
+        console.error("Error en fetch:", err);
+        $.alert({
+            title: "Error",
+            content: '<strong>Error en la petición al servidor</strong>',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: "red"
+        });
+    });
+}
+
+</script>

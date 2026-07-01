@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1 {
+        filter: url(#drop-shadow-15);
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        filter: url(#drop-shadow-14);
+      }
+
+      .cls-3 {
+        filter: url(#drop-shadow-16);
+      }
+
+      .cls-4 {
+        fill: #1a1a1a;
+        font-family: Montserrat-Light, Montserrat;
+        font-size: 8px;
+        font-weight: 300;
+      }
+
+      .cls-5 {
+        letter-spacing: 0em;
+      }
+
+      .cls-6 {
+        fill: #8e2c2d;
+      }
+    </style>
+    <filter id="drop-shadow-14" x="13" y="7.75" width="38" height="35" filterUnits="userSpaceOnUse">
+      <feOffset dx="-2" dy="3"/>
+      <feGaussianBlur result="blur" stdDeviation="4"/>
+      <feFlood flood-color="#514c4c" flood-opacity=".2"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="drop-shadow-15" x="13" y="20.75" width="38" height="35" filterUnits="userSpaceOnUse">
+      <feOffset dx="-2" dy="3"/>
+      <feGaussianBlur result="blur-2" stdDeviation="4"/>
+      <feFlood flood-color="#514c4c" flood-opacity=".2"/>
+      <feComposite in2="blur-2" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="drop-shadow-16" x="28" y="6.75" width="36" height="49" filterUnits="userSpaceOnUse">
+      <feOffset dx="-2" dy="3"/>
+      <feGaussianBlur result="blur-3" stdDeviation="4"/>
+      <feFlood flood-color="#514c4c" flood-opacity=".2"/>
+      <feComposite in2="blur-3" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <rect class="cls-6" x="9" y="17.75" width="16" height="22" rx="2" ry="2"/>
+  <rect class="cls-2" x="27" y="16.75" width="14" height="11" rx="2" ry="2"/>
+  <rect class="cls-1" x="27" y="29.75" width="14" height="11" rx="2" ry="2"/>
+  <rect class="cls-3" x="42" y="15.75" width="12" height="25" rx="2" ry="2"/>
+  <text class="cls-4" transform="translate(12.32 51.86)"><tspan x="0" y="0">Boleti</tspan><tspan class="cls-5" x="23.11" y="0">n</tspan><tspan x="28.5" y="0">es</tspan></text>
+</svg>

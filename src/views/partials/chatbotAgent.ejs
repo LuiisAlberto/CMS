@@ -1,0 +1,1138 @@
+<!-- Chatbot Agent Widget -->
+<div id="cmsAgentWidget" class="cms-agent-widget">
+    <!-- Botón flotante para abrir/cerrar -->
+    <button id="agentToggleBtn" class="agent-toggle-btn" title="Asistente de IA">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    <!-- Panel del chatbot -->
+    <div id="agentPanel" class="agent-panel" style="display: none;">
+        <!-- Header -->
+        <div class="agent-header">
+            <div class="agent-header-content">
+                <i class="fas fa-robot"></i>
+                <h3>Asistente de IA</h3>
+            </div>
+            <button id="agentCloseBtn" class="agent-close-btn" title="Cerrar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Mensajes -->
+        <div id="agentMessages" class="agent-messages">
+            <div class="agent-message agent-message-bot">
+                <div class="agent-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="agent-message-content">
+                    <p>¡Hola! Soy tu asistente de IA para crear componentes. ¿Qué componente te gustaría crear?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input area -->
+        <div class="agent-input-area">
+            <div class="agent-input-wrapper">
+                <input type="text" id="agentInput" class="agent-input" placeholder="Escribe aquí tu solicitud..."
+                    autocomplete="off" />
+                <button id="agentSendBtn" class="agent-send-btn" title="Enviar">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div id="agentTyping" class="agent-typing" style="display: none;">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .cms-agent-widget {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    .agent-toggle-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #79222b 0%, #b89663 100%);
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .agent-toggle-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .agent-toggle-btn:active {
+        transform: scale(0.95);
+    }
+
+    .agent-panel {
+        position: absolute;
+        bottom: 80px;
+        right: 0;
+        width: 400px;
+        max-width: calc(100vw - 40px);
+        height: 600px;
+        max-height: calc(100vh - 100px);
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .agent-header {
+        background: linear-gradient(135deg, #79222b 0%, #b89663 100%);
+        color: white;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .agent-header-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .agent-header-content i {
+        font-size: 20px;
+    }
+
+    .agent-header-content h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .agent-close-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .agent-close-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+
+    .agent-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f5f5f5;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .agent-message {
+        display: flex;
+        gap: 12px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .agent-message-user {
+        flex-direction: row-reverse;
+    }
+
+    .agent-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #79222b 0%, #b89663 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 16px;
+    }
+
+    .agent-message-user .agent-avatar {
+        background: #e0e0e0;
+        color: #333;
+    }
+
+    .agent-message-content {
+        max-width: 75%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .agent-message-user .agent-message-content {
+        background: linear-gradient(135deg, #79222b 0%, #b89663 100%);
+        color: white;
+    }
+
+    .agent-message-content p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+
+    .agent-input-area {
+        padding: 16px;
+        background: white;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .agent-input-wrapper {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .agent-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 24px;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .agent-input:focus {
+        border-color: #79222b;
+    }
+
+    .agent-send-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #79222b 0%, #b89663 100%);
+        border: none;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .agent-send-btn:hover:not(:disabled) {
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .agent-send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .agent-typing {
+        display: flex;
+        gap: 4px;
+        padding: 8px 16px;
+        justify-content: center;
+    }
+
+    .agent-typing span {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #79222b;
+        animation: typing 1.4s infinite;
+    }
+
+    .agent-typing span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .agent-typing span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+
+        0%,
+        60%,
+        100% {
+            transform: translateY(0);
+            opacity: 0.7;
+        }
+
+        30% {
+            transform: translateY(-10px);
+            opacity: 1;
+        }
+    }
+
+    /* Scrollbar personalizado */
+    .agent-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .agent-messages::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .agent-messages::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+
+    .agent-messages::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+        .agent-panel {
+            width: calc(100vw - 20px);
+            height: calc(100vh - 100px);
+            bottom: 80px;
+            right: 10px;
+        }
+    }
+</style>
+
+<script>
+    // Inicializar el chatbot cuando el DOM esté listo
+    $(document).ready(function () {
+        // Esperar un momento para que las variables de editpag.ejs estén disponibles
+        setTimeout(function () {
+            initializeChatbot();
+        }, 100);
+    });
+
+    function initializeChatbot() {
+        'use strict';
+
+        const widget = document.getElementById('cmsAgentWidget');
+        const toggleBtn = document.getElementById('agentToggleBtn');
+        const closeBtn = document.getElementById('agentCloseBtn');
+        const panel = document.getElementById('agentPanel');
+        const messagesContainer = document.getElementById('agentMessages');
+        const input = document.getElementById('agentInput');
+        const sendBtn = document.getElementById('agentSendBtn');
+        const typingIndicator = document.getElementById('agentTyping');
+
+        let isOpen = false;
+        let conversationHistory = [];
+        let conversationContext = null; // Mantener contexto de la conversación
+        let pendingAction = null; // Acción pendiente
+
+        // Obtener datos de la página desde el contexto
+        let pageId = null;
+        let idapp = null;
+
+        try {
+            if (typeof pagedata !== 'undefined' && pagedata && pagedata.id_wb_pagina) {
+                pageId = pagedata.id_wb_pagina;
+            }
+            if (typeof dataapp !== 'undefined' && dataapp && dataapp.id_sysapp) {
+                idapp = dataapp.id_sysapp;
+            }
+        } catch (e) {
+            console.warn('No se pudieron obtener las variables de la página:', e);
+        }
+
+        const storageKey = `cms_agent_chat_${pageId}`;
+
+        // Cargar historia guardada
+        function loadHistory() {
+            try {
+                const saved = sessionStorage.getItem(storageKey);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    conversationHistory = data.history || [];
+                    conversationContext = data.context || null;
+
+                    if (conversationHistory.length > 0) {
+                        messagesContainer.innerHTML = '';
+                        conversationHistory.forEach(msg => {
+                            if (msg.role === 'user') {
+                                renderUserMessage(msg.text, false);
+                            } else if (msg.role === 'bot') {
+                                renderBotMessage(msg.text, false);
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Error al cargar historial:', e);
+            }
+        }
+
+        function saveHistory() {
+            try {
+                sessionStorage.setItem(storageKey, JSON.stringify({
+                    history: conversationHistory,
+                    context: conversationContext
+                }));
+            } catch (e) {
+                console.error('Error al guardar historial:', e);
+            }
+        }
+
+        if (pageId) {
+            loadHistory();
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            isOpen = !isOpen;
+            panel.style.display = isOpen ? 'flex' : 'none';
+            if (isOpen) {
+                input.focus();
+            }
+        });
+
+        closeBtn.addEventListener('click', () => {
+            isOpen = false;
+            panel.style.display = 'none';
+        });
+
+        function sendMessage() {
+            const message = input.value.trim();
+            console.log('🔵 sendMessage llamado con:', message);
+            console.log('📋 Estado actual:', { pageId, idapp, pendingAction, conversationContext });
+            
+            if (!message || !pageId || !idapp) {
+                if (!pageId || !idapp) {
+                    console.error('❌ Faltan datos:', { pageId, idapp });
+                    addBotMessage('Error: No se pudo obtener la información de la página.');
+                }
+                return;
+            }
+
+            addUserMessage(message);
+            input.value = '';
+            sendBtn.disabled = true;
+            showTyping();
+
+            const isConfirm = isConfirmation(message);
+            console.log('✅ Es confirmación?', isConfirm);
+
+            if (pendingAction && isConfirm) {
+                console.log('📌 Ejecutando pendingAction:', pendingAction);
+                hideTyping();
+                sendBtn.disabled = false;
+                if (pendingAction.type === 'createWithoutFile' && pendingAction.component) {
+                    const componentData = { ...pendingAction.componentData };
+                    componentData.skipFile = true;
+                    const componentToCreate = pendingAction.component;
+                    pendingAction = null;
+                    console.log('🚀 Llamando createComponent desde pendingAction');
+                    createComponent(componentToCreate, componentData);
+                    return;
+                }
+            }
+
+            if (!pendingAction && conversationContext && conversationContext.pendingComponent && isConfirm) {
+                console.log('📌 Ejecutando desde conversationContext:', conversationContext);
+                hideTyping();
+                sendBtn.disabled = false;
+                const component = conversationContext.pendingComponent;
+                const componentData = conversationContext.providedData || {};
+                console.log('🚀 Llamando createComponent desde conversationContext', { component, componentData });
+                conversationContext = null;
+                createComponent(component, componentData);
+                return;
+            }
+            
+            console.log('📤 Enviando a /agent/analyze');
+
+            fetch('/agent/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: message,
+                    pageId: pageId,
+                    idapp: idapp,
+                    conversationContext: conversationContext
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('✅ Respuesta de /agent/analyze:', data);
+                    hideTyping();
+                    sendBtn.disabled = false;
+
+                    if (data.success) {
+                        // Verificar si se creó una sección
+                        if (data.sectionCreated) {
+                            console.log('✅ Sección creada:', data);
+                            addBotMessage(data.response);
+                            conversationContext = null;
+                            pendingAction = null;
+                            saveHistory();
+                            const url = window.location.href;
+                            setTimeout(() => { window.location.assign(url); }, 2000);
+                            return;
+                        }
+                        
+                        // Verificar si hay un componente para crear automáticamente
+                        if (data.conversationContext && data.conversationContext.autoCreate && data.conversationContext.pendingComponent) {
+                            console.log('🚀 Creación automática de componente:', data.conversationContext.pendingComponent);
+                            const component = data.conversationContext.pendingComponent;
+                            const providedData = data.conversationContext.providedData || {};
+                            
+                            // Crear el componente automáticamente
+                            createComponent(component, providedData);
+                            return;
+                        }
+                        
+                        if (data.conversationContext) {
+                            console.log('💾 Guardando conversationContext:', data.conversationContext);
+                            conversationContext = data.conversationContext;
+                        } else {
+                            const promptLower = message.toLowerCase().trim();
+                            if (!isConfirmation(promptLower)) {
+                                conversationContext = null;
+                            }
+                        }
+                        saveHistory();
+                        addBotMessage(data.response, data);
+                    } else {
+                        console.error('❌ Error en /agent/analyze:', data);
+                        addBotMessage('Lo siento, ocurrió un error: ' + (data.message || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    hideTyping();
+                    sendBtn.disabled = false;
+                    addBotMessage('Lo siento, ocurrió un error al procesar tu solicitud.');
+                });
+        }
+
+        async function createSectionWithComponents(sectionInfo, components, providedData) {
+            console.log('🎯 createSectionWithComponents llamado con:', { sectionInfo, components, providedData });
+            showTyping();
+            addBotMessage(`Creando sección con ${sectionInfo.numColumns} ${sectionInfo.numColumns === 1 ? 'columna' : 'columnas'}...`);
+
+            try {
+                // Paso 1: Crear la sección
+                const sectionResponse = await fetch('/agent/create-section', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        pageId: pageId,
+                        idapp: idapp,
+                        numColumns: sectionInfo.numColumns
+                    })
+                });
+
+                if (!sectionResponse.ok) {
+                    const errorText = await sectionResponse.text();
+                    throw new Error(`Error al crear la sección: ${errorText.substring(0, 100)}`);
+                }
+
+                const sectionData = await sectionResponse.json();
+                console.log('✅ Sección creada:', sectionData);
+
+                if (!sectionData.success) {
+                    throw new Error(sectionData.message || 'Error al crear la sección');
+                }
+
+                const sectionId = sectionData.sectionId;
+                const columnIds = sectionData.columnIds || [];
+
+                // Paso 2: Crear cada componente en su columna correspondiente
+                addBotMessage(`Creando ${components.length} ${components.length === 1 ? 'componente' : 'componentes'}...`);
+
+                let successCount = 0;
+                let errorCount = 0;
+
+                // Distribuir componentes entre columnas: uno por columna si hay suficientes columnas
+                for (let i = 0; i < components.length; i++) {
+                    const component = components[i];
+                    // Si hay más componentes que columnas, distribuir usando módulo
+                    // Si hay suficientes columnas, poner uno en cada columna
+                    const columnIndex = Math.min(i, columnIds.length - 1);
+                    const columnId = columnIds[columnIndex];
+
+                    try {
+                        // Preparar datos del componente con información de la columna
+                        const componentData = prepareComponentData(component, {
+                            ...providedData,
+                            numColumns: sectionInfo.numColumns,
+                            sectionId: sectionId,
+                            columnId: columnId
+                        });
+
+                        // Llamar al endpoint de creación de componente
+                        const createResponse = await fetch('/agent/create', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                componentId: component.id,
+                                componentData: componentData,
+                                pageId: pageId,
+                                idapp: idapp,
+                                sectionId: sectionId,
+                                columnId: columnId
+                            })
+                        });
+
+                        if (!createResponse.ok) {
+                            const errorText = await createResponse.text();
+                            console.error(`Error al crear componente ${i + 1}:`, errorText);
+                            errorCount++;
+                            continue;
+                        }
+
+                        const createData = await createResponse.json();
+                        console.log(`✅ Componente ${i + 1} preparado:`, createData);
+
+                        if (!createData.success) {
+                            errorCount++;
+                            continue;
+                        }
+
+                        // Crear el componente usando el endpoint correspondiente
+                        const isAccordionEndpoint = createData.endpoint === '/crear-componente-acordeon';
+                        let requestBody;
+                        let requestHeaders = {};
+
+                        if (isAccordionEndpoint) {
+                            requestBody = JSON.stringify(createData.payload);
+                            requestHeaders['Content-Type'] = 'application/json';
+                        } else {
+                            const formData = new FormData();
+                            Object.keys(createData.payload).forEach(key => {
+                                if (key !== 'skipFile') {
+                                    const value = createData.payload[key];
+                                    if (Array.isArray(value)) {
+                                        formData.append(key, JSON.stringify(value));
+                                    } else {
+                                        formData.append(key, value);
+                                    }
+                                }
+                            });
+                            formData.append('skipFile', 'true');
+                            requestBody = formData;
+                        }
+
+                        // Actualizar el payload con la columna correcta
+                        if (isAccordionEndpoint) {
+                            createData.payload.idcol = columnId;
+                            createData.payload.idsec = sectionId;
+                            requestBody = JSON.stringify(createData.payload);
+                        } else {
+                            // Para FormData, necesitamos recrearlo con los valores actualizados
+                            const formData = new FormData();
+                            Object.keys(createData.payload).forEach(key => {
+                                if (key !== 'skipFile' && key !== 'idcol' && key !== 'idsec') {
+                                    const value = createData.payload[key];
+                                    if (Array.isArray(value)) {
+                                        formData.append(key, JSON.stringify(value));
+                                    } else {
+                                        formData.append(key, value);
+                                    }
+                                }
+                            });
+                            // Asegurar que idcol e idsec estén actualizados
+                            formData.append('idcol', columnId);
+                            formData.append('idsec', sectionId);
+                            formData.append('skipFile', 'true');
+                            requestBody = formData;
+                        }
+
+                        const finalResponse = await fetch(createData.endpoint, {
+                            method: 'POST',
+                            headers: requestHeaders,
+                            body: requestBody
+                        });
+
+                        if (!finalResponse.ok) {
+                            const errorText = await finalResponse.text();
+                            console.error(`Error al finalizar componente ${i + 1}:`, errorText);
+                            errorCount++;
+                            continue;
+                        }
+
+                        const finalData = await finalResponse.json();
+                        if (finalData.success) {
+                            successCount++;
+                        } else {
+                            errorCount++;
+                        }
+                    } catch (error) {
+                        console.error(`Error al crear componente ${i + 1}:`, error);
+                        errorCount++;
+                    }
+                }
+
+                hideTyping();
+
+                if (successCount > 0) {
+                    const message = `¡Sección creada exitosamente con ${successCount} ${successCount === 1 ? 'componente' : 'componentes'}${errorCount > 0 ? ` (${errorCount} ${errorCount === 1 ? 'error' : 'errores'} al crear algunos componentes)` : ''}! La página se recargará automáticamente.`;
+                    addBotMessage(message);
+                    conversationContext = null;
+                    pendingAction = null;
+                    saveHistory();
+                    const currentUrl = window.location.href;
+                    setTimeout(() => {
+                        window.location.assign(currentUrl);
+                    }, 2500);
+                } else {
+                    addBotMessage(`Error: No se pudo crear ningún componente. ${errorCount > 0 ? `Se encontraron ${errorCount} errores.` : ''}`);
+                }
+            } catch (error) {
+                hideTyping();
+                console.error('❌ Error inesperado en createSectionWithComponents:', error);
+                addBotMessage('Lo siento, ocurrió un error: ' + error.message);
+            }
+        }
+
+        function createComponent(component, providedData) {
+            console.log('🎯 createComponent llamado con:', { component, providedData });
+            showTyping();
+            addBotMessage('Creando componente...');
+
+            const componentData = prepareComponentData(component, providedData);
+            console.log('📦 componentData preparado:', componentData);
+            const shouldSkipFile = componentData.skipFile === true;
+
+            if (shouldSkipFile) {
+                delete componentData.fk_id_file;
+                delete componentData['cargar-imag-slides-1'];
+                delete componentData['cargar-imag'];
+            }
+
+            console.log('📤 Enviando a /agent/create:', {
+                componentId: component.id,
+                componentData: componentData,
+                pageId: pageId,
+                idapp: idapp
+            });
+
+            fetch('/agent/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    componentId: component.id,
+                    componentData: componentData,
+                    pageId: pageId,
+                    idapp: idapp
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`Error en el servidor (${response.status}): ${text.substring(0, 100)}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('✅ Respuesta de /agent/create:', data);
+                    hideTyping();
+
+                    if (data.success) {
+                        console.log('✅ Datos preparados correctamente, procediendo a crear...');
+                        // Limpiar el contexto ahora que se ha procedido a la creación
+                        conversationContext = null;
+                        pendingAction = null;
+                        saveHistory();
+
+                        // Segunda petición: creación real del componente usando el payload preparado
+                        // Determinar si el endpoint requiere JSON o FormData
+                        const isAccordionEndpoint = data.endpoint === '/crear-componente-acordeon';
+                        
+                        let requestBody;
+                        let requestHeaders = {};
+                        
+                        if (isAccordionEndpoint) {
+                            // Acordeón requiere JSON
+                            requestBody = JSON.stringify(data.payload);
+                            requestHeaders['Content-Type'] = 'application/json';
+                        } else {
+                            // Otros componentes usan FormData
+                            const formData = new FormData();
+                            console.log('📦 Payload recibido:', data.payload);
+                            Object.keys(data.payload).forEach(key => {
+                                // Evitar enviar campos internos o duplicados
+                                if (key !== 'skipFile') {
+                                    const value = data.payload[key];
+                                    // Convertir arrays a formato que el backend espera
+                                    if (Array.isArray(value)) {
+                                        formData.append(key, JSON.stringify(value));
+                                    } else {
+                                        formData.append(key, value);
+                                    }
+                                }
+                            });
+
+                            // Siempre enviar skipFile como 'true' para componentes creados por el asistente
+                            formData.append('skipFile', 'true');
+                            requestBody = formData;
+                        }
+
+                        // Log para depuración
+                        console.log('📤 Enviando componente al endpoint:', data.endpoint);
+                        if (isAccordionEndpoint) {
+                            console.log('📦 Payload JSON:', data.payload);
+                        } else {
+                            console.log('📦 Payload FormData:', Object.fromEntries(requestBody.entries()));
+                        }
+
+                        fetch(data.endpoint, {
+                            method: 'POST',
+                            headers: requestHeaders,
+                            body: requestBody
+                        })
+                            .then(res => {
+                                if (!res.ok) {
+                                    return res.text().then(text => {
+                                        throw new Error(`Fallo en la creación final (${res.status}): ${text.substring(0, 100)}`);
+                                    });
+                                }
+                                return res.json();
+                            })
+                            .then(finalData => {
+                                console.log('✅ Respuesta del endpoint:', finalData);
+                                if (finalData.success) {
+                                    addBotMessage('¡Componente creado con éxito! La página se recargará automáticamente.');
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1500);
+                                } else {
+                                    console.error('❌ Error en creación:', finalData);
+                                    addBotMessage('Error en el paso final: ' + (finalData.message || 'Error desconocido'));
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error in creation step:', error);
+                                addBotMessage('Error al finalizar la creación: ' + error.message);
+                            });
+                    } else {
+                        addBotMessage('Error al preparar la creación: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideTyping();
+                    console.error('❌ Error inesperado en createComponent:', error);
+                    console.error('Stack:', error.stack);
+                    addBotMessage('Lo siento, ocurrió un error inesperado: ' + error.message);
+                });
+        }
+
+        function prepareComponentData(component, data) {
+            const finalData = { ...data };
+
+            if (component.hasSlides) {
+                if (finalData.titulo && !finalData.titulo_slides_1) finalData.titulo_slides_1 = finalData.titulo;
+                if (finalData.texto && !finalData.text_slides_1) finalData.text_slides_1 = finalData.texto;
+                if (finalData.url_link && !finalData.url_slides_1) finalData.url_slides_1 = finalData.url_link;
+                if (finalData.liga && !finalData.url_slides_1) finalData.url_slides_1 = finalData.liga;
+
+                if (!finalData.titulo_slides_1) {
+                    if (component.id === 5) finalData.titulo_slides_1 = 'Bienvenido a Morena';
+                    else if (component.id === 10) finalData.titulo_slides_1 = 'Galería de Imágenes';
+                    else if (component.id === 14) finalData.titulo_slides_1 = 'Hito Histórico';
+                    else finalData.titulo_slides_1 = 'Título del slide';
+                }
+                if (!finalData.text_slides_1) {
+                    if (component.id === 5) finalData.text_slides_1 = 'La esperanza de México crece cada día con el apoyo de todos.';
+                    else if (component.id === 10) finalData.text_slides_1 = 'Descripción de la fotografía.';
+                    else if (component.id === 14) finalData.text_slides_1 = 'Descripción del evento ocurrido en este año.';
+                    else finalData.text_slides_1 = 'Contenido del componente.';
+                }
+
+                if (component.id === 5) {
+                    if (!finalData.text_btn_slides_1) finalData.text_btn_slides_1 = 'Saber más';
+                    if (!finalData.url_slides_1) finalData.url_slides_1 = '#';
+                }
+                if (component.id === 14) {
+                    if (!finalData.anio_slides_1) finalData.anio_slides_1 = finalData.anio || new Date().getFullYear();
+                }
+            } else {
+                if (!finalData.titulo && component.requiredFields.includes('titulo')) {
+                    if (component.id === 21) finalData.titulo = 'Nombre de la Persona';
+                    else if (component.id === 1) finalData.titulo = 'Título de la Página';
+                    else if (component.id === 7) finalData.titulo = 'Título de la Tarjeta';
+                    else if (component.id === 13) finalData.titulo = 'Título de la Card';
+                    else if (component.id === 23) finalData.titulo = 'Título del Video';
+                    else finalData.titulo = 'Título del Componente';
+                }
+
+                if (!finalData.texto && component.requiredFields.includes('texto')) {
+                    if (component.id === 1) finalData.texto = 'Este es el texto descriptivo del título de la página principal.';
+                    else if (component.id === 2) finalData.texto = 'Subtítulo de la sección';
+                    else if (component.id === 3) {
+                        // Componente de texto - usar texto más extenso
+                        finalData.texto = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.';
+                    } else if (component.id === 21) finalData.texto = 'Cargo o breve descripción de la persona.';
+                    else if (component.id === 7) finalData.texto = 'Descripción que se muestra al girar la tarjeta.';
+                    else if (component.id === 23) finalData.texto = 'Breve descripción del video.';
+                    else finalData.texto = 'Contenido descriptivo por defecto.';
+                }
+
+                if (component.id === 4) {
+                    if (!finalData.texto) finalData.texto = 'Haz clic aquí';
+                }
+
+                if (!finalData.liga && component.requiredFields.includes('liga')) finalData.liga = finalData.url_link || '#';
+                if (!finalData.url_link && component.requiredFields.includes('url_link')) {
+                    if (component.id === 23) finalData.url_link = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+                    else finalData.url_link = finalData.liga || '#';
+                }
+
+                if (component.id === 23 && !finalData.f_video) {
+                    // f_video es un campo de tipo timestamp (fecha), no un string
+                    finalData.f_video = new Date().toISOString();
+                }
+
+                // Para acordeón, asegurar que tenga título y descripción
+                if (component.id === 9) {
+                    if (!finalData.titulo) {
+                        finalData.titulo = 'Nuevo Acordeón';
+                    }
+                    if (!finalData.descripcion) {
+                        finalData.descripcion = '';
+                    }
+                }
+
+                // Para regeneración, asegurar que el año esté mapeado correctamente
+                if (component.id === 17) {
+                    if (finalData.anio_seleccionado && !finalData.year_regeneracion) {
+                        finalData.year_regeneracion = finalData.anio_seleccionado;
+                    }
+                    if (finalData.year_regeneracion && !finalData.anio_seleccionado) {
+                        finalData.anio_seleccionado = finalData.year_regeneracion;
+                    }
+                    if (finalData.anio && !finalData.anio_seleccionado) {
+                        finalData.anio_seleccionado = finalData.anio;
+                        finalData.year_regeneracion = finalData.anio;
+                    }
+                    // Validar que el año esté presente (no usar valor por defecto)
+                    if (!finalData.anio_seleccionado && !finalData.year_regeneracion && !finalData.anio) {
+                        throw new Error('El año es obligatorio para el componente de regeneración. Por favor, proporciona el año que deseas mostrar.');
+                    }
+                    
+                    // Validar que el año esté en el rango permitido
+                    const year = finalData.anio_seleccionado || finalData.year_regeneracion || finalData.anio;
+                    const currentYear = new Date().getFullYear();
+                    if (year < 2018 || year > currentYear + 1) {
+                        throw new Error(`El año debe estar entre 2018 y ${currentYear + 1}. El año proporcionado (${year}) está fuera del rango permitido.`);
+                    }
+                }
+
+                // Para redes sociales: sincronizar nombre/enlace; vacío → el servidor aplica placeholders (mismo criterio que /agent/create)
+                if (component.id === 16) {
+                    const socialNetworksMap = {
+                        facebook: ['facebook', 'facebook_link'],
+                        instagram: ['instagram', 'instagram_link'],
+                        tiktok: ['tiktok', 'tiktok_link'],
+                        twitter: ['x_twitter', 'x_twitter_link'],
+                        youtube: ['yt', 'yt_link']
+                    };
+
+                    for (const [, fields] of Object.entries(socialNetworksMap)) {
+                        const [nameField, linkField] = fields;
+                        if (finalData[nameField] && !finalData[linkField]) {
+                            finalData[linkField] = finalData[nameField];
+                        }
+                        if (finalData[linkField] && !finalData[nameField]) {
+                            finalData[nameField] = finalData[linkField];
+                        }
+                    }
+                }
+            }
+
+            finalData.skipFile = true;
+            return finalData;
+        }
+
+        function addUserMessage(text) {
+            conversationHistory.push({ role: 'user', text: text });
+            saveHistory();
+            renderUserMessage(text, true);
+        }
+
+        function renderUserMessage(text, shouldScroll) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'agent-message agent-message-user';
+            messageDiv.innerHTML = `
+                <div class="agent-avatar"><i class="fas fa-user"></i></div>
+                <div class="agent-message-content"><p>${escapeHtml(text)}</p></div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            if (shouldScroll) scrollToBottom();
+        }
+
+        function addBotMessage(text, data = null) {
+            console.log('💬 addBotMessage llamado:', { text, data });
+            conversationHistory.push({ role: 'bot', text: text });
+            saveHistory();
+            renderBotMessage(text, true);
+
+            // Componentes que requieren tag (no mostrar botón "Crear con datos mínimos")
+            const componentsRequiringTag = [8, 24]; // Noticias y Colección fotográfica
+
+            // Verificar si hay una solicitud de sección con múltiples componentes
+            if (data && data.conversationContext && data.conversationContext.pendingSection && 
+                data.conversationContext.pendingComponents && data.conversationContext.pendingComponents.length > 0) {
+                console.log('✅ Agregando botón para crear sección con componentes');
+                addActionButton('Crear sección con componentes', () => {
+                    console.log('🔘 Botón "Crear sección con componentes" clickeado');
+                    createSectionWithComponents(
+                        data.conversationContext.pendingSection,
+                        data.conversationContext.pendingComponents,
+                        data.conversationContext.providedData || {}
+                    );
+                });
+            } else if (data && data.canCreate && data.analysis && data.analysis.components && data.analysis.components.length > 0) {
+                console.log('✅ Agregando botón de crear componente (canCreate)');
+                const component = data.analysis.components[0];
+                addActionButton('Crear componente', () => {
+                    console.log('🔘 Botón "Crear componente" clickeado');
+                    createComponent(component, data.analysis.providedData || conversationContext?.providedData || {});
+                });
+            } else if (data && data.conversationContext && data.conversationContext.pendingComponent) {
+                const component = data.conversationContext.pendingComponent;
+                // Solo mostrar botón si el componente no requiere tag o si ya tiene la tag
+                const requiresTag = componentsRequiringTag.includes(component.id);
+                const hasTag = data.conversationContext.providedData?.fk_id_cat_tag || 
+                              data.conversationContext.providedData?.tagName;
+                
+                if (!requiresTag || hasTag) {
+                    console.log('✅ Agregando botón de crear componente (conversationContext)');
+                    addActionButton('Crear con datos mínimos', () => {
+                        console.log('🔘 Botón "Crear con datos mínimos" clickeado');
+                        createComponent(component, data.conversationContext.providedData || {});
+                    });
+                } else {
+                    console.log('ℹ️ No se muestra botón porque el componente requiere tag y no se ha proporcionado');
+                }
+            } else {
+                console.log('ℹ️ No se agregó botón de crear. Data:', { 
+                    hasData: !!data, 
+                    canCreate: data?.canCreate, 
+                    hasComponents: data?.analysis?.components?.length > 0,
+                    hasPendingComponent: data?.conversationContext?.pendingComponent 
+                });
+            }
+        }
+
+        function renderBotMessage(text, shouldScroll) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'agent-message agent-message-bot';
+            messageDiv.innerHTML = `
+                <div class="agent-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="agent-message-content">
+                    <p>${escapeHtml(text)}</p>
+                </div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            if (shouldScroll) scrollToBottom();
+        }
+
+        function addActionButton(text, onClick, shouldScroll = true) {
+            const buttonDiv = document.createElement('div');
+            buttonDiv.className = 'agent-message agent-message-bot';
+            buttonDiv.innerHTML = `
+                <div class="agent-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="agent-message-content">
+                    <button class="agent-action-btn" style="
+                        background: white;
+                        border: 2px solid #79222b;
+                        color: #79222b;
+                        padding: 8px 16px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: 600;
+                        transition: all 0.2s ease;
+                    ">${escapeHtml(text)}</button>
+                </div>
+            `;
+            const button = buttonDiv.querySelector('.agent-action-btn');
+            button.addEventListener('click', onClick);
+            button.addEventListener('mouseenter', () => {
+                button.style.background = '#79222b';
+                button.style.color = 'white';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.background = 'white';
+                button.style.color = '#79222b';
+            });
+            messagesContainer.appendChild(buttonDiv);
+            if (shouldScroll) scrollToBottom();
+        }
+
+        function showTyping() {
+            typingIndicator.style.display = 'flex';
+            scrollToBottom();
+        }
+
+        function hideTyping() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function isConfirmation(prompt) {
+            const confirmations = ['si', 'sí', 'yes', 'ok', 'okay', 'de acuerdo', 'correcto', 'vale', 'perfecto', 'adelante', 'procede', 'crea', 'crear', 'hazlo', 'haz lo'];
+            const promptLower = prompt.toLowerCase().trim();
+            const result = confirmations.some(conf => promptLower === conf || promptLower.startsWith(conf + ' ') || promptLower.endsWith(' ' + conf));
+            console.log('🔍 isConfirmation:', { prompt, promptLower, result, matched: confirmations.find(conf => promptLower === conf || promptLower.startsWith(conf + ' ') || promptLower.endsWith(' ' + conf)) });
+            return result;
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    }
+</script>

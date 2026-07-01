@@ -1,0 +1,198 @@
+<%- include('partials/header'); %>
+
+<div class="contenedor-general-anios">
+    <div class="anios-nav">
+        <button class="nav-arrow prev-arrow" disabled><i class="fa-solid fa-arrow-left"></i></button>
+        <div class="anios-wrapper">
+            <div class="anios">
+                <!-- Generar años dinámicamente desde los datos -->
+                <% añosDisponibles.forEach(anio => { %>
+                    <div class="anio-selector <%= anio == anioActual ? 'active' : '' %>" data-anio="<%= anio %>">
+                        <%= anio %>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+        <button class="nav-arrow next-arrow"><i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+
+    <div class="contenedor-anios">
+        <!-- Generar contenido por año dinámicamente -->
+        <% añosDisponibles.forEach(anio => { %>
+            <div class="anio-content <%= anio == anioActual ? 'active' : '' %>" id="<%= anio %>">
+                <div class="contFecha">
+                    <p><%= anio %></p>
+                    <hr class="lineReg">
+                </div>
+                <div class="contCardsRegeneracion">
+                    <% const regeneracionesDelAnio = regeneracionesPorAnio[anio] || []; %>
+                    <% if (regeneracionesDelAnio.length > 0) { %>
+                        <% regeneracionesDelAnio.forEach(regeneracion => { %>
+                            <div class="cardReg guindaUno">
+                                <div class="cont">
+                                    <div class="contIzquierdo">
+                                        <div class="contUno">
+                                            <!-- CORREGIDO: URL del documento -->
+                                            <% if (regeneracion.archivoDoc && regeneracion.archivoDoc.file_path) { %>
+                                                <a href="<%= regeneracion.archivoDoc.storage.storage_path + regeneracion.archivoDoc.file_path %>" target="_blank">
+                                                    <button class="btnCircle">
+                                                        <img src="assets/img/arrow-right-solid.svg" alt="Descargar">
+                                                    </button>
+                                                </a>
+                                            <% } else { %>
+                                                <button class="btnCircle" disabled>
+                                                    <img src="assets/img/arrow-right-solid.svg" alt="No disponible">
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                        <div class="contDos">
+                                            <p class="date"><%= anio %></p>
+                                        </div>
+                                    </div>
+                                    <div class="contDerecho">
+                                        <!-- CORREGIDO: URL de la imagen -->
+                                        <% if (regeneracion.imagenCard && regeneracion.imagenCard.file_path) { %>
+                                            <img src="<%= regeneracion.imagenCard.storage.storage_path + regeneracion.imagenCard.file_path %>" 
+                                                 alt="<%= regeneracion.nombre_doc %>">
+                                        <% } else { %>
+                                            <img src="/assets/img/placeholder-regeneracion.jpg" 
+                                                 alt="<%= regeneracion.nombre_doc %>">
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="footerReg">
+                                    <h4>Regeneración</h4>
+                                    <h1><%= regeneracion.nombre_doc %></h1>
+                                    <!-- DEBUG: Mostrar URLs para verificar -->
+                                    <div style="display: none; font-size: 10px; color: #666;">
+                                        Doc: <%= regeneracion.archivoDoc?.file_path %><br>
+                                        Img: <%= regeneracion.imagenCard?.file_path %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="no-regeneraciones">
+                            <p>No hay regeneraciones disponibles para el año <%= anio %></p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+</div>
+
+<% if (typeof footerHTML !== 'undefined' && footerHTML) { %>
+<%- footerHTML %>
+<% } else { %>
+<%- include('partials/footer'); %>
+<% } %>
+
+<style>
+    .no-regeneraciones {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+        font-style: italic;
+    }
+    
+    /* Estilo para botón deshabilitado */
+    .btnCircle:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+
+<script>
+    //TABS REGENERACION - JavaScript actualizado para manejar años dinámicos
+    $(document).ready(function() {
+        const $anios = $('.anio-selector');
+        const $contenedor = $('.contenedor-anios');
+        const $anioContents = $('.anio-content');
+        const $prevArrow = $('.prev-arrow');
+        const $nextArrow = $('.next-arrow');
+        const $aniosWrapper = $('.anios-wrapper');
+        const $aniosContainer = $('.anios');
+
+        let currentPosition = 0;
+        const visibleAnios = 3;
+        const totalAnios = $anios.length;
+
+        // Si no hay años, ocultar la navegación
+        if (totalAnios === 0) {
+            $('.anios-nav').hide();
+            return;
+        }
+
+        updateAniosVisibility();
+        updateContenidoVisible();
+        updateArrows();
+
+        function updateAniosVisibility() {
+            $anios.hide().removeClass('active');
+            for (let i = currentPosition; i < currentPosition + visibleAnios && i < totalAnios; i++) {
+                $anios.eq(i).show();
+            }
+            if ($anios.filter('.active').length === 0 && $anios.filter(':visible').length > 0) {
+                $anios.filter(':visible').first().addClass('active');
+            }
+        }
+
+        function updateContenidoVisible() {
+            $anioContents.removeClass('active visible-content');
+            for (let i = currentPosition; i < currentPosition + visibleAnios && i < totalAnios; i++) {
+                const anioId = $anios.eq(i).data('anio');
+                $(`#${anioId}`).addClass('visible-content');
+            }
+            const firstVisibleId = $anios.filter(':visible').first().data('anio');
+            $(`#${firstVisibleId}`).addClass('active');
+
+            $('html, body').animate({
+                scrollTop: $contenedor.offset().top - 100
+            }, 300);
+        }
+
+        function updateArrows() {
+            $prevArrow.prop('disabled', currentPosition === 0);
+            $nextArrow.prop('disabled', currentPosition >= totalAnios - visibleAnios);
+        }
+
+        $prevArrow.on('click', function() {
+            if (currentPosition > 0) {
+                currentPosition--;
+                updateAniosVisibility();
+                updateContenidoVisible();
+                updateArrows();
+            }
+        });
+
+        $nextArrow.on('click', function() {
+            if (currentPosition < totalAnios - visibleAnios) {
+                currentPosition++;
+                updateAniosVisibility();
+                updateContenidoVisible();
+                updateArrows();
+            }
+        });
+
+        $anios.on('click', function() {
+            const anioId = $(this).data('anio');
+            $anios.removeClass('active');
+            $(this).addClass('active');
+            $anioContents.removeClass('active');
+            $(`#${anioId}`).addClass('active');
+
+            $('html, body').animate({
+                scrollTop: $(`#${anioId}`).offset().top - 100
+            }, 500);
+        });
+
+        function adjustWrapperWidth() {
+            const anioWidth = $anios.outerWidth(true);
+            $aniosWrapper.width(anioWidth * visibleAnios);
+        }
+
+        adjustWrapperWidth();
+        $(window).on('resize', adjustWrapperWidth);
+    });
+</script>

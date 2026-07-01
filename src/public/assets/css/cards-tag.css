@@ -1,0 +1,116 @@
+/* ***** Componente Card con Tag ***** */
+.card-tag-container {
+    display: grid;
+    gap: 20px;
+    justify-content: center; 
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.card_cardtag {
+    background-color: #ffffff;
+    border: 2px solid #8e2c2d;
+    border-radius: 15px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative; 
+}
+
+.cardtag_text {
+    font-size: 20px;
+    color: #8e2c2d;
+    font-weight: bold;
+    margin-bottom: 30px; 
+    text-align: left;
+}
+
+.cont_img_cardtag img {
+    width: 100%; 
+    border-radius: 20px;
+    display: block;
+    margin: 0 auto;
+}
+
+.circles_ptv {
+    width: 60px;
+    height: 60px;
+    background-color: #8e2c2d;
+    border-radius: 50%;
+    position: absolute;
+    top: 15%;
+    right: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.circles_ptv i {
+    color: #ffffff;
+    font-size: 30px; 
+    position: absolute;
+    top: 50%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+    margin: 0; 
+    padding: 0; 
+    text-align: center;
+    line-height: 1; 
+}
+
+
+
+
+@media (max-width: 480px) {
+    .card-tag-container {
+      grid-template-columns: 1fr;
+      gap: 15px;
+      justify-items: center; /* Centrar las cards en móvil */
+    }
+    
+    .card_cardtag {
+      margin-bottom: 20px; /* Agregar espacio entre cards en móvil */
+    }
+  }
+  
+  /* Móviles medianos y grandes */
+  @media (min-width: 481px){
+    .card-tag-container {
+      grid-template-columns: repeat(1, 1fr); /* Dos tarjetas por fila */
+      gap: 20px;
+      margin: 20px;
+    }
+  }
+  
+  /* Tabletas */
+  @media (min-width: 769px) {
+    .card-tag-container {
+      grid-template-columns: repeat(2, 1fr); /* Tres tarjetas por fila */
+      gap: 20px;
+      margin: 20px 20px;
+    }
+  }
+  
+  /* Escritorios pequeños */
+  @media (min-width: 1025px) {
+    .card-tag-container {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        margin: 20px;
+    }
+  }
+  @media (min-width: 1440px) {
+    .card-tag-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  
+  /* Escritorios grandes */
+  @media (min-width: 1441px) {
+    .card-tag-container {
+      grid-template-columns: repeat(4, 1fr); /* Cuatro tarjetas por fila */
+      gap: 30px;
+      margin: 20px 250px;
+    }
+  }
+  

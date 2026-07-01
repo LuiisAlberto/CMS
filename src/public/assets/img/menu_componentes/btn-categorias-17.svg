@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #f2f2f2;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4 {
+        stroke: #333;
+        stroke-miterlimit: 10;
+        stroke-width: .5px;
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+
+      .cls-3 {
+        fill: #e6e6e6;
+      }
+
+      .cls-5 {
+        fill: #1a1a1a;
+        font-family: Montserrat-Light, Montserrat;
+        font-size: 8px;
+        font-weight: 300;
+      }
+
+      .cls-4 {
+        fill: #fff;
+      }
+
+      .cls-6 {
+        letter-spacing: -.03em;
+      }
+    </style>
+  </defs>
+  <rect class="cls-2" x="6.5" y="14.25" width="49" height="5"/>
+  <g>
+    <rect class="cls-3" x="6.5" y="19.25" width="16" height="5"/>
+    <rect class="cls-3" x="22.5" y="19.25" width="17" height="5"/>
+    <rect class="cls-3" x="39.5" y="19.25" width="16" height="5"/>
+  </g>
+  <g>
+    <rect class="cls-1" x="6.5" y="24.25" width="16" height="5"/>
+    <rect class="cls-1" x="22.5" y="24.25" width="17" height="5"/>
+    <rect class="cls-1" x="39.5" y="24.25" width="16" height="5"/>
+  </g>
+  <g>
+    <rect class="cls-3" x="6.5" y="29.25" width="16" height="5"/>
+    <rect class="cls-3" x="22.5" y="29.25" width="17" height="5"/>
+    <rect class="cls-3" x="39.5" y="29.25" width="16" height="5"/>
+  </g>
+  <g>
+    <rect class="cls-4" x="6.5" y="34.25" width="16" height="5"/>
+    <rect class="cls-4" x="22.5" y="34.25" width="17" height="5"/>
+    <rect class="cls-4" x="39.5" y="34.25" width="16" height="5"/>
+  </g>
+  <text class="cls-5" transform="translate(18.98 53.11)"><tspan class="cls-6" x="0" y="0">T</tspan><tspan x="4.27" y="0">ablas</tspan></text>
+</svg>

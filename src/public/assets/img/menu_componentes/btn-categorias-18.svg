@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #b18e6d;
+      }
+
+      .cls-2 {
+        fill: #1a1a1a;
+        font-family: Montserrat-Light, Montserrat;
+        font-size: 8px;
+        font-weight: 300;
+      }
+
+      .cls-3 {
+        letter-spacing: -.02em;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M24.33,11.75c-1.84,0-3.33,1.4-3.33,3.12v18.75c0,1.72,1.49,3.12,3.33,3.12h13.33c1.84,0,3.33-1.4,3.33-3.12v-14.06h-6.67c-.92,0-1.67-.7-1.67-1.56v-6.25h-8.33ZM34.33,11.75v6.25h6.67l-6.67-6.25ZM24.33,25.81c0-.86.74-1.56,1.67-1.56h5c.92,0,1.67.7,1.67,1.56v4.69c0,.86-.74,1.56-1.67,1.56h-5c-.92,0-1.67-.7-1.67-1.56v-4.69ZM36.67,31.18l-2.34-1.46v-3.12l2.34-1.46c.1-.06.23-.1.35-.1.35,0,.64.27.64.6v5.05c0,.33-.29.6-.64.6-.12,0-.25-.03-.35-.1h0Z"/>
+  <text class="cls-2" transform="translate(19.47 51.97)"><tspan class="cls-3" x="0" y="0">V</tspan><tspan x="5.33" y="0">ideo</tspan></text>
+</svg>

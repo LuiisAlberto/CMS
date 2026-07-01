@@ -1,0 +1,363 @@
+<style>
+    /* --------- MODAL DE VIDEO --------- */
+
+    /* (Opcional, solo si lo usas en otro lado) */
+    .modal-container {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+        position: relative;
+        margin: 2% auto;
+        padding: 0;
+        width: 80%;
+        max-width: 700px;
+        background-color: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .modal-content iframe {
+        width: 100%;
+        height: 400px;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    /* Estilos personalizados para el modal de video */
+    .modal-video-personalizada .modal-content {
+        background-color: #1c1c1c;
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Aseguramos que el modal quede por encima del backdrop */
+    .modal-video-personalizada.modal {
+        z-index: 1055;
+    }
+
+    /* Backdrop global, por debajo del modal */
+    .modal-backdrop.show {
+        z-index: 1050;
+        background-color: rgba(0, 0, 0, 0.85);
+    }
+
+    .modal-video-personalizada.fade .modal-dialog {
+        transform: scale(0.9);
+        opacity: 0;
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    }
+
+    .modal-video-personalizada.fade.show .modal-dialog {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    .modal-video-personalizada .modal-header {
+        border-bottom: none;
+        padding: 1rem 1.5rem 0.5rem;
+    }
+
+    .modal-video-personalizada .modal-title {
+        color: #f1f1f1;
+        font-weight: 600;
+    }
+
+    .modal-video-personalizada .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+    }
+
+    .modal-video-personalizada .btn-close:hover {
+        opacity: 1;
+    }
+
+    .modal-video-personalizada .modal-body {
+        padding: 1rem;
+    }
+
+    .modal-video-personalizada .ratio {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    /* --------- RESPONSIVE / GRID VIDEOS --------- */
+
+    @media (max-width: 768px) {
+        .boxVideos {
+            width: 45%;
+        }
+
+        .modal-content iframe {
+            height: 300px;
+        }
+    }
+
+    @media (max-width: 539px) {
+        .boxVideos {
+            width: 100%;
+        }
+    }
+
+    @media (min-width: 1220px) {
+        .contVideos {
+            display: grid;
+            gap: 30px;
+            justify-content: center;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .boxVideos {
+            width: 100%;
+            height: 270px;
+        }
+    }
+
+    .videoThumbnail {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 25px;
+        transition: opacity 0.3s ease;
+        cursor: pointer;
+    }
+    
+    /* Asegurar que el contenedor no corte el contenido */
+    .contVideos {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .boxVideos {
+        width: 100% !important;
+        max-width: 360px !important;
+        min-width: 280px !important;
+    }
+    
+    /* Asegurar que el texto no se corte */
+    .textVideo {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+        overflow: visible !important;
+    }
+    
+    .textVideo p {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+        overflow: visible !important;
+    }
+</style>
+
+<div class="contVideos mt-3 container">
+    <% if (Array.isArray(objcomp.wb_comp_video) && objcomp.wb_comp_video.length> 0) { %>
+        <% objcomp.wb_comp_video.forEach((item, index)=> { %>
+            <%
+                const fileRef = item && item.fk_id_file && item.fk_id_file[0] ? item.fk_id_file[0] : null;
+                const rawPath = fileRef && fileRef.file_path ? String(fileRef.file_path) : '';
+                const storagePath = fileRef && fileRef.storage_path ? String(fileRef.storage_path) : '';
+                const normalizeMediaUrl = (u) => {
+                    let out = String(u || '');
+                    while (out.includes('/cdn/cdn/')) {
+                        out = out.replace(/\/cdn\/cdn\//g, '/cdn/');
+                    }
+                    return out;
+                };
+                let thumbSrc = '/assets/img/default_morena.png';
+                if (rawPath) {
+                    if (/^https?:\/\//i.test(rawPath)) {
+                        thumbSrc = normalizeMediaUrl(rawPath);
+                    } else if (storagePath) {
+                        thumbSrc = normalizeMediaUrl(storagePath.replace(/\/+$/, '') + '/' + rawPath.replace(/^\/+/, ''));
+                    } else {
+                        thumbSrc = normalizeMediaUrl('https://cdn.morena.app/' + rawPath.replace(/^\/+/, ''));
+                    }
+                }
+            %>
+            <div class="boxVideos">
+                <img src="<%= thumbSrc %>" class="videoThumbnail" data-url="<%= item.url_link %>"
+                    data-title="<%= item.titulo %>">
+                            <div class="transparencia">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <div class="textVideo">
+                                <p class="mb-1">
+                                    <%= item.titulo %>
+                                </p>
+                                <p class="mb-0">
+                                    <img src="/assets/img/calendar-days.svg" style="width: 15px; margin-right: 5px;">
+                                    <%= new Date(item.f_video).toLocaleDateString("es-MX", { day: "2-digit" ,
+                                        month: "long" , year: "numeric" }) %>
+                                </p>
+                            </div>
+            </div>
+            <% }) %>
+                <% } else { %>
+                    <p>No hay videos disponibles.</p>
+                    <% } %>
+</div>
+
+<!-- Modal -->
+<div class="modal fade modal-video-personalizada" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalLabel"></h5>
+                <button type="button" class="btn-close" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="ratio ratio-16x9">
+                    <iframe id="youtubeVideo" src="" title="YouTube video player" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const videoModalElement = document.getElementById('videoModal');
+        const youtubeVideoIframe = document.getElementById('youtubeVideo');
+        const modalTitle = document.getElementById('videoModalLabel');
+
+        if (!videoModalElement || !youtubeVideoIframe || !modalTitle) return;
+
+        const btnClose = videoModalElement.querySelector('.btn-close');
+
+        // Si existe Bootstrap, lo usamos. Si no, hacemos fallback manual.
+        let bsModal = null;
+        if (window.bootstrap && bootstrap.Modal) {
+            bsModal = bootstrap.Modal.getOrCreateInstance(videoModalElement);
+        }
+
+        function getYoutubeId(url) {
+            if (!url) return null;
+            try {
+                const parsed = new URL(url);
+                const host = parsed.hostname.toLowerCase();
+
+                // youtube.com/watch?v=...
+                const v = parsed.searchParams.get('v');
+                if (v && v.length === 11) return v;
+
+                // youtu.be/<id>, /embed/<id>, /shorts/<id>, /live/<id>
+                const parts = parsed.pathname.split('/').filter(Boolean);
+                const last = parts[parts.length - 1] || '';
+                if (last.length === 11) return last;
+
+                // fallback para formatos viejos
+                const regExp = /(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|[?&]v=|shorts\/|live\/)([^#&?]{11})/i;
+                const match = url.match(regExp);
+                return match ? match[1] : null;
+            } catch (_) {
+                const regExp = /(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|[?&]v=|shorts\/|live\/)([^#&?]{11})/i;
+                const match = String(url).match(regExp);
+                return match ? match[1] : null;
+            }
+        }
+
+        function resetVideo() {
+            youtubeVideoIframe.src = '';
+            modalTitle.textContent = '';
+        }
+
+        function openModalFromThumb(thumbnail) {
+            const videoUrl = thumbnail.getAttribute('data-url') || '';
+            const videoTitle = thumbnail.getAttribute('data-title') || '';
+
+            if (!videoUrl || videoUrl.trim() === '') {
+                console.error('URL de video vacía');
+                alert('El video no tiene una URL configurada. Por favor, edita el componente y agrega la URL del video.');
+                return;
+            }
+
+            const videoId = getYoutubeId(videoUrl);
+            if (!videoId) {
+                console.error('URL de YouTube inválida:', videoUrl);
+                alert('La URL del video no es válida. Por favor, verifica que sea una URL de YouTube correcta.');
+                return;
+            }
+
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+
+            youtubeVideoIframe.src = embedUrl;
+            modalTitle.textContent = videoTitle;
+
+            if (bsModal) {
+                bsModal.show();
+            } else {
+                // Fallback sin Bootstrap
+                videoModalElement.classList.add('show');
+                videoModalElement.style.display = 'block';
+                document.body.classList.add('modal-open');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeFallback() {
+            resetVideo();
+            videoModalElement.classList.remove('show');
+            videoModalElement.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+        }
+
+        // Click en miniaturas (delegado, por si se generan dinámicamente)
+        document.addEventListener('click', function (e) {
+            let thumbnail = e.target.closest('.videoThumbnail');
+            if (!thumbnail) {
+                const card = e.target.closest('.boxVideos');
+                if (card) thumbnail = card.querySelector('.videoThumbnail');
+            }
+            if (!thumbnail) return;
+            openModalFromThumb(thumbnail);
+        });
+
+        // Cierre
+        if (bsModal) {
+            // Con Bootstrap: reseteamos video cuando se cierra
+            videoModalElement.addEventListener('hidden.bs.modal', resetVideo);
+
+            if (btnClose) {
+                btnClose.setAttribute('data-bs-dismiss', 'modal');
+            }
+        } else {
+            // Sin Bootstrap: manejamos el cierre a mano
+            if (btnClose) {
+                btnClose.addEventListener('click', closeFallback);
+            }
+
+            // Clic fuera del diálogo cierra el modal
+            videoModalElement.addEventListener('click', function (e) {
+                if (e.target === videoModalElement) {
+                    closeFallback();
+                }
+            });
+        }
+    })();
+</script>

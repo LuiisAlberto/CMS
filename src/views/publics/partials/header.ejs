@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%-dataapp.app_legend%> <%=datapagina.nombre_pagina%></title>
+    <link rel="icon" type="image/x-icon" href="<%=dataapp.app_favicon%>">
+    <meta name="description" content="<%=datapagina.contenido_alt%> | <%=dataapp.app_desc%>">
+    <meta name="app-id" content="<%=dataapp.id_sysapp%>">
+    <script>
+        // Hacer disponible el appId globalmente.
+        (function() {
+            var metaAppId = document.querySelector('meta[name="app-id"]');
+            window.appId = metaAppId ? Number(metaAppId.getAttribute('content')) : null;
+        })();
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+          integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+            crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700,900&amp;display=swap"
+          rel="stylesheet">
+
+    <!-- CSS -->
+    <% const _ap = (typeof assetsPrefix !== 'undefined' && assetsPrefix) ? assetsPrefix : '/assets/'; %>
+    <link href="<%= _ap %>css/estilos_general.css" rel="stylesheet">
+    <link href="<%= _ap %>css/estilos_personal.css" rel="stylesheet">
+    <link href="<%= _ap %>css/estilos_template.css" rel="stylesheet">
+    <link href="<%= _ap %>css/estilos_componentes.css" rel="stylesheet">
+    <link href="<%= _ap %>css/publictemplate.css" rel="stylesheet">
+    <link href="<%= _ap %>css/menu.css" rel="stylesheet">
+
+    <link href="<%= _ap %>css/error404.css" rel="stylesheet">
+    <link href="<%= _ap %>css/cards-regeneracion.css" rel="stylesheet">
+    <link href="<%= _ap %>css/cards-tag.css" rel="stylesheet">
+    <link href="<%= _ap %>css/photogallery.css" rel="stylesheet">
+    <link href="<%= _ap %>css/timeline.css" rel="stylesheet">
+    <link href="<%= _ap %>css/footer.css" rel="stylesheet">
+    <link href="<%= _ap %>css/buttons.css" rel="stylesheet">
+    <link href="<%= _ap %>css/socialmedia.css" rel="stylesheet">
+    <link href="<%= _ap %>css/subtitulo.css" rel="stylesheet">
+    <link href="<%= _ap %>css/direccion.css" rel="stylesheet">
+    <link href="<%= _ap %>css/titulos.css" rel="stylesheet">
+    <link href="<%= _ap %>css/blog.css" rel="stylesheet">
+    <link href="<%= _ap %>css/personas.css" rel="stylesheet">
+    <link href="<%= _ap %>css/videos.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+
+    <!-- DATA TABLE JQUERY -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.css" />
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.js"></script>
+
+        <!-- Filepond -->
+    <link href="<%= _ap %>css/filepond.css" rel="stylesheet">
+    <!-- <link href="<%= _ap %>css/image-uploader.min.css" rel="stylesheet"> -->
+    <link href="<%= _ap %>css/filepond-plugin-image-preview.min.css" rel="stylesheet">
+
+    <!-- <script src="<%= _ap %>js/filepond.min.js"></script> -->
+    <script src="<%= _ap %>js/filepond-plugin-image-preview.min.js"></script>
+    <script src="<%= _ap %>js/filepond-plugin-image-exif-orientation.min.js"></script>
+    <script src="<%= _ap %>js/filepond-plugin-file-validate-size.min.js"></script>
+    <!-- <script src="<%= _ap %>js/filepond-plugin-file-validate-type.min.js"></script> -->
+    <script src="<%= _ap %>js/filepond-plugin-image-edit.min.js"></script>
+    <script src="<%= _ap %>js/filepond-plugin-file-encode.min.js"></script>
+    <script src="https://unpkg.com/filepond@^4/dist/filepond.min.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.min.js"></script>
+
+</head>
+
+
+<body>
+
+<div class="<%=classtop%>" id="toppage">
+    <header>
+        <div class="top_sec_color"><%=dataapp.app_legend%></div>
+    </header>
+</div>
+
+
+
+<div id="lockscreen" class="blockscreen" style="padding-top: 20%;display: none;">
+    <h2 class="textBlockScreen"><i class="fas fa-spinner fa-spin"></i>&nbsp;Cargando ...</h2>
+</div>
+
+<main class="<%=classtop%>">
+    <% if (typeof menuHTML !== 'undefined') { %>
+        <%- include('menu_static'); %>
+    <% } else { %>
+        <%- include('menu'); %>
+    <% } %>

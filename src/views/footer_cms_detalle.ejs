@@ -1,0 +1,491 @@
+<%- include('partials/header'); %>
+<%- include('partials/menu'); %>
+
+<style>
+    .img-fluid {
+        max-width: 40% !important;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .boxEnlaces {
+        background: #4d4d4d20;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+    }
+
+    .contEnlace {
+        background: #fff;
+        border-radius: 10px;
+        margin: 10px 0;
+        padding: 15px;
+        border-left: 5px solid #2e86ab;
+    }
+
+    .error-field {
+        border: 2px solid #ff0000 !important;
+        box-shadow: 0 0 5px rgba(255, 0, 0, 0.5) !important;
+    }
+</style>
+
+<div id="templateDer">
+    <div class="limit-home">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-12 t-c">
+                <h5 class="tit-seccion verde_t">
+                    Administrador de <b>Pie de Página</b>
+                </h5>
+            </div>
+            <div class="subenun ma-t2">
+                <p class="subtit">
+                    Administra la información del pie de página: logo, suscripción, enlaces de interés y datos de contacto.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <form id="footerForm">
+            <input type="hidden" id="footerId" value="<%= footerId %>">
+
+            <!-- Logo -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h6 class="titForm guinda_t mb-3">Logo</h6>
+                    <div id="logoContainer">
+                        <% if (footerDetalle.url_logo && footerDetalle.url_logo !== '') { %>
+                            <div class="mb-3">
+                                <label class="titForm guinda_t mb-3">Logo cargado</label>
+                                <div class="imagen-previa">
+                                    <img src="<%= footerDetalle.url_logo %>" alt="Logo" class="img-fluid">
+                                </div>
+                                <div class="d-flex justify-content-end mt-3">
+                                    <button type="button" class="btnAct guinda" data-hover="ELIMINAR LOGO" onclick="borrarLogo()">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        <% } else { %>
+                            <div id="btnCargaLogo">
+                                <div class="docsLeft">
+                                    <p id="fileNameLogo" class="cen">CARGAR LOGO</p>
+                                </div>
+                                <div class="docsRight cargar">
+                                    <input type="file"
+                                        name="logo"
+                                        id="input-file-logo"
+                                        class="input-file" 
+                                        accept="image/*"
+                                        onchange="cargarLogo(this.files)">
+                                    <p class="cen blanco_b">
+                                        <span id="text-cargar-logo">CARGAR</span> 
+                                        <img id="icon-cargar-logo" src="/assets/img/CARGAR.svg" class="img_docs">
+                                    </p>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Texto de Suscripción -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <label class="titForm guinda_t">Texto de Suscripción</label>
+                    <textarea class="form-control" id="texto_suscripcion" rows="3" placeholder="Texto descriptivo para la sección de suscripción"><%= footerDetalle.texto_suscripcion || '' %></textarea>
+                </div>
+            </div>
+
+            <!-- Enlaces de Interés -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="titForm guinda_t mb-0">Enlaces de Interés</h6>
+                        <button type="button" class="btnAct oro" id="agregarEnlace" data-hover="AGREGAR">
+                            <i class="fa-solid fa-file-circle-plus"></i>
+                        </button>
+                    </div>
+                    <div class="boxEnlaces" id="enlacesContainer">
+                        <!-- Los enlaces se agregarán dinámicamente aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datos de Contacto -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h6 class="titForm guinda_t mb-3">Datos de Contacto</h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="titForm guinda_t">Email</label>
+                    <input type="email" class="form-control" id="email_contacto" value="<%= footerDetalle.email_contacto || '' %>" placeholder="info@morena.org">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="titForm guinda_t">Teléfono</label>
+                    <input type="text" class="form-control" id="telefono_contacto" value="<%= footerDetalle.telefono_contacto || '' %>" placeholder="55 5482 1666">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="titForm guinda_t">Dirección</label>
+                    <textarea class="form-control" id="direccion_contacto" rows="3" placeholder="Dirección completa"><%= footerDetalle.direccion_contacto || '' %></textarea>
+                </div>
+            </div>
+
+            <!-- Texto de Copyright -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <label class="titForm guinda_t">Texto de Copyright</label>
+                    <input type="text" class="form-control" id="texto_copyright" value="<%= footerDetalle.texto_copyright || '© 2023 MORENA. Todos los derechos reservados. Aviso de Privacidad' %>" placeholder="© 2023 MORENA. Todos los derechos reservados. Aviso de Privacidad">
+                </div>
+            </div>
+
+            <!-- Botón Guardar -->
+            <div class="d-flex justify-content-end mt-5">
+                <button type="button" id="btnGuardarFooter" class="btnSec">
+                    GUARDAR CAMBIOS <i class="fa-solid fa-floppy-disk"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const footerId = <%= footerId %>;
+    let datosFooter = <%- JSON.stringify(footerDetalle) %>;
+    let enlaces = datosFooter.enlaces ? datosFooter.enlaces.filter(e => e.vigente !== false) : [];
+    let nuevoIdEnlace = 0;
+    const logoFooter = {};
+    
+    // Token de la aplicación (pasado desde el servidor o desde la URL)
+    const tokenApp = <% if (typeof token !== 'undefined' && token) { %>'<%= token %>'<% } else { %>null<% } %>;
+    
+    // Obtener el token de la URL para redirección
+    function obtenerTokenDeUrl() {
+        // Primero intentar usar el token del servidor
+        if (tokenApp) {
+            return tokenApp;
+        }
+        // Si no, intentar obtenerlo de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('i') || null;
+    }
+
+    const btnAgregarEnlace = document.getElementById("agregarEnlace");
+    const btnGuardarFooter = document.getElementById("btnGuardarFooter");
+    const enlacesContainer = document.getElementById("enlacesContainer");
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Cargar enlaces existentes
+        if (enlaces && enlaces.length > 0) {
+            enlaces.forEach(enlace => {
+                agregarEnlace(enlace);
+            });
+        }
+    });
+
+    btnAgregarEnlace.addEventListener("click", () => agregarEnlace());
+    btnGuardarFooter.addEventListener("click", guardarFooter);
+
+    function obtenerNuevoIDEnlace() { 
+        return `nuevo-${nuevoIdEnlace++}`; 
+    }
+
+    function agregarEnlace(datos = null) {
+        let id = datos ? datos.id_wb_footer_link : obtenerNuevoIDEnlace();
+        
+        // Evitar duplicados
+        if (document.getElementById(`enlace-${id}`)) return;
+
+        const div = document.createElement("div");
+        div.classList.add("contEnlace");
+        div.id = `enlace-${id}`;
+
+        const categoria = datos ? (datos.categoria || '') : '';
+        const nombre = datos ? (datos.nombre || '') : '';
+        const url = datos ? (datos.url_link || '') : '';
+
+        div.innerHTML = `
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="titForm guinda_t">Categoría</label>
+                    <input type="text" class="form-control categoria-enlace" value="${categoria}" placeholder="Ej: Documento, Nuestro Partido">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="titForm guinda_t">Nombre del Enlace</label>
+                    <input type="text" class="form-control nombre-enlace" value="${nombre}" placeholder="Ej: Estatutos">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="titForm guinda_t">URL</label>
+                    <input type="text" class="form-control url-enlace" value="${url}" placeholder="Ej: /estatutos">
+                </div>
+                <div class="col-md-1 mb-3 d-flex align-items-end">
+                    <button type="button" class="btnAct guinda btnEliminarEnlace" data-hover="ELIMINAR" data-id="${id}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        enlacesContainer.appendChild(div);
+
+        // Event listener para eliminar
+        div.querySelector('.btnEliminarEnlace').addEventListener('click', function() {
+            eliminarEnlace(id);
+        });
+    }
+
+    function eliminarEnlace(id) {
+        $.confirm({
+            title: 'Eliminar enlace',
+            content: '¿Estás seguro que deseas eliminar este enlace?',
+            icon: 'fa-solid fa-triangle-exclamation',
+            theme: 'modern',
+            type: 'red',
+            buttons: {
+                CONFIRMAR: {
+                    text: 'Eliminar',
+                    btnClass: 'btn-red',
+                    action: function () {
+                        const elemento = document.getElementById(`enlace-${id}`);
+                        if (elemento) {
+                            elemento.remove();
+                        }
+                    }
+                },
+                CANCELAR: {
+                    text: 'Cancelar'
+                }
+            }
+        });
+    }
+
+    function cargarLogo(files) {
+        if (!files[0]) return;
+        const f = files[0];
+
+        if (!['image/jpeg', 'image/png', 'image/svg+xml'].includes(f.type) || f.size > 2 * 1024 * 1024) {
+            return $.alert({ 
+                title: 'Error', 
+                content: 'Solo JPG, PNG o SVG menores a 2MB.', 
+                theme: 'modern',
+                type: 'red' 
+            });
+        }
+
+        logoFooter.logo = f;
+        $('#text-cargar-logo').text('CARGADO');
+        $('#fileNameLogo').text(f.name);
+
+        const area = document.getElementById('btnCargaLogo');
+        if (area) area.classList.remove('error-field');
+    }
+
+    function borrarLogo() {
+        $.confirm({
+            title: 'Eliminar logo',
+            content: '¿Estás seguro que deseas eliminar el logo?',
+            type: 'orange',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            buttons: {
+                CONFIRMAR: {
+                    btnClass: 'btn-orange',
+                    action: function() {
+                        const loading = $.alert({
+                            title: 'Procesando',
+                            content: 'Eliminando logo...',
+                            icon: 'fa-solid fa-spinner fa-spin',
+                            closeIcon: false,
+                            buttons: false
+                        });
+                        
+                        $.ajax({
+                            url: '/eliminar-logo-footer',
+                            method: 'POST',
+                            data: {
+                                id_footer: footerId,
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                loading.close();
+                                
+                                if (response.success) {
+                                    const nuevoBloqueCarga = `
+                                        <div id="btnCargaLogo">
+                                            <div class="docsLeft">
+                                                <p id="fileNameLogo" class="cen">CARGAR LOGO</p>
+                                            </div>
+                                            <div class="docsRight cargar">
+                                                <input type="file"
+                                                    name="logo"
+                                                    id="input-file-logo"
+                                                    class="input-file" 
+                                                    accept="image/*"
+                                                    onchange="cargarLogo(this.files)">
+                                                <p class="cen blanco_b">
+                                                    <span id="text-cargar-logo">CARGAR</span> 
+                                                    <img id="icon-cargar-logo" src="/assets/img/CARGAR.svg" class="img_docs">
+                                                </p>
+                                            </div>
+                                        </div>
+                                    `;
+
+                                    $('#logoContainer').html(nuevoBloqueCarga);
+                                    logoFooter.logo = null;
+
+                                    $.alert({
+                                        title: 'Listo',
+                                        content: 'Logo eliminado correctamente.',
+                                        theme: 'modern',
+                                        type: 'green',
+                                        icon: 'fa-solid fa-circle-check'
+                                    });
+                                } else {
+                                    $.alert({
+                                        title: "Error",
+                                        content: response.message || "No se pudo eliminar el logo",
+                                        theme: 'modern',
+                                        type: "red"
+                                    });
+                                }
+                            },
+                            error: function() {
+                                loading.close();
+                                $.alert({
+                                    title: "Error",
+                                    content: "No se pudo conectar con el servidor",
+                                    theme: 'modern',
+                                    type: "red"
+                                });
+                            }
+                        });
+                    }
+                },
+                CANCELAR: {
+                    btnClass: 'btn-default'
+                }
+            }
+        });
+    }
+
+    async function guardarFooter() {
+        // Recopilar datos de enlaces
+        const enlacesData = [];
+        const categoriasData = [];
+        
+        document.querySelectorAll('.contEnlace').forEach(cont => {
+            const categoria = cont.querySelector('.categoria-enlace').value.trim();
+            const nombre = cont.querySelector('.nombre-enlace').value.trim();
+            const url = cont.querySelector('.url-enlace').value.trim();
+            const id = cont.querySelector('.btnEliminarEnlace').dataset.id;
+
+            if (nombre || url) {
+                enlacesData.push({
+                    id: id.startsWith('nuevo-') ? id : parseInt(id),
+                    nombre: nombre,
+                    url_link: url
+                });
+                categoriasData.push(categoria);
+            }
+        });
+
+        const formData = new FormData();
+        formData.append("footerId", footerId);
+        formData.append("nombre", datosFooter.nombre || 'Pie de página');
+        formData.append("texto_suscripcion", document.getElementById("texto_suscripcion").value);
+        formData.append("email_contacto", document.getElementById("email_contacto").value);
+        formData.append("telefono_contacto", document.getElementById("telefono_contacto").value);
+        formData.append("direccion_contacto", document.getElementById("direccion_contacto").value);
+        formData.append("texto_copyright", document.getElementById("texto_copyright").value);
+        formData.append("enlaces", JSON.stringify(enlacesData));
+        formData.append("categoria_enlaces", JSON.stringify(categoriasData));
+
+        if (logoFooter.logo) {
+            formData.append("logo", logoFooter.logo);
+        }
+
+        const loading = $.alert({ 
+            title: 'Guardando', 
+            content: 'Procesando...', 
+            buttons: false, 
+            closeIcon: false 
+        });
+
+        try {
+            const res = await fetch('/guardarFooter', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+            });
+            const ct = res.headers.get('content-type') || '';
+            if (!ct.includes('application/json')) {
+                loading.close();
+                $.alert({
+                    title: 'Error',
+                    content: 'Sesión expirada o respuesta no válida. Vuelva a iniciar sesión e intente de nuevo.',
+                    theme: 'modern',
+                    type: 'red',
+                });
+                return;
+            }
+            let data;
+            try {
+                data = await res.json();
+            } catch (parseErr) {
+                loading.close();
+                $.alert({
+                    title: 'Error',
+                    content: 'No se pudo leer la respuesta del servidor.',
+                    theme: 'modern',
+                    type: 'red',
+                });
+                return;
+            }
+            loading.close();
+
+            if (!data.success) {
+                $.alert({
+                    title: 'Error',
+                    content: data.message || 'No se pudo guardar.',
+                    theme: 'modern',
+                    type: 'red',
+                });
+                return;
+            }
+
+            const token = data.redirectToken || obtenerTokenDeUrl();
+
+            if (!token) {
+                $.alert({
+                    title: 'Advertencia',
+                    content: 'Pie de página guardado correctamente, pero no se pudo obtener el token de autenticación. Por favor, regresa manualmente a la lista de footers.',
+                    theme: 'modern',
+                    type: 'orange',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                });
+                return;
+            }
+
+            const urlRedireccion = `/footer?i=${encodeURIComponent(token)}`;
+
+            $.alert({
+                title: 'Éxito',
+                content: 'Pie de página guardado correctamente. Redirigiendo a la lista...',
+                theme: 'modern',
+                type: 'green',
+                icon: 'fa-solid fa-circle-check',
+                onClose: function () {
+                    window.location.href = urlRedireccion;
+                },
+            });
+        } catch (e) {
+            loading.close();
+            $.alert({ 
+                title: 'Error', 
+                content: 'Error al guardar.', 
+                theme: 'modern',
+                type: 'red' 
+            });
+        }
+    }
+</script>

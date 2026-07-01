@@ -1,0 +1,58 @@
+<!-- Componente Banner -->
+<% if (Array.isArray(objcomp.wb_comp_titulopag) && objcomp.wb_comp_titulopag.length> 0) { %>
+    <% objcomp.wb_comp_titulopag.forEach((titulo, index)=> { %>
+        <%
+            // Tras replacefile, fk_id_file_izq y fk_id_file son arrays de objetos { storage_path, file_path }
+
+            let fileIzq = titulo.fk_id_file_izq && titulo.fk_id_file_izq[0];
+            // Si no hay imagen izquierda cargada, usar la imagen por defecto del componente
+            let imgIzqSrc = fileIzq
+                ? ((fileIzq.storage_path || '') + (fileIzq.file_path || ''))
+                : '/assets/img/recursos_componentes/banner-01.png';
+            let tieneImagenIzq = !!imgIzqSrc;
+            let fileDer = titulo.fk_id_file && titulo.fk_id_file[0];
+            let imgDerSrc = fileDer ? ((fileDer.storage_path || '') + (fileDer.file_path || '')) : '/assets/img/default_morena.png';
+            let colorFiltro = titulo.color_filtro || '#8B0000';
+            let hex = (colorFiltro || '').replace(/^#/, '');
+            let r = 139, g = 0, b = 0;
+            
+            if (hex.length === 6) { r = parseInt(hex.slice(0,2), 16); g = parseInt(hex.slice(2,4), 16); b = parseInt(hex.slice(4,6), 16); }
+            else if (hex.length === 3) { r = parseInt(hex[0]+hex[0], 16); g = parseInt(hex[1]+hex[1], 16); b = parseInt(hex[2]+hex[2], 16); }
+            let colorFiltroOverlay = 'rgba(' + r + ',' + g + ',' + b + ',0.48)';
+        %>
+        <style>.contentBanner.banner-<%= index %> { --color-filtro: <%= colorFiltro %>; --color-filtro-overlay: <%= colorFiltroOverlay %>; }</style>
+        <div class="contentBanner banner-<%= index %>">
+            <div class="imgBannerIzq">
+                <div class="img_banner_izq_container">
+                    <% if (tieneImagenIzq && imgIzqSrc) { %>
+                    <img class="img_banner_izq" src="<%= imgIzqSrc %>" alt="">
+                    <div class="filtro_imagen_izq"></div>
+                    <% } %>
+                </div>
+                <div class="title_banner">
+                    <%= titulo.texto %>
+                </div>
+            </div>
+
+            <div class="imgBannerRight">
+                <div class="img_banner_right_container">
+                    <img class="img_banner_right" src="<%= imgDerSrc %>" alt="<%= titulo.texto %>">
+                </div>
+            </div>
+        </div>
+        
+    <% }) %>
+        <% } else { %>
+            <p>No hay información disponible....</p>
+        <% } %>
+
+
+
+<script>
+    $(document).ready(function () {
+        $(".contentBanner .imgBannerIzq").css({
+            position: "relative",
+            left: "-100%"
+        }).animate({ left: "0%" }, 1000, "swing");
+    });
+</script>

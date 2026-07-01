@@ -1,0 +1,135 @@
+/**
+ * Estilos de botones: .btnPrinc, .btnPrincBlack
+ * Usados en componente Regeneración y Carrusel
+ */
+
+/* Botón principal base (regeneración "Descargar", etc.) */
+.btnPrinc {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    padding: 12px 20px;
+    min-height: 48px;
+    border: none;
+    border-radius: 0;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    overflow: visible;
+    background-color: #3c3c3b;
+    color: #fff;
+    transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.btnPrinc span {
+    position: relative;
+    z-index: 2;
+    padding: 0 8px;
+}
+
+/* Triángulo izquierdo del botón principal */
+.btnPrinc .corner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-top: 24px solid transparent;
+    border-bottom: 24px solid transparent;
+    border-right: 40px solid #8e2c2d;
+    z-index: 1;
+    flex-shrink: 0;
+}
+
+/* Bloque derecho con icono */
+.btnPrinc .s-block {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 48px;
+    height: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #3c3c3b;
+    z-index: 1;
+}
+
+.btnPrinc .s-block i {
+    color: #fff;
+    font-size: 14px;
+}
+
+.btnPrinc:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* ---- Botón negro (carrusel): sección negra + blanca con diagonal ---- */
+.btnPrincBlack {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    /* padding: 12px 0 12px 20px;
+    min-height: 48px; */
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    overflow: hidden;
+    background-color: #000;
+    color: #fff;
+    transition: opacity 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.btnPrincBlack span {
+    position: relative;
+    z-index: 2;
+    padding: 0px 16px 0px 13px;
+}
+
+/* Ocultar corner: el corte diagonal se logra con clip-path en .s-block */
+.btnPrincBlack .corner {
+    display: none;
+}
+
+/* Bloque derecho: sección blanca con flecha negra y borde diagonal */
+.btnPrincBlack .s-block {
+    position: relative;
+    flex-shrink: 0;
+    width: 76px;
+    min-height: 48px;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);
+    z-index: 1;
+}
+
+.btnPrincBlack .s-block i {
+    color: #000;
+    font-size: 14px;
+}
+
+.btnPrincBlack:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Ajustes para contenedores de botones en carrusel */
+.container-btn-slide .btnPrincBlack,
+.container-btn-slide2 .btnPrincBlack {
+    min-width: 140px;
+}
+
+.container-btn-slide2 .btn-slide2 .btnPrincBlack {
+    min-width: 120px;
+}

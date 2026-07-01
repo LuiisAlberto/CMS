@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+      }
+
+      .cls-2 {
+        fill: #1a1a1a;
+        font-family: Montserrat-Light, Montserrat;
+        font-size: 8px;
+        font-weight: 300;
+      }
+
+      .cls-3 {
+        letter-spacing: 0em;
+      }
+
+      .cls-4 {
+        fill: url(#Degradado_sin_nombre_93);
+      }
+
+      .cls-4, .cls-5 {
+        stroke: #fff;
+        stroke-miterlimit: 10;
+        stroke-width: .75px;
+      }
+
+      .cls-5 {
+        fill: #c69c6d;
+      }
+
+      .cls-6 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-7 {
+        letter-spacing: 0em;
+      }
+
+      .cls-8 {
+        letter-spacing: 0em;
+      }
+    </style>
+    <linearGradient id="Degradado_sin_nombre_93" data-name="Degradado sin nombre 93" x1="9.75" y1="20" x2="43.25" y2="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="0" stop-color="#f8efef"/>
+      <stop offset="0" stop-color="#e7c4c5"/>
+      <stop offset="0" stop-color="#d89e9f"/>
+      <stop offset="0" stop-color="#cc7e7f"/>
+      <stop offset="0" stop-color="#c16466"/>
+      <stop offset="0" stop-color="#b95052"/>
+      <stop offset="0" stop-color="#b44244"/>
+      <stop offset="0" stop-color="#b03a3c"/>
+      <stop offset="0" stop-color="#b0383a"/>
+      <stop offset="0" stop-color="#ab3638"/>
+      <stop offset="0" stop-color="#a23334"/>
+      <stop offset="0" stop-color="#962e30"/>
+      <stop offset="0" stop-color="#8f2c2d"/>
+      <stop offset="0" stop-color="#8e2c2d"/>
+      <stop offset=".05" stop-color="#8e2c2d"/>
+      <stop offset=".05" stop-color="#932d2f"/>
+      <stop offset=".06" stop-color="#9f3233"/>
+      <stop offset=".07" stop-color="#a63436"/>
+      <stop offset=".11" stop-color="#a83537"/>
+      <stop offset=".13" stop-color="#ac3638"/>
+      <stop offset=".2" stop-color="#ae3739"/>
+      <stop offset=".35" stop-color="#8e2e30"/>
+      <stop offset=".52" stop-color="#702728"/>
+      <stop offset=".68" stop-color="#5b2122"/>
+      <stop offset=".84" stop-color="#4e1e1f"/>
+      <stop offset=".99" stop-color="#4a1d1e"/>
+    </linearGradient>
+  </defs>
+  <rect class="cls-1" x="-.75" y="-1.25" width="64" height="64" rx="8" ry="8"/>
+  <polygon class="cls-4" points="9.75 13.25 43.25 13.25 28.66 26.39 9.75 26.75 9.75 13.25"/>
+  <text class="cls-2" transform="translate(19.32 40.15)"><tspan class="cls-6" x="0" y="0">T</tspan><tspan x="4.39" y="0">ítulo</tspan></text>
+  <text class="cls-2" transform="translate(13.46 48.11)"><tspan x="0" y="0">p</tspan><tspan class="cls-7" x="5.4" y="0">r</tspan><tspan x="8.48" y="0">i</tspan><tspan class="cls-3" x="10.57" y="0">n</tspan><tspan x="15.96" y="0">ci</tspan><tspan class="cls-8" x="22.49" y="0">p</tspan><tspan x="27.87" y="0">al</tspan></text>
+  <text class="cls-2" transform="translate(6.95 56.11)"><tspan class="cls-7" x="0" y="0">c</tspan><tspan x="4.37" y="0">on im</tspan><tspan class="cls-3" x="27.37" y="0">a</tspan><tspan x="32.04" y="0">gen</tspan></text>
+  <polygon class="cls-5" points="39 13.25 28.94 25.11 46.75 25.25 55.75 13.25 39 13.25"/>
+</svg>

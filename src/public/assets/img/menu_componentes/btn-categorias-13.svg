@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        filter: url(#drop-shadow-12);
+      }
+
+      .cls-2 {
+        fill: #1a1a1a;
+        font-family: Montserrat-Light, Montserrat;
+        font-size: 8px;
+        font-weight: 300;
+      }
+
+      .cls-3 {
+        fill: #8e2c2d;
+      }
+
+      .cls-4 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-5 {
+        letter-spacing: 0em;
+      }
+    </style>
+    <filter id="drop-shadow-12" x="9" y="4.5" width="45" height="49" filterUnits="userSpaceOnUse">
+      <feOffset dx="-2" dy="3"/>
+      <feGaussianBlur result="blur" stdDeviation="4"/>
+      <feFlood flood-color="#514c4c" flood-opacity=".2"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <rect class="cls-1" x="23" y="13.5" width="21" height="25" rx="2" ry="2"/>
+  <path class="cls-3" d="M23,26.5h9v15.5c0,1.93-1.57,3.5-3.5,3.5h-2c-1.93,0-3.5-1.57-3.5-3.5v-15.5h0Z" transform="translate(-8.5 63.5) rotate(-90)"/>
+  <text class="cls-2" transform="translate(13.66 53.76)"><tspan class="cls-4" x="0" y="0">P</tspan><tspan x="5.62" y="0">e</tspan><tspan class="cls-5" x="10.39" y="0">r</tspan><tspan x="13.51" y="0">sonas</tspan></text>
+</svg>

@@ -1,0 +1,38 @@
+<%- include('partials/headeredit'); %>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+
+    <style>
+        .fancybox__container {
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: flex !important;
+            z-index: 9999 !important;
+        }
+    </style>
+
+
+    <div class="tabs-container mt-3">
+        <div class="arrow arrow-left disabled" id="left-arrow"></div>
+        <div class="tabs-wrapper">
+            <div class="tabs" id="tabs">
+                <div class="tab" data-idtag="1" data-target="inicio">
+                    inicio
+                </div>
+                <div class="tab" data-idtag="2" data-target="inicio">
+                    SEGUNDO
+                </div>
+            </div>
+        </div>
+        <div class="arrow arrow-right" id="right-arrow"></div>
+    </div>
+    <div class="row mt-4 d-flex justify-content-center">
+        <div class="row">
+            descripcion 1
+        </div>
+        <div class="row">
+            descripcion 2
+        </div>
+    </div>

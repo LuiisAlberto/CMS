@@ -1,0 +1,52 @@
+<!-- Modal General-->
+<!--div class="modal fade modal-gral" id="modalGral" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalGral" aria-hidden="true"-->
+<div class="modal fade modal-gral" id="modalGral" tabindex="-1" aria-labelledby="modalGral" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header verde">
+                <h5 class="modal-title" id="staticBackdropLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><img src="/assets/img/btn-cerrar.svg" alt=""></button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function limpieza_modalGral(){
+        var el = document.getElementById('modalGral');
+        if (!el) return;
+        // 1) Quitar backdrops y estado del body (evita fondo oscuro huérfano)
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open').css({ overflow: '', paddingRight: '' });
+        // 2) Limpiar contenido (título, body, footer)
+        $('#modalGral #Modal_Title').html('');
+        $('#modalGral .modal-title').html('');
+        $('#modalGral .modal-body').html('');
+        $('#modalGral .modal-footer').remove();
+        // 3) Dejar el modal en estado "cerrado" para que el próximo show() funcione
+        $('#modalGral').removeClass('show modal-acordeon').attr('aria-hidden', 'true').css('display', '');
+    }
+    function modalGral_addTit(text){
+        $('#modalGral .modal-title').html(text);
+    }
+    function modalGral_addSubtit(text){
+        $('#modalGral .modal-body')
+            .append('<div class="subenun"><p class="subtit">'+text+'</p><span></span></div>');
+    }
+    function modalGral_bodyAppend(html){
+        $('#modalGral .modal-body').append(html);
+    }
+    function modalGral_addFooter(html){
+        $('#modalGral .modal-content').append('<div class="modal-footer">'+html+'</div>');
+    }
+    function getHtmlTemplate(id){
+        var el = document.getElementById(id);
+        if (el && el.tagName === 'TEMPLATE' && el.content) {
+            var wrap = document.createElement('div');
+            wrap.appendChild(el.content.cloneNode(true));
+            return wrap.innerHTML;
+        }
+        return $('template#'+id).html();
+    }
+</script>

@@ -1,0 +1,742 @@
+<style>
+    .bg-verde {
+        background-color: #6d8373 !important;
+    }
+    
+    .card-header h6 {
+        font-size: 1.1rem;
+    }
+    
+    .form-control-lg {
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-label {
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .border-rounded {
+        border-radius: 10px !important;
+    }
+    
+    /* Estilo para los botones de ver archivos */
+    .btn-outline-primary, .btn-outline-success {
+        border-width: 2px;
+        font-weight: 500;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+    
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .text-muted-bk{
+        color: black !important;
+    }
+</style>
+
+<!-- Template para nueva regeneración -->
+<template id="NuevaRegeneracionModalTemplate">
+    <form id="NuevaRegeneracionForm">
+        <input type="hidden" class="cyphval" value="<%-idcypher%>">
+        
+        <div class="row">
+            <div class="col-lg-12 ma-g">
+                <label class="titForm verde_t">Nombre del documento</label>
+                <input class="form-control form-input required" type="text" name="nombre_doc" id="nombre_doc" placeholder="Ej: Regeneración Enero-Febrero 2024">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 ma-g">
+                <label class="titForm verde_t">Año</label>
+                <input class="form-control form-input required" type="number" name="anio_doc" id="anio_doc" min="2018" max="2030" value="2024">
+            </div>
+            <div class="col-lg-6 ma-g">
+                <label class="titForm verde_t">Bimestre</label>
+                <select class="form-control form-input required" name="bimestre_doc" id="bimestre_doc">
+                    <option value="0">Seleccione un bimestre</option>
+                    <%
+                    for (const bimestre of bimestres) {
+                    %>
+                    <option value="<%-bimestre.id_cat_bimestres%>"><%-bimestre.bimestre%></option>
+                    <%
+                    }
+                    %>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12 ma-g">
+                <label class="titForm verde_t">Descripción alternativa</label>
+                <textarea class="form-control form-input" name="cont_alt_doc" id="cont_alt_doc" rows="3" placeholder="Descripción breve del documento"></textarea>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12 ma-g">
+                <label class="titForm verde_t">Documento (PDF)</label>
+                <input type="file" name="archivo_doc" id="archivo_doc" data-max-file-size="10MB" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12 ma-g">
+                <label class="titForm verde_t">Imagen para la card</label>
+                <p class="small text-muted mb-1">Seleccione una imagen del registro.</p>
+                <div id="regen-imagen-selector" class="border rounded p-2 bg-light" style="min-height: 120px; max-height: 240px; overflow-y: auto;">
+                    <p class="text-muted small mb-0">Cargando imágenes...</p>
+                </div>
+                <input type="hidden" name="id_file_imagen" id="id_file_imagen" value="">
+            </div>
+        </div>
+    </form>
+</template>
+
+<template id="EditRegeneracionModalTemplate">
+    <form id="EditRegeneracionForm">
+        <!-- Documento e imagen actuales: visibles de inmediato al cargar -->
+        <div class="row mt-2 mb-3">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold text-danger"><i class="fa-solid fa-file-pdf me-1"></i> Documento actual (PDF)</label>
+                <div id="regen-edit-doc-preview" class="border rounded bg-light overflow-hidden" style="min-height: 220px;">
+                    <p class="text-muted small p-3 mb-0 text-center">Cargando...</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold text-success"><i class="fa-solid fa-image me-1"></i> Imagen actual (card)</label>
+                <div id="regen-edit-img-preview" class="border rounded bg-light d-flex align-items-center justify-content-center overflow-hidden" style="min-height: 220px;">
+                    <p class="text-muted small p-3 mb-0 text-center">Cargando...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campos del formulario -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="nombre_doc" class="form-label fw-bold">Nombre del documento *</label>
+                    <input type="text" class="form-control form-control-lg" id="nombre_doc" name="nombre_doc" value="" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label for="anio_doc" class="form-label fw-bold">Año *</label>
+                    <input type="number" class="form-control" id="anio_doc" name="anio_doc" value="" min="2000" max="2024" required>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label for="bimestre_doc" class="form-label fw-bold">Bimestre *</label>
+                    <select class="form-control" id="bimestre_doc" name="bimestre_doc" required>
+                        <option value="0">Seleccione un bimestre</option>
+                        <!-- Los bimestres se insertarán dinámicamente -->
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="cont_alt_doc" class="form-label fw-bold">Descripción (contenido alternativo)</label>
+                    <textarea class="form-control" id="cont_alt_doc" name="cont_alt_doc" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label fw-bold">Nuevo Documento (PDF/Word) - Opcional</label>
+                    <input type="file" class="filepond" name="archivo_doc" id="archivo_doc_edit">
+                    <small class="form-text text-muted-bk">Si no selecciona un nuevo archivo, se mantendrá el documento actual.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label fw-bold">Nueva Imagen para la Card - Opcional</label>
+                    <input type="file" class="filepond" name="imagen_card" id="imagen_card_edit">
+                    <small class="form-text text-muted-bk">Si no selecciona una nueva imagen, se mantendrá la imagen actual.</small>
+                </div>
+            </div>
+        </div>
+    </form>
+</template>
+
+<script>
+    /** Misma lógica que resolveImageSelectorSrc (modal de componentes): evita URLs relativas rotas. */
+    function resolveRegenImageSrc(file) {
+        function normalizeMediaUrl(url) {
+            var out = String(url || '');
+            while (out.indexOf('/cdn/cdn/') !== -1) {
+                out = out.replace(/\/cdn\/cdn\//g, '/cdn/');
+            }
+            return out;
+        }
+        var filePathRaw = file && file.file_path ? String(file.file_path) : '';
+        var storagePathRaw = file && file.storageM && file.storageM.storage_path
+            ? String(file.storageM.storage_path)
+            : '';
+        if (!filePathRaw) return '/assets/img/default_morena.png';
+        if (/^https?:\/\//i.test(filePathRaw)) return normalizeMediaUrl(filePathRaw);
+        var normalizedFilePath = filePathRaw.replace(/^\/+/, '');
+        if (storagePathRaw) {
+            return normalizeMediaUrl(storagePathRaw.replace(/\/+$/, '') + '/' + normalizedFilePath);
+        }
+        return normalizeMediaUrl('https://cdn.morena.app/' + normalizedFilePath);
+    }
+
+    // Función para abrir el modal de regeneración
+    function loadImagesForRegeneracionSelector() {
+        var $cont = $('#regen-imagen-selector');
+        var token = $('#NuevaRegeneracionForm .cyphval').val();
+        if (!token) { $cont.html('<p class="text-muted small mb-0">No hay token de sesión.</p>'); return; }
+
+        var params = { i: token, limit: 20 };
+        if (typeof dataapp !== 'undefined' && dataapp && dataapp.id_sysapp != null) {
+            params.idapp = dataapp.id_sysapp;
+        }
+
+        $.get('/GetImages', params).done(function(data) {
+            if (!data || !data.success || !data.images || !data.images.length) {
+                $cont.html('<p class="text-muted small mb-0">No hay imágenes en el registro. Registre imágenes en el módulo de imágenes primero.</p>');
+                return;
+            }
+            var html = '<div class="row g-1">';
+            data.images.forEach(function(file) {
+                var url = resolveRegenImageSrc(file);
+                var nombre = (file.file_name || '').substring(0, 25);
+                html += '<div class="col-4 col-md-3"><div class="regen-img-card border rounded p-1 text-center" data-id-file="' + file.id_file + '" style="cursor:pointer;" title="' + (file.file_name || '') + '">';
+                html += '<img src="' + url + '" class="w-100" style="height:60px;object-fit:cover;border-radius:4px;" alt="">';
+                html += '<small class="d-block text-truncate">' + nombre + '</small></div></div>';
+            });
+            html += '</div>';
+            $cont.html(html);
+
+            $cont.off('click', '.regen-img-card').on('click', '.regen-img-card', function() {
+                $cont.find('.regen-img-card').removeClass('border-primary border-2 bg-primary bg-opacity-10');
+                $(this).addClass('border-primary border-2 bg-primary bg-opacity-10');
+                $('#id_file_imagen').val($(this).data('id-file'));
+            });
+        }).fail(function() {
+            $cont.html('<p class="text-muted small mb-0">Error al cargar imágenes. Registre imágenes en el módulo de imágenes primero.</p>');
+        });
+    }
+
+    function NuevaRegeneracionModal() {
+        limpieza_modalGral();
+        modalGral_addTit('NUEVO DOCUMENTO DE REGENERACIÓN');
+        modalGral_addSubtit('Registre la información del documento de regeneración');
+        modalGral_bodyAppend(getHtmlTemplate('NuevaRegeneracionModalTemplate'));
+
+        loadImagesForRegeneracionSelector();
+        // Inicializar FilePond solo para el documento (PDF)
+        initFilePondForRegeneracion();
+
+        modalGral_addFooter(`
+            <button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">
+                <p>CANCELAR</p>
+                <div class="btnIcon">
+                    <div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div>
+                    <span class="s-guinda"></span>
+                </div>
+            </button>
+            <a href="#" class="btnGral verde_t" onclick="CrearRegeneracion()">
+                <p>CREAR</p>
+                <div class="btnIcon">
+                    <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                    <span class="s-verde"></span>
+                </div>
+            </a>`
+        );
+
+        (new bootstrap.Modal($('#modalGral')[0], {backdrop: "static", keyboard: false})).show();
+        // Validación del año
+        const anioInput = $('#anio_doc');
+        const anioActual = new Date().getFullYear();
+
+        anioInput.on('input', function () {
+            const val = parseInt($(this).val());
+            if (val > anioActual) {
+                $(this).val(anioActual);
+            }
+        });
+    }
+
+    // Configuración de FilePond para regeneración (solo documento PDF)
+    function initFilePondForRegeneracion() {
+        FilePond.registerPlugin(
+            FilePondPluginFileValidateType,
+            FilePondPluginFileValidateSize
+        );
+
+        var inputDoc = document.querySelector('input[name="archivo_doc"]');
+        if (inputDoc) {
+            FilePond.create(inputDoc, {
+                allowMultiple: false,
+                maxFiles: 1,
+                maxFileSize: '10MB',
+                beforeAddFile: function (item) {
+                    var sz = item && (typeof item.fileSize === 'number' ? item.fileSize : (item.file && item.file.size));
+                    if (sz > 10 * 1024 * 1024) {
+                        $.alert({ title: 'Archivo demasiado grande', content: 'El tamaño máximo permitido es 10 MB.', theme: 'modern', type: 'red' });
+                        return false;
+                    }
+                    return true;
+                },
+                acceptedFileTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+                labelIdle: 'Arrastre aquí el documento o <span class="filepond--label-action">seleccione</span>',
+                labelMaxFileSize: 'Tamaño máximo: {filesize}',
+                labelMaxFileSizeExceeded: 'El archivo supera el tamaño máximo permitido ({filesize}).',
+                labelFileTypeNotAllowed: 'Tipo de archivo no permitido',
+                fileValidateTypeLabelExpectedTypes: 'Se espera {allButLastType} o {lastType}',
+                storeAsFile: true
+            });
+        }
+    }
+
+    // Función para crear la regeneración
+    function CrearRegeneracion() {
+        var formData = new FormData(document.getElementById('NuevaRegeneracionForm'));
+        var cy = $('#NuevaRegeneracionForm .cyphval').val();
+
+        // Validaciones básicas
+        var nombre = $('#nombre_doc').val();
+        var anio = $('#anio_doc').val();
+        var bimestre = $('#bimestre_doc').val();
+
+        if (!nombre || !anio || bimestre === "0") {
+            $.alert({
+                title: "Campos requeridos",
+                content: "Por favor, complete todos los campos obligatorios.",
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "red"
+            });
+            return;
+        }
+
+        // Validar documento (PDF obligatorio) e imagen (selector del registro)
+        var archivoDoc = $('input[name="archivo_doc"]')[0].files[0];
+        var idFileImagen = $('#id_file_imagen').val();
+
+        if (!archivoDoc) {
+            $.alert({
+                title: "Documento requerido",
+                content: "Debe subir el documento (PDF).",
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "red"
+            });
+            return;
+        }
+        if (!idFileImagen) {
+            $.alert({
+                title: "Imagen requerida",
+                content: "Debe seleccionar una imagen del registro para la card.",
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "red"
+            });
+            return;
+        }
+        if (idFileImagen) formData.append('id_file_imagen', idFileImagen);
+
+        formData.append('cy', cy);
+
+        // Mostrar loading
+        const loadingAlert = $.alert({
+            title: 'Procesando...',
+            content: 'Guardando documento de regeneración',
+            theme: 'modern',
+            icon: 'fa-solid fa-spinner fa-spin',
+            type: 'blue',
+            closeIcon: false,
+            buttons: false
+        });
+
+        $.ajax({
+            url: '/CreateRegeneracion',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                loadingAlert.close();
+                
+                if (data.success) {
+                    $.alert({
+                        title: "¡Éxito!",
+                        content: data.message || "Documento de regeneración creado correctamente.",
+                        theme: 'modern',
+                        icon: 'fa-solid fa-check',
+                        type: "green",
+                        buttons: {
+                            aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-verde',
+                                action: function() {
+                                    $('#modalGral').modal('hide');
+                                    // Recargar la página o actualizar la tabla
+                                    location.reload();
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    throw new Error(data.message || "Error al crear el documento");
+                }
+            },
+            error: function(xhr, status, error) {
+                loadingAlert.close();
+                console.error('Error:', error);
+                
+                $.alert({
+                    title: "Error",
+                    content: error || "Ocurrió un error al crear el documento. Por favor, intente nuevamente.",
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: "red"
+                });
+            }
+        });
+    }
+
+    // Eliminar doc regeneración
+    function eliminarRegeneracion(token){
+        $.confirm({
+        title: '¿Eliminar Documento?',
+        content: 'Esta acción eliminará permanentemente el documento de regeneración. ¿Estás seguro de continuar?',
+        type: 'red',
+        icon: 'fa-solid fa-triangle-exclamation',
+        theme: 'modern',
+        buttons: {
+            confirmar: {
+                text: 'Eliminar',
+                btnClass: 'btn-rojo',
+                action: function () {
+                    // Mostrar loading
+                    const loadingAlert = $.alert({
+                        title: 'Eliminando...',
+                        content: 'Eliminando documento de regeneración',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-spinner fa-spin',
+                        type: 'blue',
+                        closeIcon: false,
+                        buttons: false
+                    });
+
+                    $.ajax({
+                        url: '/DeleteRegeneracion',
+                        type: 'POST',
+                        data: { token: token },
+                        success: function (data) {
+                            loadingAlert.close();
+                            
+                            if (data.success) {
+                                $.alert({
+                                    title: "Documento eliminado",
+                                    content: data.message || "Documento eliminado correctamente.",
+                                    theme: 'modern',
+                                    icon: 'fa-solid fa-check',
+                                    type: "green",
+                                    buttons: {
+                                        aceptar: {
+                                            text: 'Aceptar',
+                                            btnClass: 'btn-verde',
+                                            action: function() {
+                                                location.reload();
+                                            }
+                                        }
+                                    }
+                                });
+                            } else {
+                                throw new Error(data.message || "Error al eliminar el documento");
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            loadingAlert.close();
+                            console.error('Error:', error);
+                            
+                            $.alert({
+                                title: "Error",
+                                content: error || "Ocurrió un error al eliminar el documento.",
+                                theme: 'modern',
+                                icon: 'fa-solid fa-triangle-exclamation',
+                                type: "red"
+                            });
+                        }
+                    });
+                }
+            },
+            cancelar: {
+                text: 'Cancelar',
+                btnClass: 'btn-gris',
+                action: function () {
+                    // No hacer nada
+                }
+            }
+        }
+    });
+    }
+
+    // Modal formulario editar regeneración
+    function editRegeneracionModal(token) {
+        limpieza_modalGral();
+        modalGral_addTit('EDITAR DOCUMENTO DE REGENERACIÓN');
+        modalGral_addSubtit('Modifique la información del documento de regeneración');
+        
+        // Cargar el template vacío
+        modalGral_bodyAppend(getHtmlTemplate('EditRegeneracionModalTemplate'));
+        
+        modalGral_addFooter(`
+            <button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">
+                <p>CANCELAR</p>
+                <div class="btnIcon">
+                    <div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div>
+                    <span class="s-guinda"></span>
+                </div>
+            </button>
+            <a href="#" class="btnGral verde_t" onclick="ActualizarRegeneracion()">
+                <p>ACTUALIZAR</p>
+                <div class="btnIcon">
+                    <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                    <span class="s-verde"></span>
+                </div>
+            </a>
+        `);
+
+        (new bootstrap.Modal($('#modalGral')[0], {backdrop: "static", keyboard: false})).show();
+
+        // Inicializar FilePond básico
+        initFilePondForEditRegeneracion();
+
+        // Validación del año
+        const anioInput = $('#anio_doc');
+        const anioActual = new Date().getFullYear();
+        anioInput.attr('max', anioActual);
+
+        anioInput.on('input', function () {
+            const val = parseInt($(this).val());
+            if (val > anioActual) {
+                $(this).val(anioActual);
+            }
+        });
+
+        $.ajax({
+            url: '/GetRegeneracion',
+            type: 'POST',
+            data: { token: token },
+            success: function(data) {
+                if (data.success) {
+                    // Paso 1: Llenar campos básicos con .val()
+                    $('#nombre_doc').val(data.data.nombre_doc || '');
+                    $('#anio_doc').val(data.data.anio_doc || '');
+                    $('#cont_alt_doc').val(data.data.contenido_alt || '');
+
+                    // Paso 2: Construir opciones de bimestres dinámicamente y seleccionar el correcto
+                    const bimestreSelect = $('#bimestre_doc');
+                    bimestreSelect.empty(); // Limpiar opciones existentes
+                    bimestreSelect.append('<option value="0">Seleccione un bimestre</option>');
+
+                    if (data.data.bimestres && data.data.bimestres.length > 0) {
+                        data.data.bimestres.forEach(bimestre => {
+                            const isSelected = (bimestre.id == data.data.bimestre_doc) ? 'selected' : '';
+                            bimestreSelect.append(`<option value="${bimestre.id}" ${isSelected}>${bimestre.nombre}</option>`);
+                        });
+                    } else {
+                        for (let i = 1; i <= 6; i++) {
+                            const isSelected = (i == data.data.bimestre_doc) ? 'selected' : '';
+                            bimestreSelect.append(`<option value="${i}" ${isSelected}>Bimestre ${i}</option>`);
+                        }
+                    }
+
+                    // Paso 3: Cargar documento e imagen de inmediato (iframe + img)
+                    var docUrl = data.data.archivo_doc ? ('https://cdn.morena.app/' + data.data.archivo_doc.file_path) : '';
+                    var imgUrl = data.data.imagen_card ? ('https://cdn.morena.app/' + data.data.imagen_card.file_path) : '';
+
+                    if (docUrl) {
+                        $('#regen-edit-doc-preview').html(
+                            '<iframe src="' + docUrl + '" class="w-100" style="height: 220px; border: none;" title="Documento PDF"></iframe>' +
+                            '<a href="' + docUrl + '" target="_blank" class="btn btn-sm btn-outline-primary m-2"><i class="fa-solid fa-external-link me-1"></i>Abrir en nueva pestaña</a>'
+                        );
+                    } else {
+                        $('#regen-edit-doc-preview').html('<p class="text-muted small p-3 mb-0">No hay documento</p>');
+                    }
+
+                    if (imgUrl) {
+                        $('#regen-edit-img-preview').html(
+                            '<img src="' + imgUrl + '" alt="Imagen card" class="img-fluid" style="max-height: 220px; object-fit: contain;">'
+                        );
+                    } else {
+                        $('#regen-edit-img-preview').html('<p class="text-muted small p-3 mb-0">No hay imagen</p>');
+                    }
+
+                    // Paso 4: Guardar el token
+                    $('#EditRegeneracionForm').append(`<input type="hidden" id="edit_token" value="${token}">`);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                $.alert({
+                    title: "Error",
+                    content: "Error al cargar los datos del documento: " + error,
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: "red"
+                });
+            }
+        });
+    }
+
+    // Configuración de FilePond para edición con mejor estilo
+    function initFilePondForEditRegeneracion() {
+        FilePond.registerPlugin(
+            FilePondPluginFileValidateType,
+            FilePondPluginFileValidateSize,
+            FilePondPluginImagePreview
+        );
+
+        // FilePond para documento
+        FilePond.create(document.querySelector('#archivo_doc_edit'), {
+            allowMultiple: false,
+            maxFiles: 1,
+            maxFileSize: '10MB',
+            beforeAddFile: function (item) {
+                var sz = item && (typeof item.fileSize === 'number' ? item.fileSize : (item.file && item.file.size));
+                if (sz > 10 * 1024 * 1024) {
+                    $.alert({ title: 'Archivo demasiado grande', content: 'El tamaño máximo permitido es 10 MB.', theme: 'modern', type: 'red' });
+                    return false;
+                }
+                return true;
+            },
+            acceptedFileTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+            labelIdle: 'Arrastre aquí el <span class="filepond--label-action">NUEVO documento</span> o haga clic<br><small class="text-muted">Formatos: PDF, Word | Máx: 10MB</small>',
+            labelMaxFileSize: 'Tamaño máximo: {filesize}',
+            labelMaxFileSizeExceeded: 'El archivo supera el tamaño máximo permitido ({filesize}).',
+            labelFileTypeNotAllowed: 'Tipo de archivo no permitido',
+            fileValidateTypeLabelExpectedTypes: 'Se espera {allButLastType} o {lastType}',
+            storeAsFile: true,
+            credits: false
+        });
+
+        // FilePond para imagen
+        FilePond.create(document.querySelector('#imagen_card_edit'), {
+            allowMultiple: false,
+            maxFiles: 1,
+            maxFileSize: '5MB',
+            beforeAddFile: function (item) {
+                var sz = item && (typeof item.fileSize === 'number' ? item.fileSize : (item.file && item.file.size));
+                if (sz > 5 * 1024 * 1024) {
+                    $.alert({ title: 'Archivo demasiado grande', content: 'El tamaño máximo permitido es 5 MB.', theme: 'modern', type: 'red' });
+                    return false;
+                }
+                return true;
+            },
+            acceptedFileTypes: ['image/jpeg', 'image/png', 'image/webp'],
+            labelIdle: 'Arrastre aquí la <span class="filepond--label-action">NUEVA imagen</span> o haga clic<br><small class="text-muted">Formatos: JPG, PNG, WebP | Máx: 5MB</small>',
+            labelMaxFileSize: 'Tamaño máximo: {filesize}',
+            labelMaxFileSizeExceeded: 'El archivo supera el tamaño máximo permitido ({filesize}).',
+            labelFileTypeNotAllowed: 'Tipo de archivo no permitido',
+            fileValidateTypeLabelExpectedTypes: 'Se espera {allButLastType} o {lastType}',
+            storeAsFile: true,
+            credits: false
+        });
+    }
+        
+    // Función para actualizar la regeneración
+    function ActualizarRegeneracion() {
+        var formData = new FormData(document.getElementById('EditRegeneracionForm'));
+        var token = $('#edit_token').val();
+        formData.append('token', token);
+
+        // Validaciones básicas
+        var nombre = $('#nombre_doc').val();
+        var anio = $('#anio_doc').val();
+        var bimestre = $('#bimestre_doc').val();
+
+        if (!nombre || !anio || bimestre === "0") {
+            $.alert({
+                title: "Campos requeridos",
+                content: "Por favor, complete todos los campos obligatorios.",
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "red"
+            });
+            return;
+        }
+
+        // Mostrar loading
+        const loadingAlert = $.alert({
+            title: 'Actualizando...',
+            content: 'Actualizando documento de regeneración',
+            theme: 'modern',
+            icon: 'fa-solid fa-spinner fa-spin',
+            type: 'blue',
+            closeIcon: false,
+            buttons: false
+        });
+
+        $.ajax({
+            url: '/EditRegeneracion',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                loadingAlert.close();
+                
+                if (data.success) {
+                    $.alert({
+                        title: "¡Éxito!",
+                        content: data.message || "Documento de regeneración actualizado correctamente.",
+                        theme: 'modern',
+                        icon: 'fa-solid fa-check',
+                        type: "green",
+                        buttons: {
+                            aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-verde',
+                                action: function() {
+                                    $('#modalGral').modal('hide');
+                                    location.reload();
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    throw new Error(data.message || "Error al actualizar el documento");
+                }
+            },
+            error: function(xhr, status, error) {
+                loadingAlert.close();
+                console.error('Error:', error);
+                
+                $.alert({
+                    title: "Error",
+                    content: error || "Ocurrió un error al actualizar el documento. Por favor, intente nuevamente.",
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: "red"
+                });
+            }
+        });
+    }
+
+
+</script>

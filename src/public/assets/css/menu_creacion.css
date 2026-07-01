@@ -1,0 +1,265 @@
+.menu-calc-h {
+    height: calc(106vh - 180px) !important;
+    overflow-y: auto;
+}
+
+.btnsGrlas {
+    display: flex;
+    margin: auto;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    gap: 10%;
+}
+
+/* Botones del menú lateral: 2 arriba, 2 abajo; altura fija, más largos */
+#menuIzq .btnsGrlas {
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+}
+#menuIzq .btnsGrlas .btnAct {
+    flex: 1 1 calc(50% - 3px);
+    min-width: 60px;
+    height: 34px;
+    line-height: 34px;
+    padding: 0;
+    margin: 0;
+}
+#menuIzq .btnsGrlas .btnAct i {
+    font-size: 16px;
+    padding: 4px;
+}
+#menuIzq .btnsGrlas .btnAct img {
+    width: 18px !important;
+    height: 18px;
+    object-fit: contain;
+}
+#menuIzq .btnsGrlas .btnAct:before {
+    line-height: 34px;
+    font-size: 9px;
+}
+#menuIzq .btnsGrlas #draftPublishBadge {
+    flex: 1 1 calc(50% - 3px);
+    min-width: 60px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 0;
+    display: flex;
+    align-items: center;
+}
+
+/*SECCIONES DE páginas*/
+
+.pub_seccion {
+    /*border: 2px dashed lightgray;*/
+    margin: 10px;
+    position: relative;
+    min-height: 50px;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pub_seccion:hover {
+    opacity: 0.9;
+}
+
+.pub_seccion:hover::after {
+    background: rgb(28 28 28 / 40%);
+    color: #ffffff;
+}
+
+.pub_seccion::after {
+    background: rgb(28 28 28 / 31%);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: block;
+    font: var(--fa-font-solid);
+    content: '\f044';
+    z-index: 101;
+    text-align: center;
+    font-size: 2rem;
+    padding-top: 10px;
+    color: #ffffff73;
+}
+.pub_seccion.active::after {
+    display: none;
+}
+.pub_seccion.blocked::after {
+    background: rgba(28, 28, 28, 0.55);
+    content: '\f023';
+}
+/* .pub_columna {
+    border: 1px dashed darkred;
+} */
+.menuminint {
+    padding: 5px 20px;
+    font-size: .8rem;
+}
+.menuminint label{
+    padding:8px 0;
+}
+.arrowDown {
+    background-image: url('../img/arrow-down-solid.svg');
+    bottom: -20px;
+}
+.arrowUp {
+    background-image: url('../img/arrow-down-solid.svg');
+    transform: rotate(180deg);
+    bottom: -20px;
+}
+.addSec, .deleteSec {
+    text-align: center;
+}
+.addSec, .btnAco, .deleteSec {
+    opacity: .5;
+}
+.addSec .btnAco:hover {
+    opacity: 1;
+}
+.colsedit {
+    /*display: block;*/
+    text-align: center;
+}
+
+.section-controls {
+    display: none;
+}
+.active-section-controls {
+    display: block;
+}
+
+.blockcol {
+    padding: 2px;
+}
+button.btn-cols {
+    width: 100%;
+    background: #f1f1f1;
+    height: 40px;
+    display: inline-block;
+    border: 1px dashed gray;
+}
+button.btn-cols.active {
+    background: gray;
+    border: 1px solid lightgray;
+}
+button.btn-cols.active.selected {
+    background: #9e1f41;
+    border: 1px solid #9d1f41;
+}
+button.btn-cols:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+.pub_columna.active {
+    position: relative;
+    border: 1px dashed lightgray;
+}
+/* Velo por columna: debe cubrir todo el ancho de la celda (no usar 100%/N aquí: el % es del propio .pub_columna) */
+.pub_columna.active::after {
+    content: '.';
+    color: transparent;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #c9929233;
+    width: 100%;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+/* No anular ::after en .selected: antes la columna activa elegida perdía el velo y solo se veía el azul de .pub_columna.selected */
+.updowndiv {
+    display: inline-block;
+    zoom: .8;
+    width: 49%;
+}
+.btn-trash {
+    padding: 8px 9px 7px;
+    margin-top: 2px;
+    border-radius: 100%;
+    background: #d2d1d1;
+    color: #fff;
+}
+.btn-trash:hover {
+    background: #9d1f41;
+    color: #fff;
+}
+
+.fomdivs {
+    max-width: 90%;
+    margin: auto;
+    display: block;
+}
+.fomdivs div.secmenu {
+    /*margin: 10px 0px;*/
+    /*padding-bottom: 5px;*/
+}
+label.labelsecmenu {
+    text-align: left;
+    display: block;
+    font-weight: lighter;
+    background: #bc955c;
+    padding: 6px 10px 7px;
+    color: white;
+    border-radius: 10px 10px 3px 2px;
+    font-size: .8rem;
+}
+
+.fomdivs div.secmenu {
+    margin: 10px 0px;
+    padding-bottom: 5px;
+    background: white;
+    box-shadow: 0px 2px 8px 0px #9b9999;
+    border-radius: 10px 10px 3px 2px;
+    font-size: .8rem;
+}
+.secmenu input ,  .secmenu select {
+    max-width: 90%;
+    display: block;
+    margin: 10px auto;
+}
+.secmenu .labelsecmenu button.btnAct {
+    float: right;
+    position: relative;
+    top: -6px;
+}
+.filedetails, .vardetails {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    margin: auto;
+    padding-top: 5px;
+    border-bottom: 1px solid lightgray;
+    padding-bottom: 5px;
+}
+.filedetails span, .filedetails button {
+    display: flex;
+    justify-content: center;
+}
+.boxB-component ul{
+    text-align: center;
+}
+.boxB-component ul li {
+    display: inline-block;
+    margin: 5px 10px;
+}
+span.varMailing {
+    font-size: .8rem;
+}
+.pub_seccion.removeAfter {
+    margin: 0;
+}
+.pub_seccion.removeAfter::after{
+    content: '' !important;
+    background: unset;
+}
+.btnCollapseMovil, .btnCollapse {
+    z-index: 999999;
+}
+/*Previsualizar*/

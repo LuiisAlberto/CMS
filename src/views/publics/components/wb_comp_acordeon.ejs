@@ -1,0 +1,420 @@
+<% if (objcomp && objcomp.dataValues && objcomp.dataValues.contenedor_acordeon) { %>
+    <% objcomp.dataValues.contenedor_acordeon.forEach((contenedor, contIndex) => { %>
+<div class="container mt-5 acordeon-container-main">
+    <h1><%= contenedor.titulo %></h1>
+    <% if (contenedor.descripcion) { %>
+        <p class="descripcion-contenedor" style="margin-bottom: 1.5rem;">
+            <%= contenedor.descripcion %>
+        </p>
+    <% } %>
+
+    <!-- Contenedor de Tabs con Flechas -->
+    <div class="tabs-wrapper-with-arrows">
+        <button id="prev-tab-<%= contIndex %>" class="nav-arrow-tabs" data-container="<%= contIndex %>">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="tabs-container">
+            <% if (contenedor.categorias && contenedor.categorias.length > 0) { %>
+                <% contenedor.categorias.forEach((categoria, catIndex) => { %>
+            <button class="tab-button <%= catIndex === 0 ? 'active' : '' %>" data-tab="tab<%= contIndex %>-<%= catIndex %>" data-index="<%= catIndex %>"><%= categoria.descripcion %></button>
+                <% }) %>
+            <% } %>
+        </div>
+        <button id="next-tab-<%= contIndex %>" class="nav-arrow-tabs" data-container="<%= contIndex %>">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <!-- Contenido de cada Tab -->
+    <div class="tab-content-container">
+        <% if (contenedor.categorias && contenedor.categorias.length > 0) { %>
+            <% contenedor.categorias.forEach((categoria, catIndex) => { %>
+        <!-- Contenido de la Pestaña <%= catIndex + 1 %> -->
+        <div id="tab<%= contIndex %>-<%= catIndex %>" class="tab-pane <%= catIndex === 0 ? 'active' : '' %>">
+            <h2><%= categoria.descripcion %></h2>
+            <div class="accordion-wrapper">
+                <div class="accordion-container">
+                    <% if (categoria.subcategorias && categoria.subcategorias.length > 0) { %>
+                        <% categoria.subcategorias.forEach((subcategoria, subIndex) => { %>
+                    <!-- Subcategoría desplegable -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <%= subcategoria.titulo %>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <% if (subcategoria.acordeones && subcategoria.acordeones.length > 0) { %>
+                                <% subcategoria.acordeones.forEach((acordeon, acoIndex) => { %>
+                            <% if (acordeon.url_link && acordeon.url_link !== '#') { %>
+                            <a href="<%= acordeon.url_link %>" class="subcategoria-item subcategoria-link" target="_blank" rel="noopener">
+                                <% if (acordeon.titulo && !acordeon.texto) { %>
+                                <p class="item-texto"><%= acordeon.titulo %></p>
+                                <% } else { %>
+                                    <% if (acordeon.titulo) { %>
+                                    <h4 class="item-titulo"><%= acordeon.titulo %></h4>
+                                    <% } %>
+                                    <% if (acordeon.texto) { %>
+                                    <p class="item-texto"><%= acordeon.texto %></p>
+                                    <% } %>
+                                <% } %>
+                            </a>
+                            <% } else { %>
+                            <div class="subcategoria-item">
+                                <% if (acordeon.titulo && !acordeon.texto) { %>
+                                <p class="item-texto"><%= acordeon.titulo %></p>
+                                <% } else { %>
+                                    <% if (acordeon.titulo) { %>
+                                    <h4 class="item-titulo"><%= acordeon.titulo %></h4>
+                                    <% } %>
+                                    <% if (acordeon.texto) { %>
+                                    <p class="item-texto"><%= acordeon.texto %></p>
+                                    <% } %>
+                                <% } %>
+                            </div>
+                            <% } %>
+                                <% }) %>
+                            <% } else { %>
+                            <p class="empty-message">No hay acordeones en esta subcategoría.</p>
+                            <% } %>
+                        </div>
+                    </div>
+                        <% }) %>
+                    <% } else { %>
+                    <p class="empty-message">No hay subcategorías en esta categoría.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+            <% }) %>
+        <% } %>
+    </div>
+
+</div>
+    <% }) %>
+
+<script>
+    $(document).ready(function() {
+        // Inicializar cada contenedor de acordeón
+        $('.acordeon-container-main').each(function() {
+            const $container = $(this);
+            const containerIndex = $container.find('.nav-arrow-tabs').first().data('container');
+            const $tabs = $container.find('.tab-button');
+            const $tabPanes = $container.find('.tab-pane');
+            const totalTabs = $tabs.length;
+            let currentTabIndex = 0;
+
+            // Función para cambiar de tab
+            function switchToTab(index) {
+                if (index < 0 || index >= totalTabs) return;
+                
+                currentTabIndex = index;
+                
+                // Actualizar botones de tabs
+                $tabs.removeClass('active');
+                $tabs.eq(index).addClass('active');
+                
+                // Actualizar contenido de tabs
+                $tabPanes.removeClass('active');
+                $tabPanes.eq(index).addClass('active');
+                
+                // Actualizar estado de flechas
+                updateArrowStates();
+            }
+
+            // Función para actualizar estado de flechas
+            function updateArrowStates() {
+                const $prevBtn = $container.find(`#prev-tab-${containerIndex}`);
+                const $nextBtn = $container.find(`#next-tab-${containerIndex}`);
+                
+                $prevBtn.prop('disabled', currentTabIndex === 0);
+                $nextBtn.prop('disabled', currentTabIndex >= totalTabs - 1);
+            }
+
+            // Manejador de clic para los botones de pestaña
+            $tabs.on('click', function() {
+                const index = $(this).data('index');
+                switchToTab(index);
+            });
+
+            // Manejador flecha Anterior
+            $container.find(`#prev-tab-${containerIndex}`).on('click', function() {
+                if (currentTabIndex > 0) {
+                    switchToTab(currentTabIndex - 1);
+                }
+            });
+
+            // Manejador flecha Siguiente
+            $container.find(`#next-tab-${containerIndex}`).on('click', function() {
+                if (currentTabIndex < totalTabs - 1) {
+                    switchToTab(currentTabIndex + 1);
+                }
+            });
+
+            // Inicializar estado
+            updateArrowStates();
+        });
+
+        // --- Lógica de Acordeón (solo para este componente) ---
+        $('.acordeon-container-main .accordion-header').on('click', function() {
+            const $header = $(this);
+            const $container = $header.closest('.acordeon-container-main');
+            const $content = $header.next('.accordion-content');
+
+            // 1. Cerrar todos los demás acordeones dentro del mismo contenedor (comportamiento de acordeón único)
+            $container.find('.accordion-header').not($header).removeClass('active');
+            $container.find('.accordion-content').not($content).slideUp(300).removeClass('show');
+
+            // 2. Alternar el acordeón actual
+            $header.toggleClass('active');
+            $content.slideToggle(300, function() {
+                // Usar la clase 'show' para el CSS de max-height/padding
+                if ($content.is(':visible')) {
+                    $content.addClass('show');
+                } else {
+                    $content.removeClass('show');
+                }
+            });
+        });
+    });
+
+</script>
+
+<style>
+    /* Contenedor principal del acordeón */
+    .acordeon-container-main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .acordeon-container-main h1 {
+        text-align: center;
+        color: var(--rojo-guinda, #8e2c2d);
+        margin-bottom: 30px;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    /* Contenedor de tabs con flechas */
+    .tabs-wrapper-with-arrows {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    /* Contenedor de tabs */
+    .tabs-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        flex: 1;
+        max-width: 100%;
+    }
+
+    /* Botones de tabs */
+    .tab-button {
+        padding: 12px 24px;
+        border: 2px solid var(--rojo-guinda, #8e2c2d);
+        background-color: white;
+        color: var(--rojo-guinda, #8e2c2d);
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .tab-button:hover {
+        background-color: rgba(142, 44, 45, 0.1);
+    }
+
+    .tab-button.active {
+        background-color: var(--rojo-guinda, #8e2c2d);
+        color: white;
+        font-weight: 600;
+    }
+
+    /* Flechas de navegación */
+    .nav-arrow-tabs {
+        background-color: var(--rojo-guinda, #8e2c2d);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .nav-arrow-tabs:hover:not(:disabled) {
+        background-color: var(--rojo-guinda-oscuro, #6b2021);
+        transform: scale(1.1);
+    }
+
+    .nav-arrow-tabs:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    .nav-arrow-tabs i {
+        font-size: 18px;
+    }
+
+    /* Contenedor de contenido de tabs */
+    .tab-content-container {
+        margin-top: 20px;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    .tab-pane h2 {
+        display: none; /* Ocultar el h2 ya que el título está en el tab */
+    }
+
+    /* Contenedor con scroll para los items */
+    .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: var(--rojo-guinda, #8e2c2d) #f0f0f0;
+        padding: 0 20px;
+        transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    }
+
+    .accordion-content.show {
+        max-height: 600px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 20px;
+    }
+
+    /* Webkit scrollbar */
+    .accordion-content::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .accordion-content::-webkit-scrollbar-track {
+        background: #f0f0f0;
+        border-radius: 4px;
+    }
+
+    .accordion-content::-webkit-scrollbar-thumb {
+        background: var(--rojo-guinda, #8e2c2d);
+        border-radius: 4px;
+    }
+
+    .accordion-content::-webkit-scrollbar-thumb:hover {
+        background: var(--rojo-guinda-oscuro, #6b2021);
+    }
+
+    /* Estilos simples para los items dentro de las subcategorías */
+    .accordion-content .subcategoria-item {
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        display: block;
+    }
+
+    .accordion-content .subcategoria-link {
+        cursor: pointer;
+        text-decoration: none;
+        color: #333;
+        display: block;
+        padding: 8px 0;
+        transition: all 0.3s ease;
+    }
+
+    .accordion-content .subcategoria-link:hover {
+        background: rgba(142, 44, 45, 0.05);
+        border-radius: 4px;
+        padding: 8px 12px;
+        margin: 0 -12px;
+        color: var(--rojo-guinda, #8e2c2d);
+    }
+
+    .accordion-content .subcategoria-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .accordion-content .item-titulo {
+        display: none;
+    }
+
+    .accordion-content .item-texto {
+        color: #333;
+        line-height: 1.6;
+        margin: 0;
+        font-size: 15px;
+        transition: color 0.3s ease;
+    }
+
+    .accordion-content .subcategoria-link:hover .item-texto {
+        color: var(--rojo-guinda, #8e2c2d);
+    }
+
+    .accordion-content p {
+        color: #333;
+        line-height: 1.6;
+        margin: 0 0 1rem 0;
+        font-size: 15px;
+    }
+
+    .accordion-content .empty-message {
+        text-align: center;
+        color: #999;
+        padding: 2rem;
+        font-style: italic;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .tabs-wrapper-with-arrows {
+            flex-wrap: wrap;
+        }
+
+        .tabs-container {
+            order: 2;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .nav-arrow-tabs {
+            order: 1;
+        }
+
+        .nav-arrow-tabs:last-of-type {
+            order: 3;
+        }
+
+        .tab-button {
+            font-size: 14px;
+            padding: 10px 16px;
+        }
+    }
+</style>
+
+<% } else { %>
+    <div class="repositorio-documentos">
+        <div class="alert alert-info">
+            <p>No hay contenedores de acordeón disponibles.</p>
+        </div>
+    </div>
+<% } %>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+      }
+
+      .cls-2 {
+        fill: #1a1a1a;
+        font-size: 8px;
+      }
+
+      .cls-2, .cls-3, .cls-4 {
+        font-family: Montserrat-Light, Montserrat;
+        font-weight: 300;
+      }
+
+      .cls-3, .cls-4 {
+        font-size: 5px;
+        letter-spacing: 0em;
+      }
+
+      .cls-3, .cls-5 {
+        fill: #fff;
+      }
+
+      .cls-5 {
+        stroke: #000;
+        stroke-miterlimit: 10;
+        stroke-width: .25px;
+      }
+
+      .cls-6 {
+        fill: url(#Degradado_sin_nombre_46);
+      }
+
+      .cls-7 {
+        letter-spacing: -.03em;
+      }
+    </style>
+    <linearGradient id="Degradado_sin_nombre_46" data-name="Degradado sin nombre 46" x1="17.75" y1="25.75" x2="43.75" y2="25.75" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="0" stop-color="#f8efef"/>
+      <stop offset="0" stop-color="#e7c4c5"/>
+      <stop offset="0" stop-color="#d89e9f"/>
+      <stop offset="0" stop-color="#cc7e7f"/>
+      <stop offset="0" stop-color="#c16466"/>
+      <stop offset="0" stop-color="#b95052"/>
+      <stop offset="0" stop-color="#b44244"/>
+      <stop offset="0" stop-color="#b03a3c"/>
+      <stop offset="0" stop-color="#b0383a"/>
+      <stop offset="0" stop-color="#ab3638"/>
+      <stop offset="0" stop-color="#b02325"/>
+      <stop offset="0" stop-color="#b51314"/>
+      <stop offset="0" stop-color="#b80808"/>
+      <stop offset="0" stop-color="#ba0101"/>
+      <stop offset="0" stop-color="#b00"/>
+      <stop offset="0" stop-color="#b40606"/>
+      <stop offset="0" stop-color="#9f1b1b"/>
+      <stop offset="0" stop-color="#922728"/>
+      <stop offset="0" stop-color="#8e2c2d"/>
+      <stop offset="0" stop-color="#8e2c2d"/>
+      <stop offset="0" stop-color="#8e2c2d"/>
+      <stop offset="0" stop-color="#8e2c2d"/>
+      <stop offset="0" stop-color="#8e2c2d"/>
+      <stop offset=".07" stop-color="#8e2c2d"/>
+      <stop offset=".98" stop-color="#8e2c2d"/>
+      <stop offset=".98" stop-color="#8e2c2d"/>
+      <stop offset="1" stop-color="#8e2c2d"/>
+    </linearGradient>
+  </defs>
+  <rect class="cls-1" x="-.75" y="-1.25" width="64" height="64" rx="8" ry="8"/>
+  <rect class="cls-5" x="5.25" y="20.25" width="50.5" height="11.5" rx="4" ry="4"/>
+  <rect class="cls-6" x="17.75" y="20.75" width="26" height="10" rx="5" ry="5"/>
+  <text class="cls-2" transform="translate(21.14 48.35)"><tspan class="cls-7" x="0" y="0">T</tspan><tspan x="4.27" y="0">abs</tspan></text>
+  <text class="cls-3" transform="translate(28.32 27.13)"><tspan x="0" y="0">Tt</tspan></text>
+  <text class="cls-4" transform="translate(9.43 27.47)"><tspan x="0" y="0">Tt</tspan></text>
+  <text class="cls-4" transform="translate(46.43 27.47)"><tspan x="0" y="0">Tt</tspan></text>
+</svg>

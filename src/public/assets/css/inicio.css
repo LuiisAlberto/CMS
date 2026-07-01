@@ -1,0 +1,200 @@
+/**
+ * Vista de Inicio - CMS Morena
+ * Estilos dedicados para una bienvenida moderna y atractiva
+ */
+:root {
+  --inicio-guinda: #9F1F41;
+  --inicio-guinda-oscuro: #681B33;
+  --inicio-guinda-suave: rgba(159, 31, 65, 0.08);
+  --inicio-oro: #BB965C;
+  --inicio-oro-suave: rgba(187, 150, 92, 0.15);
+  --inicio-sombra: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --inicio-sombra-hover: 0 12px 40px rgba(159, 31, 65, 0.12);
+  --inicio-radius: 16px;
+  --inicio-radius-sm: 12px;
+}
+
+/* Contenedor principal */
+.pagina-inicio #templateDer {
+  min-height: calc(100vh - 58px);
+  background: linear-gradient(165deg, #fafafa 0%, #f0eeeb 45%, #fafafa 100%);
+  padding-bottom: 3rem;
+}
+
+.pagina-inicio .inicio-wrap {
+  width: 92%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 2.5rem;
+  padding-bottom: 2rem;
+}
+
+/* Hero / Título principal */
+.pagina-inicio .inicio-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 1rem;
+}
+
+.pagina-inicio .inicio-hero-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--inicio-guinda);
+  background: var(--inicio-guinda-suave);
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.pagina-inicio .inicio-hero h1 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.35;
+  margin: 0 0 0.75rem 0;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pagina-inicio .inicio-hero-subtitle {
+  max-width: 640px;
+  margin: 0 auto;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #555;
+}
+
+.pagina-inicio .inicio-hero h1 strong {
+  color: var(--inicio-guinda);
+  font-weight: 700;
+}
+
+.pagina-inicio .inicio-hero-line {
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--inicio-oro), var(--inicio-guinda));
+  border-radius: 2px;
+  margin: 1.25rem auto 0;
+}
+
+/* Grid de tarjetas */
+.pagina-inicio .inicio-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.75rem;
+  align-items: stretch;
+}
+
+.pagina-inicio .inicio-card {
+  background: #fff;
+  border-radius: var(--inicio-radius);
+  box-shadow: var(--inicio-sombra);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.pagina-inicio .inicio-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--inicio-sombra-hover);
+}
+
+/* Tarjeta de video */
+.pagina-inicio .inicio-card-video .inicio-card-header {
+  background: linear-gradient(135deg, var(--inicio-guinda) 0%, var(--inicio-guinda-oscuro) 100%);
+  color: #fff;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pagina-inicio .inicio-card-video .inicio-card-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--inicio-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pagina-inicio .inicio-card-video .inicio-card-icon i {
+  font-size: 1.25rem;
+}
+
+.pagina-inicio .inicio-card-video .inicio-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.pagina-inicio .inicio-card-body {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.pagina-inicio .inicio-card-video .inicio-card-body p {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+  font-weight: 500;
+}
+
+.pagina-inicio .inicio-video-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.35;
+}
+
+.pagina-inicio .inicio-video-wrap {
+  position: relative;
+  border-radius: var(--inicio-radius-sm);
+  overflow: hidden;
+  background: radial-gradient(circle at top left, #222 0%, #111 40%, #000 100%);
+  aspect-ratio: 16 / 9;
+  margin-top: 0;
+}
+
+.pagina-inicio .inicio-video-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pagina-inicio .inicio-wrap {
+    width: 96%;
+    padding-top: 1.5rem;
+  }
+
+  .pagina-inicio .inicio-hero {
+    margin-bottom: 2rem;
+    padding: 1rem 0.5rem;
+  }
+
+  .pagina-inicio .inicio-cards {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .pagina-inicio .inicio-card-body,
+  .pagina-inicio .inicio-card-video .inicio-card-header {
+    padding: 1.25rem;
+  }
+}

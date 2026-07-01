@@ -1,0 +1,296 @@
+<%- include('partials/header'); %>
+<%- include('partials/menu'); %>
+
+<div id="templateDer">
+
+    <div class="limit-home">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-12 col-12 t-c">
+                <h5 class="tit-seccion guinda_t">Administrador de <b>Pie de Página</b></h5>
+                <div class="l-div">
+                    <label class="borde-izq oroMorena"><span class="diagonal gris_t"></span></label>
+                    <label class="borde-der solid_bg"><span></span></label>
+                </div>
+            </div>
+            <div class="subenun ma-t2">
+                <p class="subtit">En esta sección puedes administrar los pies de página y su información.</p>
+                <span></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <button class="btnAco rojo_guinda auburn_t" id="NuevoFooterButton">
+            <span class="disNo">NUEVO PIE DE PÁGINA</span><i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <div class="container mt-4">
+        <div class="tablefont">
+            <table class="table-s" id="tb-footers">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Número de enlaces</th>
+                    <th>Fecha creación</th>
+                    <th>Aplicación</th>
+                    <th>Editar</th>
+                    <th>Estatus</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <% if (footers && footers.length > 0) { %>
+                        <% footers.forEach((footer, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td><%= footer.nombre %></td>
+                                <td><%= footer.enlaces ? footer.enlaces.filter(e => e.vigente).length : 0 %></td>
+                                <td><%= footer.f_reg.toLocaleDateString() %></td>
+                                <td><%= footer.sysapp ? footer.sysapp.sysapp_name : 'N/A' %></td>
+                                <td>
+                                    <button class="btnAct <%= (footer.vigente) ? 'oro' : 'gris' %> editfooter" data-cy="<%= footer.id_wb_footer %>" data-hover="EDITAR">
+                                        <i class="fa-regular fa-pen-to-square"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <% if (footer.vigente) { %>
+                                        <button class="btnAct verde_b changestatusfooter" data-cy="<%= footer.id_wb_footer %>" data-hover="DESACTIVAR">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                        </button>
+                                    <% } else { %>
+                                        <button class="btnAct guinda changestatusfooter" data-cy="<%= footer.id_wb_footer %>" data-hover="ACTIVAR">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% }  %>
+                        
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<!-- TEMPLATE MODAL -->
+<template id="NuevoFooterModalTemplate">
+    <form id="NuevoFooterModal_Form" class="limit-form row">
+        <div class="col-lg-6 ma-g">
+            <label class="titForm verde_t">Nombre del pie de página*</label>
+            <input type="text" id="NuevoFooterNombre" name="NuevoFooterNombre" class="form-control form-input" required>
+        </div>
+        <div class="col-lg-8 ma-g" hidden>
+            <label class="titForm verde_t">Aplicación</label>
+            <input id="NuevoFooterApp" name="NuevoFooterApp" value="<%= app_seleccionada %>">
+        </div>
+    </form>
+</template>
+
+</div>
+
+<%- include('partials/footerNoMx'); %>
+
+<script>
+$(document).ready(function() {
+    $('#tb-footers').DataTable({
+        "language": {
+            "emptyTable": "No hay pies de página registrados."
+        }
+    });
+
+    // Editar footer (usar delegación de eventos para elementos dinámicos)
+    $('#tb-footers').on('click', '.editfooter', function () {
+        const footerId = $(this).data('cy');
+        const token = '<%= typeof token !== "undefined" ? token : "" %>';
+        if (token) {
+            window.location.href = `/footerdetalle?footerId=${footerId}&i=${encodeURIComponent(token)}`;
+        } else {
+            window.location.href = `/footerdetalle?footerId=${footerId}`;
+        }
+    });
+
+    // Cambiar estatus footer
+    $('#tb-footers').on('click', '.changestatusfooter', function () {
+        const footerId = $(this).data('cy');
+        const row = $(this).closest('tr');
+
+        $.confirm({
+            title: 'Confirmación',
+            content: '¿Estás seguro de cambiar el estado de este pie de página?',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: 'red',
+            buttons: {
+                Aceptar: {
+                    text: 'Aceptar',
+                    btnClass: 'btn-red',
+                    action: function () {
+                        fetch(`/api/footer/${footerId}`, { 
+                            method: 'POST', 
+                            body: JSON.stringify({ 
+                                id_footer: footerId, 
+                                id_sysapp: `<%= app_seleccionada %>`
+                            }), 
+                            headers: { 'Content-Type': 'application/json' } 
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                $.alert({
+                                    title: 'Correcto',
+                                    content: 'Estado del pie de página actualizado correctamente',
+                                    theme: 'modern',
+                                    icon: 'fa-solid fa-circle-check',
+                                    type: 'blue',
+                                    onClose: function() {
+                                        window.location.reload();
+                                    }
+                                });
+                            } else {
+                                $.alert({
+                                    title: 'Error',
+                                    content: data.message || 'No se pudo cambiar el estado del pie de página',
+                                    theme: 'modern',
+                                    icon: 'fa-solid fa-triangle-exclamation',
+                                    type: 'red'
+                                });
+                            }
+                        })
+                        .catch(err => console.error(err));
+                    }
+                },
+                Cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-gray'
+                }
+            }
+        });
+    });
+
+    // Abrir modal NUEVO FOOTER
+    $('#NuevoFooterButton').on('click', function() {
+        NuevoFooterModal();
+    });
+});
+
+function NuevoFooterModal(){
+    // Limpia modal general
+    limpieza_modalGral();
+
+    // Encabezado
+    modalGral_addTit('NUEVO PIE DE PÁGINA');
+    modalGral_addSubtit('Completa la información que se solicita.');
+
+    // Inyecta template
+    modalGral_bodyAppend(getHtmlTemplate('NuevoFooterModalTemplate'));
+
+    // Footer con botones
+    modalGral_addFooter(
+        `<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">
+            <p>CANCELAR</p>
+            <div class="btnIcon">
+                <div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div>
+                <span class="s-guinda"></span>
+            </div>
+        </button>
+        <button class="btnGral verde_t" type="button" id="NuevoFooter_guardar">
+            <p>GUARDAR</p>
+            <div class="btnIcon">
+                <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                <span class="s-verde"></span>
+            </div>
+        </button>`
+    );
+
+    $('#NuevoFooter_guardar').off('click').on('click', NuevoFooter);
+
+    (new bootstrap.Modal($('#modalGral')[0], {backdrop:"static", keyboard:false})).show();
+}
+
+/* Guardar nuevo footer vía API*/
+function NuevoFooter(){
+    const nombre = $('#NuevoFooterNombre').val().trim();
+    const app = $('#NuevoFooterApp').val();
+
+    if (!nombre || !app) {
+        $.alert({
+            title: "Advertencia",
+            content: '<strong>Todos los campos son obligatorios</strong>',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: "red"
+        });
+        return;
+    }
+
+    fetch('/api/footer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            nombre,
+            fk_id_sysapp: app
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const footer = data.footer;
+
+            // Agregar fila a la tabla DataTable
+            const table = $('#tb-footers').DataTable();
+            table.row.add([
+                footer.id_wb_footer,
+                footer.nombre,
+                footer.enlaces ? footer.enlaces.length : 0,
+                new Date(footer.f_reg).toLocaleDateString(),
+                footer.sysapp ? footer.sysapp.sysapp_name : 'N/A',
+                `<button class="btnAct ${footer.vigente ? 'oro' : 'gris'} editfooter" data-cy="${footer.id_wb_footer}" data-hover="EDITAR">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                </button>`,
+                `<button class="btnAct guinda changestatusfooter" data-cy="${footer.id_wb_footer}" data-hover="ACTIVAR">
+                    <i class="fa-solid fa-eye"></i>
+                </button>`
+            ]).draw(false);
+
+            // Los eventos ya están delegados, no necesitan reasignarse
+
+            $('#modalGral').modal('hide');
+            
+            $.alert({
+                title: "Éxito",
+                content: 'Pie de página creado correctamente. Redirigiendo a la edición...',
+                theme: 'modern',
+                icon: 'fa-solid fa-circle-check',
+                type: "green",
+                onClose: function() {
+                    const token = '<%= typeof token !== "undefined" ? token : "" %>';
+                    if (token) {
+                        window.location.href = `/footerdetalle?footerId=${footer.id_wb_footer}&i=${encodeURIComponent(token)}`;
+                    } else {
+                        window.location.href = `/footerdetalle?footerId=${footer.id_wb_footer}`;
+                    }
+                }
+            });
+        } else {
+            $.alert({
+                title: "Error",
+                content: '<strong>'+(data.message || 'Error al crear pie de página')+'</strong>',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "red"
+            });
+        }
+    })
+    .catch(err => {
+        console.error("Error en fetch:", err);
+        $.alert({
+            title: "Error",
+            content: '<strong>Error en la petición al servidor</strong>',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: "red"
+        });
+    });
+}
+
+</script>

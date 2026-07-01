@@ -1,0 +1,1672 @@
+<%- include('partials/headeredit_iframe'); %>
+
+<!-- FilePond (plugins adicionales respecto al head del iframe) -->
+<link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+<script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+
+
+<style>
+    .disabledComp {
+        opacity: 0.4;
+        pointer-events: none;
+        user-select: none;
+        cursor: not-allowed;
+    }
+
+    /* Misma idea que #editall .btnAddComponent en menu_creacion (por si el botón se renderiza en el iframe). */
+    .btnAddComponent {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 0 48px 0 0;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow:
+            0 4px 14px rgba(62, 26, 27, 0.22),
+            0 1px 0 rgba(255, 255, 255, 0.25) inset;
+        position: relative;
+        overflow: visible;
+        min-height: 46px;
+        margin: 6px 0 16px 0;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        background: linear-gradient(145deg, #c9aa7a 0%, #a88958 55%, #957a4e 100%);
+        width: 100%;
+        max-width: 17rem;
+    }
+
+    .btn-text {
+        padding: 12px 8px 12px 20px;
+        flex-grow: 1;
+        text-align: center;
+        z-index: 2;
+        margin: 0;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: #fff;
+        line-height: 1.25;
+    }
+
+    .circleButton {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: linear-gradient(160deg, #9a3032 0%, #6f2224 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        right: -4px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 3;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .btnAddComponent i {
+        color: #fff;
+        font-size: 22px;
+    }
+
+    .btnAddComponent:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.04);
+        box-shadow:
+            0 8px 22px rgba(62, 26, 27, 0.28),
+            0 1px 0 rgba(255, 255, 255, 0.28) inset;
+    }
+
+    .btnAddComponent:focus-visible {
+        outline: 2px solid #7e2d43;
+        outline-offset: 3px;
+    }
+
+    #compListCreate {
+        max-height: 300px; /* aquí decide el tope */
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* Modal nueva página (estilo instancias/imágenes) */
+    #modalGral #newpage .form-label-inst { margin-bottom: 0.4rem; font-size: 13px; font-weight: 500; color: #343a40; }
+    #modalGral #newpage .form-control,
+    #modalGral #newpage .form-select {
+        background: #f0f0f0; border: 1px solid #e2e2e2; border-radius: 8px;
+        padding: 0.5rem 0.85rem; font-size: 14px; color: #212529;
+    }
+    #modalGral #newpage .form-control:focus,
+    #modalGral #newpage .form-select:focus {
+        background: #fff; border-color: #8e2c2d; box-shadow: 0 0 0 0.2rem rgba(142, 44, 45, 0.12);
+        outline: 0;
+    }
+    #modalGral #newpage .filepond-row { margin-bottom: 1rem; }
+    #modalGral #newpage .filepond--root {
+        max-height: 200px; min-height: 96px; position: relative; pointer-events: auto !important;
+        border: 1px solid #e0e0e0 !important; border-radius: 8px !important;
+        background: #f8f9fa !important;
+        outline: none !important; box-shadow: none !important;
+    }
+    #modalGral #newpage .filepond--root:hover,
+    #modalGral #newpage .filepond--root.filepond--drag-over {
+        border-color: #ccc !important; background: #f0f1f2 !important;
+    }
+    #modalGral #newpage .filepond--root *,
+    #modalGral #newpage .filepond--root *:focus { pointer-events: auto !important; outline: none !important; box-shadow: none !important; }
+    #modalGral #newpage .filepond--panel-root,
+    #modalGral #newpage .filepond--panel-top,
+    #modalGral #newpage .filepond--panel-center,
+    #modalGral #newpage .filepond--panel-bottom,
+    #modalGral #newpage .filepond--panel {
+        border: none !important; background: transparent !important;
+        outline: none !important; box-shadow: none !important;
+    }
+    #modalGral #newpage .filepond--drop-label {
+        position: absolute !important; left: 0 !important; right: 0 !important; top: 0 !important; bottom: 0 !important;
+        margin: 0 !important; padding: 0 !important; min-height: 0 !important; height: 100% !important;
+        display: flex !important; align-items: center !important; justify-content: center !important;
+        border: none !important; background: transparent !important; border-radius: 0 !important;
+        color: #495057 !important; font-size: 14px !important; text-align: center !important;
+        pointer-events: auto !important; cursor: pointer;
+    }
+    #modalGral #newpage .filepond--drop-label label { cursor: pointer; margin: 0; }
+    #modalGral #newpage .filepond--label-action { color: #8e2c2d !important; font-weight: 600; }
+    #modalGral #newpage .filepond--item-panel {
+        background: #fff !important;
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+    }
+    #modalGral #newpage .filepond--item .filepond--file-action-button {
+        background: #6c757d !important;
+        color: #fff !important;
+    }
+    #modalGral #newpage .filepond--item .filepond--file-info,
+    #modalGral #newpage .filepond--item .filepond--file-status { color: #212529 !important; }
+</style>
+
+
+<div id="editorCanvasWrapper">
+    <div id="templateDer">
+        <div id="contGral" class="limit-home row justify-content-center">
+            <%- include('publics/partials/visorpaginas'); %>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/modalGral'); %>
+<script>
+(function () {
+    var _origGet = typeof getHtmlTemplate === 'function' ? getHtmlTemplate : null;
+    window.getHtmlTemplate = function (id) {
+        var el = document.getElementById(id);
+        if (el && el.tagName === 'TEMPLATE' && el.content) {
+            var wrap = document.createElement('div');
+            wrap.appendChild(el.content.cloneNode(true));
+            return wrap.innerHTML;
+        }
+        if (typeof $ !== 'undefined' && $('template#' + id).length) {
+            return $('template#' + id).html();
+        }
+        if (window.parent && window.parent !== window && window.parent.document) {
+            var pel = window.parent.document.getElementById(id);
+            if (pel && pel.tagName === 'TEMPLATE' && pel.content) {
+                var w2 = document.createElement('div');
+                w2.appendChild(pel.content.cloneNode(true));
+                return w2.innerHTML;
+            }
+            if (window.parent.jQuery && window.parent.jQuery('template#' + id).length) {
+                return window.parent.jQuery('template#' + id).html();
+            }
+        }
+        return _origGet ? _origGet(id) : '';
+    };
+})();
+</script>
+<%- include('partials/templateModalPagina'); %>
+<%- include('partials/templateModalComponentes'); %>
+<%- include('partials/chatbotAgent'); %>
+
+<script>
+    /** Elementos del menú lateral están en el documento padre (shell del editor). */
+    var $menu = (function () {
+        var pw = window.parent;
+        if (!pw || pw === window || !pw.jQuery) {
+            return function (sel, ctx) { return typeof ctx !== 'undefined' ? jQuery(sel, ctx) : jQuery(sel); };
+        }
+        var $p = pw.jQuery;
+        var d = pw.document;
+        return function (sel, ctx) { return ctx ? $p(sel, ctx) : $p(sel, d); };
+    })();
+    var $docCanvas = $(document);
+    var $docParent = (window.parent && window.parent.jQuery && window.parent !== window)
+        ? window.parent.jQuery(window.parent.document)
+        : $docCanvas;
+
+    /** Instancia de modal (mismo documento que #modalGral; no mezclar con bootstrap del padre). */
+    function getBootstrapModalCtor() {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) return bootstrap.Modal;
+        return null;
+    }
+
+    /* Alineado con app/src/util/componentMinSizes.js (servidor) */
+    let minComponentSizes = {
+        1: 12,
+        2: 3, 
+        3: 3,
+        4: 3, 
+        5: 12, 
+        7: 3,
+        8: 12, 
+        9: 12,
+        10: 12,
+        13: 3, 
+        14: 12, 
+        16: 12, 
+        17: 12,
+        20: 3,
+        21: 3,
+        23: 3,
+        24: 12 
+    }
+
+    function sectionBlocksAdditionalColumns(sec) {
+        var $comps = $('#seccion_' + sec).find('.pub_componente');
+        var blocked = false;
+        $comps.each(function () {
+            var tip = $(this).attr('data-tipcomp');
+            if (tip === undefined || tip === null || tip === '') return;
+            var t = parseInt(tip, 10);
+            if (isNaN(t)) return;
+            var min = minComponentSizes[t] !== undefined ? minComponentSizes[t] : 3;
+            if (min >= 12) {
+                blocked = true;
+                return false;
+            }
+        });
+        return blocked;
+    }
+
+    function refreshColumnSlotAvailability(sec) {
+        if (sec == null || sec === '') return;
+        var canAdd = !sectionBlocksAdditionalColumns(sec);
+        $menu('#editall .btn-cols').each(function () {
+            var $b = $(this);
+            if ($b.hasClass('active')) {
+                $b.prop('disabled', false);
+                $b.removeAttr('title');
+                return;
+            }
+            if (!canAdd) {
+                $b.prop('disabled', true);
+                $b.attr('title', 'No se pueden añadir columnas: hay un componente de ancho completo en esta sección.');
+            } else {
+                $b.prop('disabled', false);
+                $b.removeAttr('title');
+            }
+        });
+    }
+
+    window.refreshEditorColumnSlots = function () {
+        var s = $menu('#idsec').val();
+        if (s != null && s !== '') refreshColumnSlotAvailability(String(s));
+    };
+
+    let max_num_sec=0;
+    let max_num_col=0;
+    let pagedata=<%- JSON.stringify(datapagina) %>;
+    let dataapp = <%- JSON.stringify(dataapp) %>;
+    window.dataapp = dataapp;
+    window.pagedata = pagedata;
+
+    for (let secc of pagedata.secciones) { 
+        max_num_sec=secc.id_wb_pag_seccion > max_num_sec? secc.id_wb_pag_seccion:max_num_sec;
+        for (let col of secc.columnas) {
+            max_num_col=col.id_wb_pag_columna > max_num_col? col.id_wb_pag_columna:max_num_col;
+        }
+    }
+
+    let componentdata={};
+    let max_num_comp=0;
+
+    $(function () {
+        /* Delegados en el padre: cada recarga del iframe ejecutaba este script de nuevo y acumulaba
+           listeners (mismo documento padre), duplicando p. ej. POST /agregarColumna al pulsar una columna. */
+        $docParent.off('.editpagCanvasIframe');
+
+        $menu('#idlastsec').val(max_num_sec);
+
+        orderSecc();
+        $docCanvas.on('change', "#namepag", function () {
+            var tipopag = $('#tipopag').val();
+            if(parseInt(tipopag)!==1){
+                let name = $(this).val();
+                name = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                name = name.toLowerCase();
+                name = name.replace(/\s+/g, '-');
+                name = name.replace(/[^a-z0-9\-]/g, '');
+                name = name.substring(0, 50);
+                name = name.replace(/-+$/, '');
+                name = encodeURIComponent(name);
+                $('#url').val(name);
+            }
+        });
+        $docCanvas.on('change', "#url", function () {
+            let name = $(this).val();
+            name = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            name = name.toLowerCase();
+            name = name.replace(/\s+/g, '-');
+            name = name.replace(/[^a-z0-9\-]/g, '');
+            name = name.substring(0, 50);
+            name = name.replace(/-+$/, '');
+            name = encodeURIComponent(name);
+            $('#url').val(name);
+        });
+        $docParent.on('click.editpagCanvasIframe', ".pubpag", function () {
+            var $btn = $(this);
+            let cy = $btn.data('cy');
+            let stat = $btn.data('stat');
+            let type = $btn.data('type');
+            // En el editor: página ya publicada → solo regenerar HTML (nunca confundir con "ocultar").
+            // data-stat=1 se usa en PubPag junto con update=1; sin esto, stat=1 + updateOnly falso mostraba el texto de borrador.
+            var pagePublicada = $btn.attr('data-page-publicada') === '1';
+            let updateOnly = $btn.attr('data-update-only') === '1' || pagePublicada;
+            let cambio;
+            var avisoDominio = '<p style="margin-top:12px;font-size:0.92rem;color:#555;line-height:1.45;">Después de aplicar los cambios, por caché y propagación del dominio puede tardar <strong>al menos 2 minutos</strong> en verse en el sitio público.</p>';
+            if (updateOnly) {
+                cambio = "¿Actualizar la página publicada con los últimos cambios? El HTML estático se regenerará." + avisoDominio;
+            } else if (stat) {
+                cambio = "¿Está seguro de ocultar esta página y dejarla como borrador?";
+            } else {
+                cambio = "¿Está seguro de publicar esta página?" + avisoDominio;
+            }
+            let url = '/PubPag?p='+cy+'&stat='+stat+'&t='+type;
+            if (updateOnly) url += '&update=1';
+            $.alert({
+                title: "Advertencia",
+                content: cambio,
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "red",
+                buttons: {
+                    Aceptar: {
+                        text: 'Si, continuar',
+                        btnClass: 'btn-success',
+                        action: function () {
+                            /* #lockscreen en el documento padre (shell editpag), no en el iframe.
+                               pubpag-active sube el z-index para quedar encima de jquery-confirm al cerrarse
+                               y evitar el flash en blanco entre modales. */
+                            var $lock = $menu('#lockscreen');
+                            if (!$lock.length) {
+                                $.alert({
+                                    title: 'Error',
+                                    content: 'No se encontró el bloqueo de pantalla del editor. Recargue la página e intente de nuevo.',
+                                    theme: 'modern',
+                                    type: 'red'
+                                });
+                                return;
+                            }
+                            var $lockText = $lock.find('.textBlockScreen');
+                            var defaultLockHtml = '<i class="fas fa-spinner fa-spin"></i>&nbsp;Cargando ...';
+                            function resetPubLock() {
+                                $lock.removeClass('lockscreen-light pubpag-active');
+                                $lockText.html(defaultLockHtml);
+                                $lock.hide();
+                            }
+                            $lockText.html(
+                                '<i class="fas fa-spinner fa-spin"></i>&nbsp;Aplicando cambios y generando HTML estático…' +
+                                '<br><span style="display:block;margin-top:14px;font-size:15px;font-weight:500;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.45;color:#444;">Puede tardar unos momentos. No cierre esta pestaña.</span>'
+                            );
+                            $lock.addClass('lockscreen-light pubpag-active').show();
+                            $.ajax({
+                                url: url,
+                                method: 'GET',
+                                dataType: 'json',
+                                success: function(data) {
+                                    var titulo = 'Listo';
+                                    var contenido = (data && data.message) ? data.message : 'Operación completada.';
+                                    if (updateOnly) {
+                                        titulo = 'HTML estático actualizado';
+                                        contenido = (data && data.message) ? data.message : 'El HTML estático se regeneró correctamente. Los cambios ya están publicados.';
+                                    } else if (!stat) {
+                                        titulo = 'Página publicada';
+                                        contenido = (data && data.message) ? data.message : 'La página quedó publicada y el HTML estático se generó.';
+                                    } else {
+                                        titulo = 'Página actualizada';
+                                        contenido = (data && data.message) ? data.message : 'Los cambios se guardaron correctamente.';
+                                    }
+                                    var delayNote = '<p style="margin-top:14px;font-size:0.95rem;color:#555;line-height:1.45;">Por caché y propagación del dominio, los cambios pueden tardar <strong>al menos 2 minutos</strong> en verse en el sitio público.</p>';
+                                    if (updateOnly || !stat) {
+                                        contenido += delayNote;
+                                    }
+                                    /* Sin segundo modal: el overlay evita pantalla en blanco y pasa a “recargar” con animación */
+                                    $lockText.html(
+                                        '<div style="text-align:center;">' +
+                                        '<i class="fas fa-circle-check" style="font-size:2.5rem;color:#7E2D43;margin-bottom:12px;" aria-hidden="true"></i>' +
+                                        '<div style="font-size:1.12rem;font-weight:700;margin-bottom:10px;color:#2d2d2d;">' + titulo + '</div>' +
+                                        '<div style="font-size:0.95rem;color:#444;">' + contenido + '</div>' +
+                                        '<div class="pubpag-reload-row">' +
+                                        '<i class="fas fa-sync fa-spin pubpag-reload-icon" aria-hidden="true"></i>' +
+                                        '<span>Recargando editor…</span>' +
+                                        '</div></div>'
+                                    );
+                                    $lock.addClass('lockscreen-light pubpag-active').show();
+                                    setTimeout(function () {
+                                        if (typeof window.__setDraftClean === 'function') {
+                                            window.__setDraftClean();
+                                        }
+                                        // #lockscreen vive en el shell (editpag.ejs); este script corre en el iframe.
+                                        // Recargar solo el iframe deja el overlay del padre colgado en "Recargando editor…".
+                                        var wReload = window;
+                                        if (window.top && window.top !== window) {
+                                            wReload = window.top;
+                                        } else if (window.parent && window.parent !== window) {
+                                            wReload = window.parent;
+                                        }
+                                        wReload.location.reload();
+                                    }, 1900);
+                                },
+                                error: function (xhr) {
+                                    resetPubLock();
+                                    var errMsg = (xhr.responseJSON && xhr.responseJSON.message)
+                                        ? xhr.responseJSON.message
+                                        : 'No se pudo completar la acción. Intente de nuevo.';
+                                    $.alert({
+                                        title: 'Error',
+                                        content: errMsg,
+                                        theme: 'modern',
+                                        type: 'red'
+                                    });
+                                }
+                            });
+                        }
+                    },
+                    Cancelar: {
+                        text: 'Cancelar',
+                        btnClass: 'btn-alert',
+                        action: function () {
+                        }
+                    }
+                }
+            });
+        });
+        $docParent.on('click.editpagCanvasIframe', ".editpag", function () {
+            let cy = $(this).data('cy');
+            var formData = new FormData();
+            formData.append('cy', cy);
+
+            fetch('/GetPostContent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ cy: cy })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    let tag = data.entrada.cat_tags && data.entrada.cat_tags[0] ? data.entrada.cat_tags[0].id_cat_tag : 0;
+                    NuevaPagPrincipalModal(<%=datapagina.fk_id_cat_type_pagina%>, true);
+                    $('#idpag').val(data.entrada.id_wb_pagina);
+                    $('#namepag').val(data.entrada.nombre_pagina);
+                    $('#url').val(data.entrada.url_safe);
+                    $('#tipo_tag').val(tag);
+                    $('#cont_alt').val(data.entrada.contenido_alt);
+                    $('#cont_full').summernote('code', data.entrada.contenido);
+                    let fecha = new Date(data.entrada.f_publicacion).toISOString().split('T')[0];
+                    $('#f_pub').val(fecha);
+                    let filepath=data.entrada.archivo? 'https://cdn.morena.app/'+data.entrada.archivo.file_path:'';
+                    let htmlimg='<img src="'+filepath+'" class="imgcargada">';
+                    $('#imgcargada').html(htmlimg);
+
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+        $docCanvas.on('click', ".newSec", function (){
+            let siguienteSec = $(this).parent().prev();
+            let idsecprev = siguienteSec.attr('id');
+            let ordenprev = siguienteSec.data('orden');
+            let lastsec= parseInt($menu('#idlastsec').val());
+            let newsec=lastsec+1
+            let idpag = pagedata.id_wb_pagina;
+
+            $menu('#idlastsec').val(newsec);
+            $('.addSec').remove();
+
+            $.ajax({
+                url: '/agregarSeccion',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({newsec, idpag, ordenprev}),
+                beforeSend(){
+                    $('#lockscreen').show();
+                },
+                success: function(resp){
+                    $('#lockscreen').hide();
+                    if(resp.success){      
+                        const seccion_creada = resp.id_sec;
+                        const numCol = resp.num_col;
+                        const orden = resp.orden;
+                        const col_inicial = resp.col_inicial;
+
+                        $("#"+idsecprev).after(`
+                            <div class="row pub_seccion" id="seccion_${seccion_creada}" 
+                            data-origen="new" data-sec="${seccion_creada}" data-orden="${orden}">
+                                <div class="col-md-12 pub_columna active" 
+                                    id="columna_${col_inicial}" 
+                                    data-idcol="${col_inicial}" 
+                                    data-orden="1">
+                                </div>
+                            </div>
+                        `);
+                        orderSecc();
+                        $('#seccion_'+seccion_creada).trigger('click');
+                    } else {
+                        $.alert({
+                            title: "Error",
+                            content: resp.message || 'No se pudo insertar la sección.',
+                            theme: 'modern',
+                            type: "red"
+                        });
+                    }
+                },
+                error: function (xhr, status, err){
+                    $('#lockscreen').hide();
+                    console.error("Error:", status, err);
+                    $.alert({
+                        title: "Error al editar",
+                        content: xhr.responseJSON?.message || 'Ocurrió un error inesperado.',
+                        theme: 'modern',
+                        type: "red"
+                    });
+                }
+            });
+        });
+        $docCanvas.on('click', ".deletedSec", function (e){
+            e.preventDefault();
+
+            let sec = $menu("#idsec").val(); 
+            let idpag = pagedata.id_wb_pagina;
+            //// console.log("sec: "+sec + " pagina: "+idpag);
+
+            $.alert({
+                title: "Confirmar eliminación",
+                content: "¿Estás seguro de que deseas eliminar esta sección? Esta acción no se puede deshacer.",
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: "orange",
+                buttons: {
+                    confirmar: {
+                        text: 'Sí, eliminar',
+                        btnClass: 'btn-danger',
+                        action: function () {
+                            $.ajax({
+                                url: '/eliminarSeccion',
+                                method: 'POST',
+                                data: { sec, idpag },
+                                beforeSend: function() {
+                                    $('#lockscreen').fadeIn();
+                                },
+                                success: function(resp) {
+                                    $('#lockscreen').fadeOut();
+                                    if(resp.success) {
+                                        $('#seccion_' + sec).next('.addSec').remove();
+                                        $('#seccion_' + sec).remove();
+                                        orderSecc();
+
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 500);
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    $('#lockscreen').fadeOut();
+                                    console.error("Error al eliminar sección:", status, error);
+                                    $.alert({
+                                        title: "Error al eliminar",
+                                        content: xhr.responseJSON?.message || 'Ocurrió un error al eliminar la sección.',
+                                        theme: 'modern',
+                                        type: "red"
+                                    });
+                                }
+                            });
+                            return true;
+                        }
+                    },
+                    cancelar: {
+                        text: 'Cancelar',
+                        action: function () {
+                        }
+                    }
+                }
+            });
+        });
+        function finalizeMenuColumnas($seccion, sec) {
+            let columnas = $seccion.find('.pub_columna');
+            columnas.addClass('active');
+            columnas.each(function(index) {
+                let colNum = index + 1;
+                $menu('#trash' + colNum).remove();
+                if (columnas.length > 1) {
+                    $menu('#col'+colNum).addClass('active')
+                    .after(`<button id="trash${colNum}" data-col="${colNum}" class="btn-trash" type="button">
+                            <i class="fa fa-trash"></i></button>`);
+                }
+            });
+            orderCols(sec);
+            refreshSectionOrderButtons();
+            var $cds = $seccion.find('.pub_columna');
+            if ($cds.length && $menu('#col1').length) {
+                handleColumnSelection($menu('#col1'), String(sec), $cds);
+            }
+            refreshColumnSlotAvailability(String(sec));
+        }
+        function crearPrimeraColumnaDesdeSeccion($seccion, sec) {
+            $('#lockscreen').show();
+            $.ajax({
+                url: '/agregarColumna',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ sec: sec, num_cols: 0 }),
+                beforeSend() {
+                    $('#lockscreen').show();
+                },
+                success: function (resp) {
+                    $('#lockscreen').hide();
+                    if (resp && resp.success === false) {
+                        $.alert({
+                            title: 'No permitido',
+                            content: resp.message || 'No se puede añadir la columna.',
+                            theme: 'modern',
+                            type: 'orange'
+                        });
+                        return;
+                    }
+                    if (!resp || !resp.id_columna) {
+                        $.alert({
+                            title: 'Error',
+                            content: (resp && resp.message) || 'No se pudo crear la columna inicial.',
+                            theme: 'modern',
+                            type: 'red'
+                        });
+                        return;
+                    }
+                    const idNuevaCol = resp.id_columna;
+                    const orden = resp.orden;
+                    $seccion.append(
+                        `<div class="col-md-12 pub_columna active" 
+                            id="columna_${idNuevaCol}" 
+                            data-orden="${orden}" 
+                            data-idcol="${idNuevaCol}"
+                            data-origen="new"></div>`
+                    );
+                    finalizeMenuColumnas($seccion, sec);
+                },
+                error: function (xhr) {
+                    $('#lockscreen').hide();
+                    $.alert({
+                        title: 'Error al editar',
+                        content: xhr.responseJSON?.message || 'No se pudo crear la columna inicial.',
+                        theme: 'modern',
+                        type: 'red'
+                    });
+                }
+            });
+        }
+        $docCanvas.on('click', ".pub_seccion", function () {
+            let $seccion = $(this);
+            let active = $seccion.hasClass('active');
+            let blocked = $seccion.hasClass('blocked');
+            if (blocked) return;
+
+            /* Ya había sección activa pero se borraron todas las columnas: volver a crear la primera */
+            if (active && $seccion.find('.pub_columna').length === 0) {
+                let sec = $menu('#idsec').val() || $seccion.data('sec');
+                if (sec == null || sec === '') return;
+                crearPrimeraColumnaDesdeSeccion($seccion, sec);
+                return;
+            }
+
+            if (!active && !blocked) {
+                // Limpiar selecciones anteriores
+                $('.pub_seccion.active, .pub_columna.active').removeClass('active');
+                /* #editall está en el padre; el $ del iframe no encuentra .btn-trash del menú */
+                $menu('.btn-trash').remove();
+                $menu('#editall .secmenu').remove();
+
+                $('.section-controls').removeClass('active-section-controls');
+                $seccion.addClass('active');
+                $seccion.next('.addSec').addClass('active-section-controls');
+
+                $menu('#editallPlaceholder').hide();
+                $menu('#bloqueMenuCreacion .menu-creacion-sub').hide();
+                $menu('#editall').removeClass('editall-vacio').html(getHtmlTemplate('nuevaSeccion'));
+                $menu('#idsec').val($seccion.data('sec'));
+                $menu('#numsec').html($seccion.data('sec'));
+                $menu('#odersec').val($seccion.data('orden'));
+
+                let sec = $menu('#idsec').val();
+                let columnas = $seccion.find('.pub_columna');
+                //// console.log("cols: "+columnas.length);
+                //// console.log("cols: "+JSON.stringify(columnas));
+
+                /* Sin placeholder sin data-idcol: si no hay columnas en BD/DOM, creamos la primera vía API */
+                if (columnas.length === 0) {
+                    crearPrimeraColumnaDesdeSeccion($seccion, sec);
+                    return;
+                }
+
+                finalizeMenuColumnas($seccion, sec);
+            }
+        });
+        //elimina columnas
+        $docParent.on('click.editpagCanvasIframe', ".btn-trash", function (e) {
+            e.preventDefault();
+
+            let arr_col = []; 
+            $('#seccion_'+$menu("#idsec").val()+' .pub_columna').each(function() {
+                const idCol = $(this).data('idcol');
+                //// console.log(idCol); 
+                arr_col.push(idCol);
+            });
+
+            let columna = $(this).data('col'); //1-4
+            //// console.log("columna: "+columna);
+
+            let sec = $menu("#idsec").val(); 
+            let columnas_div=$('#seccion_'+sec).find('.pub_columna');
+            let bootnump=12/columnas_div.length;
+            let num_cols=columnas_div.length - 1 ;
+            let bootnum=12/num_cols;
+            let col = arr_col[columna-1];
+            //// console.log("col a eliminar: "+arr_col[columna-1]);
+
+            if (col == null || col === '') {
+                $('#lockscreen').hide();
+                $.alert({
+                    title: 'Columna no disponible',
+                    content: 'Esta columna aún no está registrada. Recarga la página o vuelve a seleccionar la sección.',
+                    theme: 'modern',
+                    type: 'orange'
+                });
+                return;
+            }
+
+            //return false; 
+            $.ajax({
+                url: '/eliminarColumna',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ col, sec }),
+                beforeSend() {
+                    $('#lockscreen').show();
+                },
+                success: function (resp) {
+                    $('#lockscreen').hide();
+                    if (resp.success) {
+                        if (columnas_div.length > 1) {
+                            columnas_div.removeClass('col-md-'+bootnump);
+                            columnas_div.each(function (){
+                                var o = parseInt($(this).attr('data-orden'), 10);
+                                var del = parseInt(columna, 10);
+                                if (!Number.isNaN(o) && !Number.isNaN(del) && o === del) {
+                                    $(this).remove();
+                                }
+                            });
+                            columnas_div = $('#seccion_'+sec).find('.pub_columna');
+                            columnas_div.addClass('col-md-'+bootnum);
+                            $('.pub_columna').removeClass('selected');
+                            $menu('.btn-cols').removeClass('selected').removeClass('active');
+                            $menu('.btn-trash').remove();
+                            orderCols(sec);
+                            for (let i = 1; i <= num_cols; i++) {
+                                $menu('#col'+i).addClass('active').after('<button id="trash'+i+'" data-col="'+i+'" class="btn-trash" type="button"><i class="fa fa-trash"></i></button>');
+                            }
+                            var $restCols = $('#seccion_'+sec).find('.pub_columna');
+                            if ($restCols.length && $menu('#col1').length) {
+                                handleColumnSelection($menu('#col1'), String(sec), $restCols);
+                            }
+                            refreshColumnSlotAvailability(String(sec));
+                        } else if (columnas_div.length === 1) {
+                            /* Última columna: vaciar lienzo y menú para poder volver a agregar con btn-cols o re-selección */
+                            columnas_div.remove();
+                            $('.pub_columna').removeClass('selected');
+                            $menu('.btn-trash').remove();
+                            $menu('.btn-cols').removeClass('selected').removeClass('active');
+                            $menu('#col1').addClass('active');
+                            $menu('#editall .secmenu').remove();
+                            orderCols(sec);
+                            refreshColumnSlotAvailability(String(sec));
+                        }
+                    } else {
+                        $.alert({
+                            title: "Error",
+                            content: resp.message || 'No se pudo eliminar la columna.',
+                            theme: 'modern',
+                            type: "red"
+                        });
+                    }
+                },
+                error: function (xhr, status, err) {
+                    $('#lockscreen').hide();
+                    console.error("Error:", status, err);
+                    $.alert({
+                        title: "Error al editar",
+                        content: xhr.responseJSON?.message || 'Ocurrió un error inesperado.',
+                        theme: 'modern',
+                        type: "red"
+                    });
+                }
+            });
+        });
+        $docParent.on('click.editpagCanvasIframe', ".btn-cols", function (e) {
+            e.preventDefault();
+
+            let $boton = $(this);
+            let columna = $(this).data('col');
+            let sec = $menu('#idsec').val();
+            let columnas_div=$('#seccion_'+sec).find('.pub_columna');
+            const num_cols_actual = columnas_div.length;
+
+            /* #col1 lleva .active por defecto en la plantilla; si no hay columnas, hay que crear por API, no solo “seleccionar” */
+            if ($boton.hasClass('active') && num_cols_actual > 0) {
+                handleColumnSelection($boton, sec, columnas_div);
+                return;
+            }
+            if (sectionBlocksAdditionalColumns(sec)) {
+                $.alert({
+                    title: 'No permitido',
+                    content: 'No se pueden añadir más columnas: esta sección tiene un componente que requiere el ancho completo.',
+                    theme: 'modern',
+                    type: 'orange'
+                });
+                return;
+            }
+            $boton.prop('disabled', true);
+
+            $.ajax({
+                url: '/agregarColumna',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    sec: sec,
+                    num_cols: num_cols_actual
+                }),
+                beforeSend() {
+                    $('#lockscreen').show();
+                },
+                success: function(resp) {
+                    $('#lockscreen').hide();
+                    $boton.prop('disabled', false);
+                    if (resp && resp.success === false) {
+                        $.alert({
+                            title: 'No permitido',
+                            content: resp.message || 'No se puede añadir la columna.',
+                            theme: 'modern',
+                            type: 'orange'
+                        });
+                        return;
+                    }
+
+                    const idNuevaCol = resp.id_columna;
+                    const orden = resp.orden;
+
+                    $(`#seccion_${sec} .pub_columna`).each(function () {
+                        const idc = $(this).data('idcol');
+                        if (idc == null || idc === '') {
+                            $(this).remove();
+                        }
+                    });
+                    columnas_div = $(`#seccion_${sec}`).find('.pub_columna');
+                    const num_cols_nuevo = columnas_div.length + 1;
+                    const bootnum = 12 / num_cols_nuevo;
+
+                    columnas_div.removeClass((_, c) => c.match(/col-md-\d+/))
+                    .addClass('col-md-' + bootnum);
+                    
+                    $(`#seccion_${sec}`).append(`
+                        <div class="col-md-${bootnum} pub_columna active" 
+                            id="columna_${idNuevaCol}" 
+                            data-orden="${orden}" 
+                            data-idcol="${idNuevaCol}"
+                            data-origen="new">
+                        </div>
+                    `);
+
+                    updateColumnStyles(sec, num_cols_nuevo, idNuevaCol, orden);
+                    orderCols(sec);
+                    var $cdsAfter = $(`#seccion_${sec}`).find('.pub_columna');
+                    if ($cdsAfter.length && $boton.length) {
+                        handleColumnSelection($boton, String(sec), $cdsAfter);
+                    }
+                    refreshColumnSlotAvailability(String(sec));
+                },
+                error: function(xhr, status, err) {
+                    $('#lockscreen').hide();
+                    $boton.prop('disabled', false);
+                    showError("Error al editar", xhr.responseJSON?.message || 'Ocurrió un error inesperado.');
+                }
+            });
+            
+        });
+        $docCanvas.on('click', '.pub_columna', function (e) {
+            e.stopPropagation();
+            var $col = $(this);
+            var $secRow = $col.closest('.pub_seccion');
+            if (!$secRow.hasClass('active')) return;
+            var sec = $secRow.data('sec');
+            if (String($menu('#idsec').val() || '') !== String(sec)) return;
+            var ord = parseInt($col.attr('data-orden'), 10);
+            if (isNaN(ord)) return;
+            var $btn = $menu('#col' + ord);
+            var cols = $('#seccion_' + sec).find('.pub_columna');
+            if (!$btn.length || !cols.length) return;
+            if ($btn.hasClass('active') && cols.length > 0) {
+                handleColumnSelection($btn, String(sec), cols);
+            }
+        });
+        $docParent.on('click.editpagCanvasIframe', ".newCompMod", function (e){
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            // Verificar si ya existe un acordeón en la página
+            const hasAccordion = $('.acordeon-container-main').length > 0;
+
+            const idsec = $(this).data('idsec');
+            // data-idcol ya es el ID real de la columna (id_wb_pag_columna) asignado en handleColumnSelection
+            let idcol = $(this).data('idcol');
+            if (idcol == null || idcol === '') {
+                console.warn('NUEVO COMPONENTE: no se encontró idcol en el botón.');
+                return;
+            }
+
+            limpieza_modalGral();
+            modalGral_addTit('NUEVO COMPONENTE');
+            modalGral_addSubtit('Selecciona el tipo de componente que deseas agregar');
+            modalGral_bodyAppend(getHtmlTemplate('menuCompSelect'));
+            modalGral_addFooter(
+                `<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">
+                    <p>CANCELAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div>
+                        <span class="s-guinda"></span>
+                    </div>
+                </button>`
+            );
+
+            const colElement = $('#seccion_' + idsec).find('[data-idcol="' + idcol + '"]');
+            const colWidth = getColWidth(colElement);
+            // console.log("Ancho columna:", colWidth);
+
+            $('#ulcomp .mList').each(function () {
+                const compId = $(this).data('tipcomp');
+                const minSize = minComponentSizes[compId] || 12;
+
+                // console.log("componente id: "+compId);
+                // console.log("minSize: "+minSize)
+
+                if (minSize > colWidth) {
+                    $(this).addClass('disabledComp'); // .hide()
+                } else if ((compId == 9 || compId == 25) && hasAccordion) {
+                    $(this).addClass('disabledComp');
+                } else {
+                    $(this).removeClass('disabledComp');
+                }
+
+                $('#ulcomp')
+                    .data('idsec', idsec)
+                    .data('idcol', idcol)
+                    .data('colwidth', colWidth);
+            });
+
+            var modalElComp = document.getElementById('modalGral');
+            var ModalCtor = getBootstrapModalCtor();
+            if (!modalElComp || !ModalCtor) return;
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    var modalComp = ModalCtor.getOrCreateInstance(modalElComp, { backdrop: 'static', keyboard: false });
+                    if (typeof modalGralInstance !== 'undefined') modalGralInstance = modalComp;
+                    modalComp.show();
+                });
+            });
+        });
+        $docParent.on('click.editpagCanvasIframe', "#orderUp", function (e) {
+            e.preventDefault();
+            if ($(this).prop('disabled')) return;
+            let idsec = parseInt($menu("#idsec").val(), 10);
+            let idpag = pagedata.id_wb_pagina;
+            if (!idsec || !idpag) return;
+            $('.addSec').remove();
+            $.ajax({
+                url: '/reordenarSeccion',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ idpag, idsec, direction: 'up' }),
+                beforeSend: function () { $('#lockscreen').show(); },
+                success: function (resp) {
+                    $('#lockscreen').hide();
+                    if (resp.success && resp.ordenes) {
+                        resp.ordenes.forEach(function (o) {
+                            $('#seccion_' + o.id_wb_pag_seccion)
+                                .attr('data-orden', o.orden_visible)
+                                .data('orden', o.orden_visible);
+                        });
+                        orderSecc();
+                        $menu("#odersec").val($('#seccion_' + idsec).attr('data-orden'));
+                    } else {
+                        $.alert({
+                            title: "Error",
+                            content: resp.message || 'No se pudo reordenar.',
+                            theme: 'modern',
+                            type: "red"
+                        });
+                        orderSecc();
+                    }
+                },
+                error: function (xhr) {
+                    $('#lockscreen').hide();
+                    orderSecc();
+                    $.alert({
+                        title: "Error",
+                        content: xhr.responseJSON?.message || 'No se pudo reordenar la sección.',
+                        theme: 'modern',
+                        type: "red"
+                    });
+                }
+            });
+        });
+        $docParent.on('click.editpagCanvasIframe', "#orderDown", function (e) {
+            e.preventDefault();
+            if ($(this).prop('disabled')) return;
+            let idsec = parseInt($menu("#idsec").val(), 10);
+            let idpag = pagedata.id_wb_pagina;
+            if (!idsec || !idpag) return;
+            $('.addSec').remove();
+            $.ajax({
+                url: '/reordenarSeccion',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ idpag, idsec, direction: 'down' }),
+                beforeSend: function () { $('#lockscreen').show(); },
+                success: function (resp) {
+                    $('#lockscreen').hide();
+                    if (resp.success && resp.ordenes) {
+                        resp.ordenes.forEach(function (o) {
+                            $('#seccion_' + o.id_wb_pag_seccion)
+                                .attr('data-orden', o.orden_visible)
+                                .data('orden', o.orden_visible);
+                        });
+                        orderSecc();
+                        $menu("#odersec").val($('#seccion_' + idsec).attr('data-orden'));
+                    } else {
+                        $.alert({
+                            title: "Error",
+                            content: resp.message || 'No se pudo reordenar.',
+                            theme: 'modern',
+                            type: "red"
+                        });
+                        orderSecc();
+                    }
+                },
+                error: function (xhr) {
+                    $('#lockscreen').hide();
+                    orderSecc();
+                    $.alert({
+                        title: "Error",
+                        content: xhr.responseJSON?.message || 'No se pudo reordenar la sección.',
+                        theme: 'modern',
+                        type: "red"
+                    });
+                }
+            });
+        });
+
+        if (typeof FilePond !== 'undefined') {
+            FilePond.registerPlugin(FilePondPluginFileValidateType, FilePondPluginFileValidateSize, FilePondPluginImagePreview);
+        }
+        function destroyFilePondPagina() {
+            window._lastFilePagina = null;
+            if (window.pondPagina) {
+                try { FilePond.destroy(window.pondPagina); } catch (e) {}
+                window.pondPagina = null;
+            }
+        }
+        function initFilePondPagina() {
+            var input = document.getElementById('cargar-imagpag');
+            if (!input) return;
+            window._lastFilePagina = null;
+            var fpMaxPag = 2 * 1024 * 1024;
+            window.pondPagina = FilePond.create(input, {
+                allowMultiple: false,
+                allowDrop: true,
+                dropOnElement: true,
+                dropOnPage: false,
+                beforeAddFile: function (item) {
+                    var sz = item && (typeof item.fileSize === 'number' ? item.fileSize : (item.file && item.file.size));
+                    if (sz > fpMaxPag) {
+                        $.alert({
+                            title: 'Archivo demasiado grande',
+                            content: 'El tamaño máximo permitido es 2 MB.',
+                            theme: 'modern',
+                            type: 'red',
+                        });
+                        return false;
+                    }
+                    return true;
+                },
+                acceptedFileTypes: ['image/jpeg', 'image/png'],
+                maxFileSize: '2MB',
+                allowImagePreview: true,
+                imagePreviewMaxHeight: 140,
+                labelMaxFileSize: 'Tamaño máximo: {filesize}',
+                labelMaxFileSizeExceeded: 'El archivo supera el tamaño máximo permitido ({filesize}).',
+                labelFileTypeNotAllowed: 'Tipo de archivo no permitido',
+                labelIdle: 'Arrastre aquí o <span class="filepond--label-action">seleccione</span><br><small class="text-muted">JPG o PNG, máx. 2 MB</small>',
+                labelFileProcessing: 'Subiendo',
+                labelFileProcessingComplete: 'Listo',
+                labelTapToCancel: 'cancelar',
+                labelTapToRetry: 'reintentar',
+                onupdatefiles: function (items) {
+                    window._lastFilePagina = null;
+                    if (!items.length || !items[0]) return;
+                    var it = items[0];
+                    var f = it.file;
+                    var sz = typeof it.fileSize === 'number' ? it.fileSize : (f && f.size);
+                    if (!f || sz > fpMaxPag) return;
+                    window._lastFilePagina = f;
+                }
+            });
+        }
+        function getFileFromPondPagina() {
+            var maxBytes = 2 * 1024 * 1024;
+            if (window._lastFilePagina instanceof File && window._lastFilePagina.size <= maxBytes) return window._lastFilePagina;
+            var pond = window.pondPagina;
+            if (pond && pond.files && pond.files.length) {
+                var first = pond.files[0];
+                if (first && first.file && first.file.size <= maxBytes) return first.file;
+            }
+            var input = document.getElementById('cargar-imagpag');
+            if (input && input.files && input.files.length && input.files[0].size <= maxBytes) return input.files[0];
+            return null;
+        }
+        window.getFileFromPondPagina = getFileFromPondPagina;
+
+        $(".cargapagina").on('click', NuevaPagPrincipalModal);
+
+        function NuevaPagPrincipalModal(type, isEdit) {
+
+            if(typeof(type)==='object'){
+                type = $(this).data('idtype');
+            }
+            if (typeof isEdit !== 'boolean') isEdit = false;
+            let typetext = ''
+            let subtitulo = ''
+            if (type === 1) {
+                typetext = 'Principal';
+                subtitulo = 'Sólo se permite tener una página principal por sitio, mientras no se publique no se remplazará la que está vigente.'
+            } else if (type === 2) {
+                typetext = 'Página interior';
+                subtitulo = 'Página interior administrable';
+            } else if (type === 5) {
+                typetext = 'Entrada';
+                subtitulo = 'Entrada de blog. Opcionalmente agrega una imagen (JPG o PNG, máx. 2 MB).';
+            }
+
+            destroyFilePondPagina();
+            limpieza_modalGral();
+            modalGral_addTit(isEdit ? 'EDITAR PÁGINA' : 'NUEVA PÁGINA');
+            modalGral_addSubtit(subtitulo);
+            modalGral_bodyAppend(getHtmlTemplate('Nuevapag'));
+            $('#tipo_pagina').val(typetext);
+            $('#tipopag').val(type);
+
+            var modalEl = document.getElementById('modalGral');
+            if (modalEl) {
+                modalEl.addEventListener('hidden.bs.modal', function onHidden() {
+                    modalEl.removeEventListener('hidden.bs.modal', onHidden);
+                    destroyFilePondPagina();
+                }, { once: true });
+            }
+
+            modalGral_addFooter(
+                `<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">
+                    <p>CANCELAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div>
+                        <span class="s-guinda"></span>
+                    </div>
+                </button>
+                <a href="#" class="btnGral verde_t" onclick="CrearPag(); return false;">
+                    <p>GUARDAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                        <span class="s-verde"></span>
+                    </div>
+                </a>`)
+            ;
+
+            var ModalCtorNP = getBootstrapModalCtor();
+            var modalElNP = document.getElementById('modalGral');
+            if (ModalCtorNP && modalElNP) {
+                (new ModalCtorNP(modalElNP, {backdrop: "static", keyboard: false})).show();
+            }
+
+            var today = new Date();
+            var day = String(today.getDate()).padStart(2, '0');
+            var month = String(today.getMonth() + 1).padStart(2, '0'); // Los meses son de 0 a 11
+            var year = today.getFullYear();
+            var minDate = year + '-' + month + '-' + day;
+
+            var nextWeek = new Date();
+            nextWeek.setDate(today.getDate() + 7);
+            var maxDay = String(nextWeek.getDate()).padStart(2, '0');
+            var maxMonth = String(nextWeek.getMonth() + 1).padStart(2, '0');
+            var maxYear = nextWeek.getFullYear();
+            var maxDate = maxYear + '-' + maxMonth + '-' + maxDay;
+
+            if (isEdit) {
+                $('#f_pub').removeAttr('min').removeAttr('max');
+            } else {
+                $('#f_pub').attr('min', minDate).attr('max', maxDate).val(minDate);
+            }
+
+            if (type === 1) {
+                $('#cont_full').hide();
+                $('#imgcarga').hide();
+                $('#tagentrada').hide();
+                $('#fullcom').hide();
+                $('#url').val("/").attr('readonly',true);
+            } else if (type === 2) {
+                $('#imgcarga').hide();
+                $('#tagentrada').hide();
+                $('#cont_full').hide();
+                $('#fullcom').hide();
+            } else if(type===5) {
+                $('#imgcarga').show();
+                setTimeout(function () {
+                    initFilePondPagina();
+                }, 80);
+                $('#cont_full').summernote({
+                    placeholder: 'Escribe aquí tu contenido',
+                    tabsize: 2,
+                    height: 100,
+                    toolbar: [
+                        // [groupName, [list of button]]
+                        ['style', ['bold', 'italic', 'underline', 'clear']],
+                        ['font', ['superscript', 'subscript']],
+                        ['color', ['forecolor']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['height', ['height']],
+                        ['view', ['codeview']],
+                    ]
+                });
+            }
+
+        }
+        function handleColumnSelection($boton, sec, columnas_div) {
+            $('.pub_columna').removeClass('selected');
+            $menu('.btn-cols').removeClass('selected');
+            $boton.addClass('selected');
+            
+            const columna = $boton.data('col');
+            // Seleccionar solo la .pub_columna con este orden (no componentes que también tienen data-orden)
+            const $selectedCol = $(`#seccion_${sec} .pub_columna`).filter(function() {
+                return parseInt($(this).attr('data-orden'), 10) === parseInt(columna, 10);
+            }).first();
+            $selectedCol.addClass('selected');
+            // Usar el ID real de la columna (id_wb_pag_columna) para que el modal y el registro funcionen
+            const realIdCol = $selectedCol.attr('data-idcol') || $selectedCol.data('idcol') || columna;
+            
+            // 🔹 Evitar múltiples hr duplicados:
+            const $editAll = $menu('#editall');
+            const $existingSection = $editAll.find('.secmenu');
+
+            if ($existingSection.length) {
+                // Si ya existe, lo reemplazamos completamente (incluye el hr)
+                $existingSection.prev('hr').remove();
+                $existingSection.remove();
+            }
+
+            // 🔹 Agregar solo una vez el nuevo bloque (data-idcol = ID real de columna)
+            $editAll.append(`
+                <hr>
+                <div class="secmenu" id="listVars">
+                    <button type="button" class="btnAddComponent newCompMod"  
+                        data-idsec="${sec}" 
+                        data-numcols="${columnas_div.length}" 
+                        data-idcol="${realIdCol}" 
+                        data-cy="">
+                        <span class="btn-text">NUEVO COMPONENTE</span>
+                        <div class="circleButton">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </button>
+                </div>
+            `);
+        }
+        
+        function updateColumnStyles(sec, num_cols, idNuevaCol, orden) {
+            $menu('#trash' + num_cols).remove();
+            $menu(`#col${num_cols}`).addClass('active').after(`
+                <button id="trash${num_cols}" 
+                        data-col="${num_cols}" 
+                        data-idcolu="${idNuevaCol}" 
+                        class="btn-trash" 
+                        type="button">
+                    <i class="fa fa-trash"></i>
+                </button>
+            `);
+        }
+        $('.pub_componente').each(function(index) {
+            let idc=$(this).attr('id');
+            let idsec=$(this).data('sec');
+            let idcol=$(this).data('col');
+            fetch('/getComponenteObj',{
+                method: 'POST',
+                body:   JSON.stringify({
+                    idp: '<%=dataapp.id_sysapp%>',
+                    id_comp:idc ,
+                    data_comp: $(this).data('comp')
+                }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+                .then(response=>response.json())
+                .then(data=>{
+                    if(data.success){
+                        max_num_comp=data.id_comp > max_num_comp? data.id_comp:max_num_comp;
+                        componentdata[data.id_comp]=data.objc;
+                        componentdata[data.id_comp].saved=true;
+                        componentdata[data.id_comp].modified=false;
+                    }
+                })
+        });
+    });
+
+    function refreshSectionOrderButtons() {
+        var idsec = parseInt($menu('#idsec').val(), 10);
+        if (isNaN(idsec)) return;
+        var $secs = $('.pub_seccion');
+        var idx = -1;
+        $secs.each(function (i) {
+            if (parseInt($(this).data('sec'), 10) === idsec) {
+                idx = i;
+                return false;
+            }
+        });
+        var $up = $menu('#orderUp');
+        var $down = $menu('#orderDown');
+        if (!$up.length || !$down.length) return;
+        $up.prop('disabled', idx <= 0);
+        $down.prop('disabled', idx < 0 || idx >= $secs.length - 1);
+    }
+
+    function _parseDataOrden(el) {
+        if (!el || !el.getAttribute) return 0;
+        var v = el.getAttribute('data-orden');
+        if (v == null || v === '') return 0;
+        var n = parseInt(v, 10);
+        return isNaN(n) ? 0 : n;
+    }
+
+    function orderSecc(withControls = true) {
+        var $parent = $('#contPub');
+        if (!$parent.length) return;
+        var rows = $parent.children('.pub_seccion').get();
+        rows.sort(function (a, b) {
+            return _parseDataOrden(a) - _parseDataOrden(b);
+        });
+        rows.forEach(function (row) {
+            $parent.append(row);
+        });
+
+        var i = 1;
+        $parent.children('.pub_seccion').each(function () {
+            var $row = $(this);
+            $row.removeData('orden');
+            $row.attr('data-orden', i);
+
+            if (withControls) {
+                $row.next('.section-controls').remove();
+                $row.after(`
+                    <div class="addSec section-controls">
+                        <button class="btnAco rojo_guinda newSec" data-orden="${i}">
+                            <span class="disNo"></span><i class="fas fa-plus"></i>
+                        </button>
+                        <button class="btnAco rojo_guinda deletedSec" data-idsec="${$row.data('sec')}">
+                            <span class="disNo"></span><i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>`);
+            }
+            i++;
+        });
+        if (withControls && typeof refreshSectionOrderButtons === 'function') {
+            refreshSectionOrderButtons();
+        }
+    }
+
+    function orderCols(idsec) {
+        var $row = $('#seccion_' + idsec);
+        if (!$row.length) return;
+        var cols = $row.find('.pub_columna').get();
+        cols.sort(function (a, b) {
+            return _parseDataOrden(a) - _parseDataOrden(b);
+        });
+        cols.forEach(function (col) {
+            $row.append(col);
+        });
+        var i = 1;
+        $row.find('.pub_columna').each(function () {
+            var $c = $(this);
+            $c.removeData('orden');
+            $c.attr('data-orden', i);
+            i++;
+        });
+    }
+
+    function CrearPag (){
+        var tipopag = $('#tipopag').val();
+        var cyphval = $('#cyphval').val();
+        var namepag = $('#namepag').val();
+        var tipo_tag = $('#tipo_tag').val();
+        var cont_alt = $('#cont_alt').val();
+        var cont_full = $('#cont_full').val();
+        var f_pub = $('#f_pub').val();
+        var idpag = $('#idpag').val();
+        var url = $('#url').val();
+
+        var formData = new FormData();
+        formData.append('url', url);
+        formData.append('tipo_tag', tipo_tag);
+        formData.append('namepag', namepag);
+        formData.append('cyphval', cyphval);
+        formData.append('tipopag', tipopag);
+        formData.append('cont_alt', cont_alt);
+        formData.append('cont_full', cont_full);
+        formData.append('f_pub', f_pub);
+        formData.append('idpag', idpag);
+
+        var archivo = window.getFileFromPondPagina ? window.getFileFromPondPagina() : null;
+        if (archivo) {
+            formData.append('cargar-imagpag', archivo);
+        }
+        fetch('/CreatePag', {
+            method: 'POST',
+            body: formData,
+        })
+            .then(response => response.json())
+            .then(data => {
+                //// console.log(data.success);
+                if(data.success){
+                    $.alert({
+                        title: "Se guardó correctamente",
+                        content: "Se ha guardado la página correctamente",
+                        theme: 'modern',
+                        icon: 'fa-solid fa-check',
+                        type: "green",
+                        buttons: {
+                            Aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-success',
+                                action: function () {
+                                    window.location.reload();
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    $.alert({
+                        title: "Advertencia",
+                        content: data.message,
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: "red"
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+    }
+    window.CrearPag = CrearPag;
+    function showVar () {
+        let namevar='Nombre componente'
+        $('#listVars').append('<div class="vardetails">' +
+            '<button class="btnAct oro copyVar" data-variable="'+namevar+'" data-hover="EDITAR" data-cy="">' +
+            '<i class="fa-solid fa-pencil" aria-hidden="true"></i>' +
+            '</button>' +
+            '<span class="varMailing">'+namevar+'</span>' +
+            '<button class="btnAct gris borrarVar" data-variable="" data-hover="eliminar" data-cy="">' +
+            '<i class="fa-solid fa-trash" aria-hidden="true"></i>' +
+            '</button>'+
+            '</div>')
+
+        var _mgh = document.getElementById('modalGral');
+        var _Bs = getBootstrapModalCtor();
+        if (_mgh && _Bs && typeof _Bs.getInstance === 'function') {
+            var _mi = _Bs.getInstance(_mgh);
+            if (_mi) _mi.hide();
+        }
+    }
+    function CreateSecc(){
+        $.ajax({
+            url: '/agregarSeccion',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({newsec}),
+            beforeSend(){
+                $('#lockscreen').show();
+            },
+            success: function(resp){
+                $('#lockscreen').hide();
+                if(resp.success){
+                    $("#"+idsecprev).after('<div class="row pub_seccion" id="seccion_'+newsec+'" data-origen="new" data-sec="'+newsec+'" data-orden="'+ordenprev+'">' +
+                        '<div class="col-md-12 pub_columna pruebaaaaa" data-origen="new" id="columna_1" data-orden="1">' +
+                        '</div>' +
+                        '</div>');
+                } else {
+                    $.alert({
+                        title: "Error",
+                        content: resp.message || 'No se pudo insertar la sección.',
+                        theme: 'modern',
+                        type: "red"
+                    });
+                }
+            },
+            error: function (xhr, status, err){
+                $('#lockscreen').hide();
+                console.error("Error:", status, err);
+                $.alert({
+                    title: "Error al editar",
+                    content: xhr.responseJSON?.message || 'Ocurrió un error inesperado.',
+                    theme: 'modern',
+                    type: "red"
+                });
+            }
+        });
+    }
+
+    // -----------------------------------------------------------
+    // Botón Publicar/Actualizar: habilitar al detectar cambios.
+    // __setDraftDirty: marca cambios y habilita el botón.
+    // __setDraftClean: limpia estado y deshabilita el botón (tras publicar).
+    // -----------------------------------------------------------
+    window.__setDraftDirty = function() {
+        var $btn = $menu('#btnPubPag');
+        if ($btn.length) {
+            var updateOnly = $btn.attr('data-update-only') === '1';
+            var title = updateOnly
+                ? 'Haga clic para regenerar el HTML estático con los cambios guardados'
+                : 'Publicar cambios y actualizar el HTML estático';
+            $btn.prop('disabled', false).attr('title', title);
+            $btn.addClass('verde_b').removeClass('gris');
+        }
+    };
+    window.__setDraftClean = function() {
+        var $btn = $menu('#btnPubPag');
+        if ($btn.length) {
+            var updateOnly = $btn.attr('data-update-only') === '1';
+            var esPublicada = $btn.data('stat') === 1;
+            // Página publicada o borrador: el botón solo se habilita tras cambios (__setDraftDirty).
+            if (updateOnly && esPublicada) {
+                $btn.prop('disabled', true).attr('title', 'Realice cambios en la página para habilitar la actualización del HTML estático');
+            } else {
+                $btn.prop('disabled', true).attr('title', 'Guarde cambios en la página para habilitar la publicación');
+            }
+            if (esPublicada) $btn.addClass('verde_b').removeClass('gris');
+            else $btn.addClass('gris').removeClass('verde_b');
+        }
+    };
+
+    // -----------------------------------------------------------
+    // Dirty flag: detectar cambios en borradores sin afectar lo publicado.
+    // Marcamos como "cambios sin publicar" cuando endpoints de edición responden OK.
+    // Cubre tanto $.ajax como fetch (usado en modales/componentes).
+    // -----------------------------------------------------------
+    (function initDraftDirtyTracking(){
+        try {
+            const mutatingEndpoints = [
+                '/CreatePag',
+                '/agregarSeccion',
+                '/eliminarSeccion',
+                '/reordenarSeccion',
+                '/agregarColumna',
+                '/eliminarColumna',
+                '/CreateComp',
+                '/getCompToDelete',
+                '/CreateFirstSlide',
+                '/AddSlides',
+                '/DeleteSlide',
+                '/SaveAllSlidesStatus',
+                '/SaveAllSlidesData',
+                '/updateComponentData',
+                '/CreateRegeneracion',
+                '/EditRegeneracion',
+                '/DeleteRegeneracion',
+                '/crear-componente-acordeon',
+                '/agregar-categoria-acordeon',
+                '/agregar-subcategoria-acordeon',
+                '/agregar-acordeon',
+                '/eliminar-elemento-acordeon',
+                '/publicar-acordeon',
+                '/agent/create',
+                '/agent/create-section'
+            ];
+
+            function isMutatingUrl(url){
+                if (!url) return false;
+                return mutatingEndpoints.some(ep => String(url).includes(ep));
+            }
+
+            // Hook jQuery ajaxSuccess
+            $(document).ajaxSuccess(function(_evt, _xhr, settings, data){
+                if (!settings || !isMutatingUrl(settings.url)) return;
+                if (data && data.success === false) return;
+                if (typeof window.__setDraftDirty === 'function') window.__setDraftDirty();
+            });
+
+            // Hook fetch (sin romperlo)
+            if (window.fetch) {
+                const originalFetch = window.fetch.bind(window);
+                window.fetch = async function(input, init){
+                    const url = (typeof input === 'string') ? input : (input && input.url);
+                    const res = await originalFetch(input, init);
+                    try {
+                        if (isMutatingUrl(url) && res && res.ok) {
+                            const cloned = res.clone();
+                            let json = null;
+                            try { json = await cloned.json(); } catch(e) {}
+                            if (!json || json.success !== false) {
+                                if (typeof window.__setDraftDirty === 'function') window.__setDraftDirty();
+                            }
+                        }
+                    } catch(e) {}
+                    return res;
+                };
+            }
+        } catch (e) {
+            // no-op
+        }
+    })();
+
+</script>
+
+</main>
+</body>
+</html>

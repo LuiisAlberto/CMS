@@ -1,0 +1,22 @@
+<%- include('partials/headerStatic'); %>
+
+<!--ERROR 404-->
+<div id="error404" class="error404">
+    <div class="containMessage">
+        <img src="/assets/img/img-error.png">
+        <h3>¡Ups! <% if(typeof error !== 'undefined' && error) { %><%= error %><% } else { %>Página no disponible<% } %></h3>
+        <br>
+        <p>Lo sentimos, pero la página que buscas no está disponible. Puede que se haya movido, eliminado o que la dirección haya cambiado.</p>
+        <br>
+        <p>Te invitamos a volver a la página de inicio o explorar el sitio para encontrar lo que necesitas.</p>
+        <button class="btnPrinc" onclick="location.href = '/<%= process.env.APP_BASE_URL_ADMIN.split('/').pop() %>'">
+            <div class="corner"></div>
+            <span>Regresar</span>
+            <div class="s-block">
+                <i class="fa-solid fa-arrow-left"></i>
+            </div>
+        </button>
+    </div>
+</div>
+
+<%- include('partials/footerStatic'); %>

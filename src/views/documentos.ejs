@@ -1,0 +1,924 @@
+<%- include('partials/header'); %>
+<%- include('partials/menu'); %>
+
+<!-- Fancybox para vista previa de documentos -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/filepond@4/dist/filepond.min.css">
+<link rel="stylesheet" href="https://unpkg.com/filepond-plugin-pdf-preview/dist/filepond-plugin-pdf-preview.min.css">
+<script src="https://unpkg.com/filepond@4/dist/filepond.min.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.min.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.min.js"></script>
+<script src="https://unpkg.com/filepond-plugin-pdf-preview/dist/filepond-plugin-pdf-preview.min.js"></script>
+
+<style>
+    .fm-guinda { background-color: #8e2c2d; }
+    .fm-guinda-text { color: #8e2c2d; }
+    .fm-oro { background-color: #bc955b; color: #fff; }
+
+    #templateDer { padding: 0; }
+    .file-manager-wrap {
+        display: flex;
+        min-height: calc(100vh - 120px);
+        background: #f8f9fa;
+    }
+    .fm-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        background: #fff;
+        margin: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        overflow: hidden;
+    }
+    .fm-search-bar {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: #fff;
+    }
+    .fm-search-bar input {
+        max-width: 400px;
+        padding: 0.5rem 1rem 0.5rem 2.25rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 0.95rem;
+    }
+    .fm-search-bar .fm-btn-new {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: #8e2c2d;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .fm-search-bar .fm-btn-new:hover { background: #6b2021; color: #fff; }
+    .fm-search-bar input:focus { border-color: #8e2c2d; outline: none; box-shadow: 0 0 0 2px rgba(142,44,45,0.15); }
+    .fm-content-title { padding: 1rem 1.5rem; font-weight: 600; color: #333; font-size: 1.05rem; border-bottom: 1px solid #eee; }
+    .fm-list { flex: 1; overflow: auto; }
+    .fm-list table { width: 100%; border-collapse: collapse; }
+    .fm-list th {
+        text-align: left;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        border-bottom: 1px solid #eee;
+        background: #fafafa;
+    }
+    .fm-list td { padding: 0.75rem 1.5rem; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+    .fm-list tr { cursor: pointer; transition: background 0.15s; }
+    .fm-list tbody tr:hover { background: #f8f9fa; }
+    .fm-list tbody tr.fm-selected { background: rgba(142, 44, 45, 0.08); }
+    .fm-list .fm-cell-name { display: flex; align-items: center; gap: 0.75rem; }
+    .fm-list .fm-cell-name .fm-icon-wrap {
+        width: 40px; height: 40px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+        background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #8e2c2d;
+    }
+    .fm-list .fm-cell-name .fm-name-text { font-weight: 500; color: #333; }
+    .fm-list .fm-date { color: #666; font-size: 0.9rem; }
+    .fm-list .fm-cat { color: #666; font-size: 0.9rem; }
+    .fm-list .fm-row-actions { display: flex; gap: 0.25rem; opacity: 0; transition: opacity 0.2s; }
+    .fm-list tr:hover .fm-row-actions { opacity: 1; }
+    .fm-list .fm-row-actions button, .fm-list .fm-row-actions a.btn-act {
+        background: none; border: none; color: #888; padding: 0.35rem; cursor: pointer; border-radius: 4px;
+        text-decoration: none; font-size: 0.9rem;
+    }
+    .fm-list .fm-row-actions button:hover, .fm-list .fm-row-actions a.btn-act:hover { color: #8e2c2d; background: rgba(142,44,45,0.08); }
+    .fm-empty { padding: 3rem; text-align: center; color: #888; }
+    .fm-pagination-wrap { padding: 1rem 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: center; }
+    .fm-pagination-wrap .pagination { margin: 0; }
+    .fm-pagination-wrap .page-link { color: #8e2c2d; }
+    .fm-pagination-wrap .page-item.active .page-link { background: #8e2c2d; border-color: #8e2c2d; }
+    .fm-detail {
+        width: 320px;
+        min-width: 320px;
+        background: #fff;
+        border-radius: 12px;
+        margin: 1rem 1rem 1rem 0;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #eee;
+    }
+    .fm-detail-placeholder {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        padding: 2rem;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+    .fm-detail-content { display: none; flex: 1; flex-direction: column; overflow: hidden; padding: 1.25rem; }
+    .fm-detail-content.active { display: flex; }
+    .fm-detail-preview {
+        width: 100%;
+        height: 120px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #f5f5f5;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #8e2c2d;
+        font-size: 3rem;
+    }
+    .fm-detail-title { font-weight: 600; color: #333; margin-bottom: 1rem; font-size: 1rem; word-break: break-word; }
+    .fm-detail-section { margin-bottom: 1rem; }
+    .fm-detail-section label { display: block; font-size: 0.75rem; font-weight: 600; color: #666; text-transform: uppercase; margin-bottom: 0.35rem; }
+    .fm-detail-link-wrap { display: flex; gap: 0.5rem; align-items: stretch; }
+    .fm-detail-link-wrap input {
+        flex: 1;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        background: #fafafa;
+    }
+    .fm-detail-link-wrap input:focus { outline: none; border-color: #8e2c2d; background: #fff; }
+    .fm-detail-link-wrap .btn-copy {
+        padding: 0.5rem 1rem;
+        background: #8e2c2d;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.2s;
+    }
+    .fm-detail-link-wrap .btn-copy:hover { background: #6b2021; }
+    .fm-detail-link-wrap .btn-copy.copied { background: #159d15; }
+    .fm-detail-meta { font-size: 0.85rem; color: #666; }
+    .fm-detail-meta span { display: block; margin-bottom: 0.25rem; }
+
+    /* Modal Documento: mismo diseño que instancias (inputs + FilePond) + vista previa PDF */
+    #modalGral #newpage .form-label-inst { margin-bottom: 0.4rem; font-size: 13px; font-weight: 500; color: #343a40; }
+    #modalGral #newpage .form-control,
+    #modalGral #newpage .form-select {
+        background: #f0f0f0; border: 1px solid #e2e2e2; border-radius: 8px;
+        padding: 0.5rem 0.85rem; font-size: 14px; color: #212529;
+    }
+    #modalGral #newpage .form-control::placeholder { color: #6c757d; }
+    #modalGral #newpage .form-control:focus,
+    #modalGral #newpage .form-select:focus {
+        background: #fff; border-color: #8e2c2d; box-shadow: 0 0 0 0.2rem rgba(142, 44, 45, 0.12);
+        outline: 0;
+    }
+    #modalGral #newpage .filepond-row { margin-bottom: 1rem; }
+    /* Contenedor: altura suficiente para vista previa PDF o icono de documento */
+    #modalGral #newpage .filepond--root {
+        max-height: 280px; min-height: 140px; position: relative; pointer-events: auto !important;
+        border: 1px solid #e0e0e0 !important; border-radius: 8px !important;
+        background: #f8f9fa !important;
+        outline: none !important; box-shadow: none !important;
+    }
+    #modalGral #newpage .filepond--root:hover,
+    #modalGral #newpage .filepond--root.filepond--drag-over {
+        border-color: #ccc !important; background: #f0f1f2 !important;
+    }
+    #modalGral #newpage .filepond--root *,
+    #modalGral #newpage .filepond--root *:focus { pointer-events: auto !important; outline: none !important; box-shadow: none !important; }
+    #modalGral #newpage .filepond--panel-root,
+    #modalGral #newpage .filepond--panel-top,
+    #modalGral #newpage .filepond--panel-center,
+    #modalGral #newpage .filepond--panel-bottom,
+    #modalGral #newpage .filepond--panel {
+        border: none !important; background: transparent !important;
+        outline: none !important; box-shadow: none !important;
+    }
+    #modalGral #newpage .filepond--drop-label {
+        position: absolute !important; left: 0 !important; right: 0 !important; top: 0 !important; bottom: 0 !important;
+        margin: 0 !important; padding: 0 !important; min-height: 0 !important; height: 100% !important;
+        display: flex !important; align-items: center !important; justify-content: center !important;
+        border: none !important; background: transparent !important; border-radius: 0 !important;
+        color: #495057 !important; font-size: 14px !important; text-align: center !important;
+        pointer-events: auto !important; cursor: pointer;
+    }
+    #modalGral #newpage .filepond--drop-label label { cursor: pointer; margin: 0; }
+    #modalGral #newpage .filepond--label-action { color: #8e2c2d !important; font-weight: 600; }
+    /* Tarjeta del archivo cargado: visible y neutra */
+    #modalGral #newpage .filepond--item-panel {
+        background: #f8f9fa !important;
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+    }
+    /* Vista previa PDF: que se vea el iframe/embed del plugin */
+    #modalGral #newpage .filepond--item .filepond--pdf-preview-wrapper,
+    #modalGral #newpage .filepond--item [class*="pdf-preview"] {
+        background: #fff !important;
+        border-radius: 6px !important;
+        overflow: hidden !important;
+    }
+    #modalGral #newpage .filepond--item .filepond--pdf-preview-wrapper embed,
+    #modalGral #newpage .filepond--item .filepond--pdf-preview-wrapper iframe {
+        display: block !important;
+        width: 100% !important;
+        min-height: 160px !important;
+    }
+    /* Si no hay preview (ej. Word): icono de documento para no dejar en blanco */
+    #modalGral #newpage .filepond--item .filepond--file-wrapper::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 48px;
+        height: 48px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512' fill='%238e2c2d'%3E%3Cpath d='M369.9 97.9L286 14C277 5 264.8-.1 252.1-.1H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V131.9c0-12.7-5.1-25-14.1-34zM332.1 128H256V51.9l76.1 76.1zM48 464V48h160v104c0 13.3 10.7 24 24 24h104v288H48z'/%3E%3C/svg%3E") center/contain no-repeat;
+        opacity: 0.4;
+        pointer-events: none;
+    }
+    #modalGral #newpage .filepond--item .filepond--file-wrapper:has(.filepond--pdf-preview-wrapper)::before {
+        display: none;
+    }
+    #modalGral #newpage .filepond--item .filepond--file-action-button {
+        background: #6c757d !important;
+        color: #fff !important;
+    }
+    #modalGral #newpage .filepond--item .filepond--file-info,
+    #modalGral #newpage .filepond--item .filepond--file-info-main,
+    #modalGral #newpage .filepond--item .filepond--file-info-sub,
+    #modalGral #newpage .filepond--item .filepond--file-status,
+    #modalGral #newpage .filepond--item .filepond--file-status-main,
+    #modalGral #newpage .filepond--item .filepond--file-status-sub {
+        color: #212529 !important;
+    }
+    #modalGral #newpage .filepond--credits { display: none; }
+</style>
+
+<div id="templateDer">
+    <div class="file-manager-wrap">
+        <main class="fm-main">
+            <div class="fm-search-bar">
+                <input type="text" id="fm-search-docs" placeholder="Buscar documentos..." autocomplete="off">
+                <button type="button" class="fm-btn-new cargapagina" id="crear_pagaPrincipal">
+                    <i class="fas fa-plus"></i> Crear nuevo
+                </button>
+            </div>
+            <div class="fm-content-title">Mis documentos</div>
+            <div class="fm-list">
+                <table id="tb-docs">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Última modificación</th>
+                            <th>Categoría</th>
+                            <th style="width: 140px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="doc-container"></tbody>
+                </table>
+            </div>
+            <div class="fm-empty d-none" id="fm-empty-docs">No hay documentos.</div>
+            <div class="fm-pagination-wrap" id="pagination-docs"></div>
+        </main>
+
+        <aside class="fm-detail">
+            <div class="fm-detail-placeholder" id="fm-detail-placeholder">
+                Selecciona un documento para ver el detalle y copiar el enlace.
+            </div>
+            <div class="fm-detail-content" id="fm-detail-content">
+                <div class="fm-detail-preview"><i class="fas fa-file-alt"></i></div>
+                <div class="fm-detail-title" id="fm-detail-title"></div>
+                <div class="fm-detail-section">
+                    <label>Enlace (copiar y pegar)</label>
+                    <div class="fm-detail-link-wrap">
+                        <input type="text" id="fm-detail-link" readonly>
+                        <button type="button" class="btn-copy" id="fm-btn-copy-link" title="Copiar enlace">Copiar</button>
+                    </div>
+                </div>
+                <div class="fm-detail-meta" id="fm-detail-meta"></div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<template id="Nuevaimg">
+    <div class="container-fluid px-0">
+        <form id="newpage" class="needs-validation">
+            <input type="hidden" id="cyphval" name="cyphval" value="<%-idcypher%>">
+            <input type="hidden" value="0" id="iedicion">
+            <input type="hidden" value="0" id="iddoc">
+            <input type="hidden" value="1" id="archivonuevo">
+            <div class="row g-3 mb-0">
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label class="form-label-inst d-block" for="namepag">Nombre del documento *</label>
+                    <input type="text" class="form-control" id="namepag" name="namepag" placeholder="Ej: Comunicado oficial" required>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label class="form-label-inst d-block" for="descdoc">Descripción</label>
+                    <input type="text" class="form-control" id="descdoc" name="descdoc" placeholder="Opcional">
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label class="form-label-inst d-block" for="tipo_tag">Tipo de documento *</label>
+                    <select id="tipo_tag" name="tipo_tag" class="form-select" required>
+                        <option value="">Seleccione un tipo</option>
+                        <% for (const tag of tags) { %>
+                        <option value="<%-tag.id_cat_tag%>"><%-tag.tag%></option>
+                        <% } %>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label class="form-label-inst d-block" for="f_pub">Fecha de publicación *</label>
+                    <input type="date" class="form-control" id="f_pub" name="f_pub" required>
+                </div>
+                <div class="col-12 filepond-row">
+                    <label class="form-label-inst d-block">Documento <span id="nombrearchivo" class="text-muted"></span></label>
+                    <input type="file" id="cargar-doc" name="cargar-doc" class="filepond-documento" accept=".pdf,.doc,.docx,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-max-file-size="2MB">
+                    <small class="d-block text-muted mt-1">PDF, Word (.doc, .docx) o Excel (.xlsx). Máx. 2 MB. Al editar, solo suba un archivo si desea reemplazar el actual.</small>
+                </div>
+            </div>
+        </form>
+    </div>
+</template>
+
+<%- include('partials/footerNoMx'); %>
+
+<script>
+if (typeof FilePond !== 'undefined') {
+    FilePond.registerPlugin(FilePondPluginFileValidateType, FilePondPluginFileValidateSize);
+    if (typeof FilePondPluginPdfPreview !== 'undefined') {
+        FilePond.registerPlugin(FilePondPluginPdfPreview);
+    }
+}
+function destroyFilePondDocumento() {
+    window._lastFileDocumento = null;
+    if (window.pondDocumento) {
+        try { FilePond.destroy(window.pondDocumento); } catch (e) {}
+        window.pondDocumento = null;
+    }
+}
+function initFilePondDocumento(existingFile) {
+    var input = document.getElementById('cargar-doc');
+    if (!input) return;
+    window._lastFileDocumento = null;
+    var fpMaxDoc = 2 * 1024 * 1024;
+    var opts = {
+        allowMultiple: false,
+        allowDrop: true,
+        dropOnElement: true,
+        dropOnPage: false,
+        beforeAddFile: function (item) {
+            var sz = item && (typeof item.fileSize === 'number' ? item.fileSize : (item.file && item.file.size));
+            if (sz > fpMaxDoc) {
+                $.alert({
+                    title: 'Archivo demasiado grande',
+                    content: 'El tamaño máximo permitido es 2 MB.',
+                    theme: 'modern',
+                    type: 'red',
+                });
+                return false;
+            }
+            return true;
+        },
+        acceptedFileTypes: [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ],
+        fileValidateTypeDetectType: function (source, type) {
+            return new Promise(function (resolve) {
+                var name = (source && source.name) ? String(source.name).toLowerCase() : '';
+                if (name.endsWith('.xlsx')) {
+                    resolve('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                    return;
+                }
+                resolve(type || '');
+            });
+        },
+        maxFileSize: '2MB',
+        allowPdfPreview: true,
+        pdfPreviewHeight: 180,
+        labelMaxFileSize: 'Tamaño máximo: {filesize}',
+        labelMaxFileSizeExceeded: 'El archivo supera el tamaño máximo permitido ({filesize}).',
+        labelFileTypeNotAllowed: 'Tipo de archivo no permitido',
+        labelIdle: 'Arrastre aquí o <span class="filepond--label-action">seleccione</span><br><small class="text-muted">PDF, Word o Excel, máx. 2 MB</small>',
+        labelFileProcessing: 'Subiendo',
+        labelFileProcessingComplete: 'Listo',
+        labelTapToCancel: 'cancelar',
+        labelTapToRetry: 'reintentar',
+        onupdatefiles: function (items) {
+            window._lastFileDocumento = null;
+            if (!items.length || !items[0]) return;
+            var it = items[0];
+            var f = it.file;
+            var sz = typeof it.fileSize === 'number' ? it.fileSize : (f && f.size);
+            if (!f || sz > fpMaxDoc) return;
+            window._lastFileDocumento = f;
+        }
+    };
+    if (existingFile && existingFile.url) {
+        opts.server = {
+            load: function (source, load, error, progress, abort, headers) {
+                fetch(source, { method: 'GET' })
+                    .then(function (res) { return res.ok ? res.blob() : Promise.reject(new Error('No se pudo cargar el archivo')); })
+                    .then(function (blob) { load(blob); })
+                    .catch(function (err) { error(err.message || 'Error al cargar'); });
+                return { abort: function () {} };
+            }
+        };
+        opts.files = [{ source: existingFile.url, options: { type: 'local', file: { name: existingFile.name || 'documento' } } }];
+    }
+    window.pondDocumento = FilePond.create(input, opts);
+}
+function allowDropInModalDocumento() {
+    var body = document.querySelector('#modalGral .modal-body');
+    if (!body) return;
+    body.removeEventListener('dragover', preventDefaultFilesDoc);
+    body.removeEventListener('dragenter', preventDefaultFilesDoc);
+    body.removeEventListener('drop', preventDefaultFilesDoc);
+    body.addEventListener('dragover', preventDefaultFilesDoc, false);
+    body.addEventListener('dragenter', preventDefaultFilesDoc, false);
+    body.addEventListener('drop', preventDefaultFilesDoc, false);
+}
+function preventDefaultFilesDoc(e) {
+    if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.indexOf('Files') !== -1) e.preventDefault();
+}
+
+function getFileFromPondDocumento() {
+    var maxBytes = 2 * 1024 * 1024;
+    if (window._lastFileDocumento instanceof File && window._lastFileDocumento.size <= maxBytes) return window._lastFileDocumento;
+    var pond = window.pondDocumento;
+    if (pond && pond.files && pond.files.length) {
+        var first = pond.files[0];
+        if (first && first.file && first.file.size <= maxBytes) return first.file;
+    }
+    var input = document.getElementById('cargar-doc');
+    if (input && input.files && input.files.length && input.files[0].size <= maxBytes) return input.files[0];
+    return null;
+}
+
+$(function () {
+    const itemsPerPageDocs = 15;
+    let currentPageDocs = 1;
+    let currentSearchDocs = '';
+    let searchTimeoutDocs;
+
+    function formatDateDoc(d) {
+        if (!d) return '—';
+        var date = new Date(d);
+        return date.toLocaleString('es-MX', { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderDocuments(docs) {
+        var $container = $('#doc-container');
+        var $empty = $('#fm-empty-docs');
+        $container.empty();
+        $empty.addClass('d-none');
+        if (!docs || docs.length === 0) {
+            $empty.removeClass('d-none');
+            return;
+        }
+        docs.forEach(function (doc) {
+            var docUrl = (doc.archivodoc && doc.archivodoc.storage)
+                ? (doc.archivodoc.storage.storage_path + doc.archivodoc.file_path)
+                : '#';
+            var dateStr = formatDateDoc(doc.f_publicacion);
+            var catTag = (Array.isArray(doc.cat_tags) && doc.cat_tags.length)
+                ? doc.cat_tags.map(function (t) { return t && t.tag ? t.tag : ''; }).filter(Boolean).join(', ')
+                : '';
+            var fp = (doc.archivodoc && doc.archivodoc.file_path) ? doc.archivodoc.file_path.toLowerCase() : '';
+            var isPdf = fp.indexOf('.pdf') !== -1;
+            var isXlsx = fp.endsWith('.xlsx');
+            var docIcon = isPdf ? 'fa-file-pdf' : (isXlsx ? 'fa-file-excel' : 'fa-file-word');
+            var $tr = $('<tr class="fm-row"></tr>')
+                .attr('data-url', docUrl)
+                .attr('data-name', doc.nombre)
+                .attr('data-date', dateStr)
+                .attr('data-cat', catTag)
+                .attr('data-cy', doc.iddoccy || '')
+                .html(
+                    '<td><div class="fm-cell-name"><div class="fm-icon-wrap"><i class="fas ' + docIcon + '"></i></div><span class="fm-name-text">' + (doc.nombre || '').replace(/</g, '&lt;') + '</span></div></td>' +
+                    '<td class="fm-date">' + dateStr + '</td>' +
+                    '<td class="fm-cat">' + (catTag || '').replace(/</g, '&lt;') + '</td>' +
+                    '<td><div class="fm-row-actions">' +
+                    '<button type="button" class="fm-btn-open" title="Ver"><i class="fas fa-eye"></i></button>' +
+                    '<button type="button" class="editentrance" data-cy="' + (doc.iddoccy || '').replace(/"/g, '&quot;') + '" title="Editar"><i class="fa-regular fa-pen-to-square"></i></button>' +
+                    '<button type="button" class="deletepag" data-cy="' + (doc.iddoccy || '').replace(/"/g, '&quot;') + '" title="Eliminar"><i class="fa-solid fa-trash"></i></button>' +
+                    '</div></td>'
+                );
+            $tr.find('.editentrance').attr('data-cy', doc.iddoccy || '');
+            $tr.find('.deletepag').attr('data-cy', doc.iddoccy || '');
+            $container.append($tr);
+        });
+    }
+
+    function renderPaginationDocs(totalItems, limitVal, page) {
+        var totalPages = Math.ceil(totalItems / limitVal);
+        var $pagination = $('#pagination-docs');
+        $pagination.empty();
+        if (totalPages <= 1) return;
+        var $ul = $('<ul class="pagination"></ul>');
+        $ul.append('<li class="page-item' + (page === 1 ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page - 1) + '">«</a></li>');
+        for (var i = 1; i <= totalPages; i++) {
+            $ul.append('<li class="page-item' + (i === page ? ' active' : '') + '"><a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>');
+        }
+        $ul.append('<li class="page-item' + (page === totalPages ? ' disabled' : '') + '"><a class="page-link" href="#" data-page="' + (page + 1) + '">»</a></li>');
+        $pagination.append($ul);
+    }
+
+    function loadDocuments(page, search) {
+        $.ajax({
+            url: '/GetDocs?i=<%-idcypher%>&page=' + page + '&limit=' + itemsPerPageDocs + '&search=' + encodeURIComponent(search || ''),
+            method: 'GET',
+            beforeSend: function () { $('#lockscreen').show(); },
+            success: function (data) {
+                if (data.success && data.documents) {
+                    currentPageDocs = data.currentPage || page;
+                    renderDocuments(data.documents);
+                    renderPaginationDocs(data.totalItems || 0, itemsPerPageDocs, currentPageDocs);
+                }
+            },
+            error: function () {
+                $.alert({ title: 'Error', content: 'Error al cargar los documentos.', theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+            },
+            complete: function () { $('#lockscreen').hide(); }
+        });
+    }
+
+    loadDocuments(1, '');
+
+    $('#fm-search-docs').on('input', function () {
+        var val = $(this).val();
+        currentSearchDocs = val;
+        clearTimeout(searchTimeoutDocs);
+        searchTimeoutDocs = setTimeout(function () { loadDocuments(1, currentSearchDocs); }, 500);
+    });
+
+    $('#pagination-docs').on('click', '.page-link', function (e) {
+        e.preventDefault();
+        var $li = $(this).closest('.page-item');
+        if ($li.hasClass('disabled') || $li.hasClass('active')) return;
+        var targetPage = parseInt($(this).data('page'), 10);
+        if (!isNaN(targetPage)) loadDocuments(targetPage, currentSearchDocs);
+    });
+
+    function showDetail(url, name, dateStr, cat) {
+        $('#fm-detail-placeholder').hide();
+        $('#fm-detail-content').addClass('active');
+        $('#fm-detail-title').text(name);
+        $('#fm-detail-link').val(url);
+        var meta = '';
+        if (dateStr) meta += '<span>Última modificación: ' + dateStr + '</span>';
+        if (cat) meta += '<span>Categoría: ' + cat + '</span>';
+        $('#fm-detail-meta').html(meta || '—');
+        $('#fm-btn-copy-link').removeClass('copied').text('Copiar');
+    }
+
+    function getFileExtension(fileUrl) {
+        if (!fileUrl || fileUrl === '#') return '';
+        var cleanUrl = String(fileUrl).split('?')[0].split('#')[0].toLowerCase();
+        var parts = cleanUrl.split('.');
+        return parts.length > 1 ? parts.pop() : '';
+    }
+
+    function buildOfficeViewerUrl(fileUrl) {
+        var ext = getFileExtension(fileUrl);
+        if (ext === 'doc' || ext === 'docx' || ext === 'xlsx') {
+            return 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(fileUrl);
+        }
+        return 'https://docs.google.com/gview?embedded=1&url=' + encodeURIComponent(fileUrl);
+    }
+
+    $('#fm-btn-copy-link').on('click', function () {
+        var input = document.getElementById('fm-detail-link');
+        input.select();
+        input.setSelectionRange(0, 99999);
+        try {
+            navigator.clipboard.writeText(input.value);
+            $(this).addClass('copied').text('Copiado');
+            setTimeout(function () { $('#fm-btn-copy-link').removeClass('copied').text('Copiar'); }, 2000);
+        } catch (e) {
+            document.execCommand('copy');
+            $(this).addClass('copied').text('Copiado');
+            setTimeout(function () { $('#fm-btn-copy-link').removeClass('copied').text('Copiar'); }, 2000);
+        }
+    });
+
+    $('#tb-docs').on('click', 'tr.fm-row', function (e) {
+        if ($(e.target).closest('.fm-row-actions').length) return;
+        var url = $(this).data('url');
+        var name = $(this).data('name');
+        var date = $(this).data('date');
+        var cat = $(this).data('cat');
+        $('#tb-docs tbody tr').removeClass('fm-selected');
+        $(this).addClass('fm-selected');
+        showDetail(url, name, date, cat);
+    });
+
+    $('#tb-docs').on('click', '.fm-btn-open', function (e) {
+        e.stopPropagation();
+        var $tr = $(this).closest('tr');
+        var url = $tr.data('url');
+        var name = $tr.data('name');
+        var date = $tr.data('date');
+        var cat = $tr.data('cat');
+        $tr.addClass('fm-selected').siblings().removeClass('fm-selected');
+        showDetail(url, name, date, cat);
+        if (typeof Fancybox !== 'undefined' && url && url !== '#') {
+            var ext = getFileExtension(url);
+            if (ext === 'pdf') {
+                Fancybox.show([{
+                    src:
+                        '<div style="width:min(96vw,1200px);height:min(90vh,900px);background:#fff;">' +
+                        '<iframe src="' + String(url).replace(/"/g, '&quot;') + '#toolbar=1&navpanes=0&scrollbar=1" ' +
+                        'style="width:100%;height:100%;border:0;" loading="eager"></iframe>' +
+                        '</div>',
+                    type: 'html'
+                }]);
+            } else {
+                Fancybox.show([{
+                    src: buildOfficeViewerUrl(url),
+                    type: 'iframe',
+                    size: 'lg',
+                    preload: false
+                }]);
+            }
+        }
+    });
+
+    $('#fm-search-docs').on('input', function () {
+        var q = $(this).val().toLowerCase();
+        $('#tb-docs tbody tr.fm-row').each(function () {
+            var name = $(this).data('name') || '';
+            var cat = $(this).data('cat') || '';
+            $(this).toggle(name.toLowerCase().indexOf(q) >= 0 || cat.toLowerCase().indexOf(q) >= 0);
+        });
+    });
+
+    $(document).on('click', '.editentrance', function (e) {
+        e.stopPropagation();
+        var cy = $(this).attr('data-cy');
+        if (!cy) {
+            $.alert({ title: 'Error', content: 'No se pudo identificar el documento. Recargue la lista.', theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+            return;
+        }
+        var formData = new FormData();
+        formData.append('cy', cy);
+        $('#lockscreen').show();
+        fetch('/GetDoc', { method: 'POST', body: formData })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.success && data.doc) {
+                    var doc = data.doc;
+                    var fileName = doc['archivodoc.file_name'] || (doc.archivodoc && doc.archivodoc.file_name) || '';
+                    var idCatTag = doc['cat_tags.id_cat_tag'] || (doc.cat_tags && doc.cat_tags[0] && doc.cat_tags[0].id_cat_tag) || (doc.cat_tags && doc.cat_tags.id_cat_tag) || '';
+                    var storagePath = (doc.archivodoc && doc.archivodoc.storage && doc.archivodoc.storage.storage_path) || doc['archivodoc.storage.storage_path'] || '';
+                    var filePath = (doc.archivodoc && doc.archivodoc.file_path) || doc['archivodoc.file_path'] || '';
+                    var existingFileUrl = (storagePath && filePath) ? (storagePath + filePath) : '';
+                    var existingFileForPond = (existingFileUrl && fileName) ? { url: existingFileUrl, name: fileName } : null;
+                    limpieza_modalGral();
+                    modalGral_addTit('EDITA EL DOCUMENTO');
+                    modalGral_addSubtit('Edita el documento que requieras, sólo será visible a partir de la fecha de publicación');
+                    modalGral_bodyAppend(getHtmlTemplate('Nuevaimg'));
+                    modalGral_addFooter(`<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">
+                        <p>CANCELAR</p>
+                        <div class="btnIcon">
+                            <div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div>
+                            <span class="s-guinda"></span>
+                        </div>
+                    </button>
+                    <a href="#" class="btnGral verde_t" onclick="CrearDoc()">
+                        <p>GUARDAR</p>
+                        <div class="btnIcon">
+                            <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                            <span class="s-verde"></span>
+                        </div>
+                    </a>`);
+                    var modalEl = document.getElementById('modalGral');
+                    if (modalEl) {
+                        modalEl.addEventListener('hidden.bs.modal', function onHidden() {
+                            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+                            destroyFilePondDocumento();
+                        }, { once: true });
+                    }
+                    var modalInstance = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
+                    modalInstance.show();
+                    var $modal = $('#modalGral');
+                    function rellenarFormularioEdicion() {
+                        $modal.find('#nombrearchivo').text(fileName ? '(actual: ' + fileName + ')' : '');
+                        var today = new Date();
+                        var nextWeek = new Date();
+                        nextWeek.setDate(today.getDate() + 7);
+                        var maxDay = String(nextWeek.getDate()).padStart(2, '0');
+                        var maxMonth = String(nextWeek.getMonth() + 1).padStart(2, '0');
+                        var maxYear = nextWeek.getFullYear();
+                        var maxDate = maxYear + '-' + maxMonth + '-' + maxDay;
+                        today.setDate(today.getDate() - 7);
+                        var day = String(today.getDate()).padStart(2, '0');
+                        var month = String(today.getMonth() + 1).padStart(2, '0');
+                        var year = today.getFullYear();
+                        var minDate = year + '-' + month + '-' + day;
+                        var fechaJS = new Date(doc.f_publicacion);
+                        var anio = fechaJS.getFullYear();
+                        var mes = String(fechaJS.getMonth() + 1).padStart(2, '0');
+                        var dia = String(fechaJS.getDate()).padStart(2, '0');
+                        var fechaFormateada = anio + '-' + mes + '-' + dia;
+                        $modal.find('#f_pub').attr('min', minDate).attr('max', maxDate).val(fechaFormateada);
+                        $modal.find('#namepag').val(doc.nombre || '');
+                        $modal.find('#iddoc').val(doc.id_wb_doc || '');
+                        $modal.find('#descdoc').val(doc.contenido_alt || '');
+                        $modal.find('#tipo_tag').val(String(idCatTag));
+                        $modal.find('#archivonuevo').val('0');
+                        $modal.find('#iedicion').val('1');
+                    }
+                    rellenarFormularioEdicion();
+                    setTimeout(function () {
+                        rellenarFormularioEdicion();
+                        initFilePondDocumento(existingFileForPond);
+                        allowDropInModalDocumento();
+                    }, 80);
+                } else {
+                    $.alert({ title: 'Advertencia', content: (data && data.message) || 'No se pudo cargar el documento.', theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+                }
+            })
+            .catch(function (err) { console.error(err); })
+            .finally(function () { $('#lockscreen').hide(); });
+    });
+
+    $(document).on('click', '.deletepag', function (e) {
+        e.stopPropagation();
+        var formData = new FormData();
+        formData.append('cy', $(this).data('cy'));
+        $.alert({
+            title: '¿Está seguro de eliminar el documento?',
+            content: 'No estará disponible en línea y no se podrá recuperar',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: 'red',
+            buttons: {
+                Aceptar: {
+                    text: 'Sí, Eliminar',
+                    btnClass: 'btn-success',
+                    action: function () {
+                        $('#lockscreen').show();
+                        fetch('/DeleteDoc', { method: 'POST', body: formData })
+                            .then(function (r) { return r.json(); })
+                            .then(function (data) {
+                                if (data.success) {
+                                    $.alert({
+                                        title: 'Éxito',
+                                        content: 'Se ha eliminado el documento correctamente',
+                                        theme: 'modern',
+                                        icon: 'fa-solid fa-check',
+                                        type: 'green',
+                                        buttons: { Aceptar: { text: 'Aceptar', btnClass: 'btn-success', action: function () { window.location.reload(); } } }
+                                    });
+                                } else {
+                                    $.alert({ title: 'Advertencia', content: data.message, theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+                                }
+                            })
+                            .catch(function (err) { console.error(err); })
+                            .finally(function () { $('#lockscreen').hide(); });
+                    }
+                },
+                Cancelar: { text: 'Cancelar', btnClass: 'btn-alert', action: function () {} }
+            }
+        });
+    });
+});
+
+$('.cargapagina').on('click', NuevoDoc);
+
+function NuevoDoc() {
+    destroyFilePondDocumento();
+    limpieza_modalGral();
+    modalGral_addTit('NUEVO DOCUMENTO');
+    modalGral_addSubtit('Carga el documento que requieras, sólo será visible a partir de la fecha de publicación');
+    modalGral_bodyAppend(getHtmlTemplate('Nuevaimg'));
+    modalGral_addFooter(
+        '<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">' +
+        '<p>CANCELAR</p><div class="btnIcon"><div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div><span class="s-guinda"></span></div></button>' +
+        '<a href="#" class="btnGral verde_t" onclick="CrearDoc()">' +
+        '<p>GUARDAR</p><div class="btnIcon"><div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div><span class="s-verde"></span></div></a>'
+    );
+    var modalEl = document.getElementById('modalGral');
+    if (modalEl) {
+        modalEl.addEventListener('hidden.bs.modal', function onHidden() {
+            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+            destroyFilePondDocumento();
+        }, { once: true });
+    }
+    (new bootstrap.Modal(modalEl, {backdrop: 'static', keyboard: false})).show();
+    $('#nombrearchivo').text('');
+    var today = new Date();
+    var day = String(today.getDate()).padStart(2, '0');
+    var month = String(today.getMonth() + 1).padStart(2, '0');
+    var year = today.getFullYear();
+    var todaydate = year + '-' + month + '-' + day;
+    var nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 7);
+    var maxDay = String(nextWeek.getDate()).padStart(2, '0');
+    var maxMonth = String(nextWeek.getMonth() + 1).padStart(2, '0');
+    var maxYear = nextWeek.getFullYear();
+    var maxDate = maxYear + '-' + maxMonth + '-' + maxDay;
+    today.setDate(today.getDate() - 7);
+    var dayp = String(today.getDate()).padStart(2, '0');
+    var monthp = String(today.getMonth() + 1).padStart(2, '0');
+    var yearp = today.getFullYear();
+    var minDate = yearp + '-' + monthp + '-' + dayp;
+    $('#f_pub').attr('min', minDate).attr('max', maxDate).val(todaydate);
+    setTimeout(function () {
+        initFilePondDocumento();
+        allowDropInModalDocumento();
+    }, 50);
+}
+
+function CrearDoc() {
+    var form = document.getElementById('newpage');
+    if (form && !form.checkValidity()) {
+        form.classList.add('was-validated');
+        $.alert({
+            title: 'Atención',
+            content: 'Completa los campos obligatorios antes de guardar.',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: 'red'
+        });
+        return;
+    }
+    var iedicion = $('#iedicion').val();
+    var archivo = getFileFromPondDocumento();
+    var archivonuevo = (iedicion === '1' && !archivo) ? '0' : '1';
+    if (iedicion !== '1' && !archivo) {
+        $.alert({ title: 'Atención', content: 'Debe seleccionar un documento (PDF, Word o Excel .xlsx, máx. 2 MB).', theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+        return;
+    }
+    var formData = new FormData();
+    formData.append('iddoc', $('#iddoc').val());
+    formData.append('archivonuevo', archivonuevo);
+    formData.append('iedicion', iedicion);
+    formData.append('namepag', $('#namepag').val());
+    formData.append('descdoc', $('#descdoc').val());
+    formData.append('tipo_tag', $('#tipo_tag').val());
+    formData.append('f_pub', $('#f_pub').val());
+    formData.append('cyphval', $('#cyphval').val());
+    if (archivo) formData.append('cargar-doc', archivo);
+    $.ajax({
+        url: '/CreateDoc',
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        beforeSend: function () {
+            $('#lockscreen').stop(true, true).fadeIn(150);
+        },
+        success: function (data) {
+            if (data.success) {
+                $.alert({
+                    title: 'Se guardó correctamente',
+                    content: 'Se ha guardado el documento correctamente',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-check',
+                    type: 'green',
+                    buttons: { Aceptar: { text: 'Aceptar', btnClass: 'btn-success', action: function () { window.location.reload(); } } }
+                });
+            } else {
+                $.alert({
+                    title: 'Advertencia',
+                    content: (data && data.message) ? data.message : 'No se pudo guardar el documento.',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: 'red'
+                });
+            }
+        },
+        error: function (xhr, status, err) {
+            console.error(err || status);
+            $.alert({
+                title: 'Error',
+                content: (xhr && xhr.responseJSON && xhr.responseJSON.message)
+                    ? xhr.responseJSON.message
+                    : 'Ocurrió un error al guardar el documento. Intenta nuevamente.',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'red'
+            });
+        },
+        complete: function () {
+            $('#lockscreen').stop(true, true).fadeOut(150);
+        }
+    });
+}
+</script>

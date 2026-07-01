@@ -1,0 +1,120 @@
+<!--TODO VALORAR SI PUEDE SER EL MISMO ARCHIVO-->
+<!-- <div id="PhotoGalery">
+    <div class="custom-gallery">
+        <button class="custom-arrow custom-left"></button>
+        <button class="custom-arrow custom-right"></button>
+
+        <div class="custom-thumbnails">
+            <div class="thumbnail">
+                <img src="/assets/img/photogallery01.png">
+            </div>
+            <div class="thumbnail large-thumbnail"> 
+                <img src="/assets/img/photogallery02.png">
+            </div>
+            <div class="thumbnail">
+                <img src="/assets/img/photogallery03.png">
+            </div>
+            <div class="thumbnail">
+                <img src="/assets/img/photogallery04.png">
+            </div>
+            <div class="thumbnail">
+                <img src="/assets/img/photogallery05.png">
+            </div>
+        </div>
+
+        <div class="titGaleria">
+            <div class="titCaptionUno">
+                <div class="titPrincipal">
+                    <p>Gira Nacional 1</p>
+                    <div class="corner"></div>
+                </div>
+                <div class="parrCaption"><p>1 Visitamos todos los estadospara reunirnos con militantes y autoridades emanadas de Morena ¡Juntas y  juntos seguiremos construyenco el segundo piso de la Cuarta Transformación.</p></div>
+            </div>
+
+            <div class="titCaptionDos">
+                <div class="titPrincipal">
+                    <p>Gira Nacional 2</p>
+                    <div class="corner"></div>
+                </div>
+                <div class="parrCaption"><p>2 Visitamos todos los estadospara reunirnos con militantes y autoridades emanadas de Morena ¡Juntas y  juntos seguiremos construyenco el segundo piso de la Cuarta Transformación.</p></div>
+            </div>
+
+            <div class="titCaptionTres">
+                <div class="titPrincipal">
+                    <p>Gira Nacional 3 </p>
+                    <div class="corner"></div>
+                </div>
+                <div class="parrCaption"><p>3 Visitamos todos los estadospara reunirnos con militantes y autoridades emanadas de Morena ¡Juntas y  juntos seguiremos construyenco el segundo piso de la Cuarta Transformación.</p></div>
+            </div>
+
+            <div class="titCaptionCuatro">
+                <div class="titPrincipal">
+                    <p>Gira Nacional 4</p>
+                    <div class="corner"></div>
+                </div>
+                <div class="parrCaption"><p>4 Visitamos todos los estadospara reunirnos con militantes y autoridades emanadas de Morena ¡Juntas y  juntos seguiremos construyenco el segundo piso de la Cuarta Transformación.</p></div>
+            </div>
+
+            <div class="titCaptionCinco">
+                <div class="titPrincipal">
+                    <p>5 Gira Nacional</p>
+                    <div class="corner"></div>
+                </div>
+                <div class="parrCaption"><p>5 Visitamos todos los estadospara reunirnos con militantes y autoridades emanadas de Morena ¡Juntas y  juntos seguiremos construyenco el segundo piso de la Cuarta Transformación.</p></div>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+<script>
+$(document).ready(function () {
+    const circleItems = $('.custom-circle-item');
+    const textContainers = $('.custom-content-text-container');
+    const imageContainers = $('.custom-image-container');
+    const arrowUp = $('#arrow-up');
+    const arrowDown = $('#arrow-down');
+
+    let activeIndex = 0; // Índice activo
+
+    function updateActiveItem(index) {
+        // Desactivar elementos actuales con animación de desvanecimiento
+        circleItems.removeClass('active');
+        textContainers.fadeOut(300, function () {
+            $(this).removeClass('active');
+        });
+        imageContainers.fadeOut(300, function () {
+            $(this).removeClass('active');
+        });
+
+        // Activar nuevos elementos con animación de aparición
+        setTimeout(() => {
+            circleItems.eq(index).addClass('active');
+            textContainers.eq(index).fadeIn(300).addClass('active');
+            imageContainers.eq(index).fadeIn(300).addClass('active');
+
+            // Deshabilitar botones si estamos en los extremos
+            arrowUp.prop('disabled', index === 0);
+            arrowDown.prop('disabled', index === circleItems.length - 1);
+        }, 300); // Coincide con el tiempo de desvanecimiento
+    }
+
+    // Navegar hacia arriba
+    arrowUp.click(function () {
+        if (activeIndex > 0) {
+            activeIndex--;
+            updateActiveItem(activeIndex);
+        }
+    });
+
+    // Navegar hacia abajo
+    arrowDown.click(function () {
+        if (activeIndex < circleItems.length - 1) {
+            activeIndex++;
+            updateActiveItem(activeIndex);
+        }
+    });
+
+    // Inicializar
+    updateActiveItem(activeIndex);
+});
+</script>

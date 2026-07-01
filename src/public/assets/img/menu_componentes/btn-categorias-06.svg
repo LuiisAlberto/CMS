@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: none;
+      }
+
+      .cls-3 {
+        fill: #d6cfc4;
+      }
+
+      .cls-4 {
+        font-size: 3px;
+      }
+
+      .cls-4, .cls-5 {
+        font-family: Montserrat-Light, Montserrat;
+        font-weight: 300;
+      }
+
+      .cls-4, .cls-6 {
+        fill: #c1272d;
+      }
+
+      .cls-5 {
+        fill: #1a1a1a;
+        font-size: 8px;
+      }
+
+      .cls-7 {
+        letter-spacing: 0em;
+      }
+
+      .cls-2 {
+        stroke: #fff;
+      }
+
+      .cls-2, .cls-8 {
+        stroke-miterlimit: 10;
+        stroke-width: .25px;
+      }
+
+      .cls-9 {
+        letter-spacing: 0em;
+      }
+
+      .cls-8 {
+        fill: #fafeff;
+        filter: url(#drop-shadow-2);
+        stroke: #999;
+      }
+
+      .cls-10 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-11 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-12 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-13 {
+        letter-spacing: 0em;
+      }
+
+      .cls-14 {
+        letter-spacing: 0em;
+      }
+
+      .cls-15 {
+        letter-spacing: 0em;
+      }
+
+      .cls-16 {
+        letter-spacing: .01em;
+      }
+    </style>
+    <filter id="drop-shadow-2" x="4.25" y=".75" width="63" height="54" filterUnits="userSpaceOnUse">
+      <feOffset dx="4" dy="3"/>
+      <feGaussianBlur result="blur" stdDeviation="4"/>
+      <feFlood flood-color="#514c4c" flood-opacity=".2"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <rect class="cls-1" x="-.75" y="-1.25" width="64" height="65.7" rx="8" ry="8"/>
+  <rect class="cls-8" x="17.75" y="6.25" width="28" height="37" rx="2" ry="2" transform="translate(7 56.5) rotate(-90)"/>
+  <text class="cls-5" transform="translate(21.51 54.35)"><tspan class="cls-13" x="0" y="0">C</tspan><tspan x="5.66" y="0">a</tspan><tspan class="cls-11" x="10.32" y="0">r</tspan><tspan class="cls-9" x="13.36" y="0">d</tspan></text>
+  <rect class="cls-3" x="17.25" y="23.75" width="30" height="11" rx="1" ry="1"/>
+  <text class="cls-4" transform="translate(16.25 15.62)"><tspan class="cls-14" x="0" y="0">L</tspan><tspan x="1.73" y="0">o</tspan><tspan class="cls-12" x="3.59" y="0">r</tspan><tspan x="4.73" y="0">em ipsum dolor </tspan><tspan x="0" y="3">sit amet </tspan><tspan class="cls-14" x="12.88" y="3">c</tspan><tspan x="14.52" y="3">onse</tspan><tspan class="cls-15" x="21.62" y="3">c</tspan><tspan class="cls-10" x="23.31" y="3">t</tspan><tspan x="24.44" y="3">etur </tspan><tspan class="cls-7" x="0" y="6">adipisicing eli</tspan><tspan class="cls-16" x="20.23" y="6">t</tspan><tspan x="21.45" y="6">.</tspan></text>
+  <circle class="cls-6" cx="43" cy="23.75" r="1.5"/>
+  <g>
+    <path class="cls-2" d="M42,23.75h1.5"/>
+    <polyline class="cls-2" points="43 23.25 43.49 23.75 43 24.25"/>
+  </g>
+</svg>

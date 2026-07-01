@@ -1,0 +1,533 @@
+<style>
+    #ulcomp li {
+        flex: 0 0 auto;
+        width: 100px; /* Ejemplo de un ancho fijo */
+        height: 100px;
+        display: flex; /* Opcional, para centrar el botón dentro del li */
+        justify-content: center;
+        align-items: center;
+    }
+    #ulcomp {
+        display: flex;
+        flex-wrap: wrap; 
+        /* gap: 10px;       */
+        list-style: none; 
+        padding: 21px; 
+        margin: 0;  
+    }
+    .comp_text_menu{
+        font-size: 12px;
+        font-weight: 500;
+        padding: 0px 16px 1px 10px;
+        color: rgb(18, 17, 17);
+    }
+    #style_columnas{
+        padding: 2px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #BB965C;
+    }
+    .list-group-item{
+        font-size: 13px !important;
+    }
+    .first_item_comp {
+        border-radius: 0px 0px 37px 0px;
+        color: white;
+        background-color: #7E2D43;
+        padding: 12px;
+        font-weight: 500;
+    }
+    .btn_edit_comp{
+        padding: 9px;
+        font-size: 16px;
+        background: #9f9d9d;
+        color: white;
+        border-radius: 11px;
+        height: 35px;
+    }
+    .nom_comp p{
+        color: rgb(34, 33, 33) !important;
+    }
+    .nom_comp .comp-list-titulo {
+        font-weight: 600;
+        margin-bottom: 3px;
+        font-size: 13px;
+    }
+    .nom_comp .comp-list-ubic {
+        font-size: 11px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: #6b6b6b !important;
+        line-height: 1.3;
+        margin-bottom: 0;
+        letter-spacing: 0.04em;
+    }
+    /* Evita que el contenido inferior del menú lateral se recorte. */
+    #menuIzq .headMenu{
+        padding-top: 10px;
+    }
+    #menuIzq .bodyMenu.menu-calc-h{
+        padding-bottom: 28px;
+    }
+    /* Vista previa es <a>: evitar color azul de enlace en :hover/:focus (texto y ::before de data-hover) */
+    #menuIzq .btnsGrlas a.btnAct,
+    #menuIzq .btnsGrlas a.btnAct:visited,
+    #menuIzq .btnsGrlas a.btnAct:hover,
+    #menuIzq .btnsGrlas a.btnAct:focus {
+        color: #fff !important;
+        text-decoration: none;
+    }
+    #menuIzq .btnsGrlas a.btnAct:hover::before,
+    #menuIzq .btnsGrlas a.btnAct:focus::before {
+        color: #fff !important;
+    }
+    #menuIzq .btnsGrlas a.btnAct i {
+        color: inherit;
+    }
+    /* Botones subir/bajar sección: el .btnAco global en menu_creacion.css lleva opacity:.5 */
+    #editall .btn-seccion-orden.btnAco {
+        opacity: 1;
+        min-height: 36px;
+        line-height: 1.15;
+        border: none;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        transition: background .2s ease, transform .15s ease;
+    }
+    #editall .btn-seccion-orden.btnAco:hover:not(:disabled) {
+        transform: translateY(-1px) scale(1);
+        box-shadow: 0 2px 6px rgba(126, 45, 67, 0.2);
+    }
+    #editall .btn-seccion-orden.btnAco:disabled {
+        opacity: .38;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    #editall .section-order-label {
+        display: block;
+        margin: 0 0 8px 0;
+        font-size: 11px;
+        font-weight: 600;
+        color: #3d3d3d;
+        letter-spacing: 0.01em;
+    }
+    #editall .section-order-buttons {
+        margin-bottom: 12px !important;
+    }
+    /* Separación clara entre botones Orden y bloque Columnas */
+    #editall #style_columnas {
+        display: block;
+        margin: 0 0 6px 0;
+        padding: 14px 2px 0 2px;
+        border-top: 1px solid #e5e2dd;
+    }
+    #editall .comp_text_menu {
+        margin-top: 0;
+        padding-top: 0;
+    }
+    #editall .menuminint {
+        padding: 4px 2px 8px;
+    }
+    .menu-creacion-bloque {
+        margin-top: 6px;
+        padding: 12px 12px 14px;
+        background: #fafafa;
+        border: 1px solid #eceae7;
+        border-radius: 12px;
+        box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
+    }
+    .menu-creacion-titulo {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #5c4a4e;
+        margin: 0 0 6px 0;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e5e1dc;
+    }
+    .menu-creacion-sub {
+        font-size: 11px;
+        color: #6b6b6b;
+        margin: 0 0 10px 0;
+        line-height: 1.35;
+    }
+    #editallPlaceholder {
+        font-size: 11px;
+        color: #7a7a7a;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: #fff;
+        border: 1px dashed #d8d4cf;
+        line-height: 1.4;
+        text-align: center;
+    }
+    #editall.editall-vacio {
+        display: none !important;
+    }
+    /* Vista por dispositivo: tres botones en una fila */
+    #menuIzq .btns-vista-dispositivo.btnsGrlas {
+        margin-top: 8px;
+    }
+    #menuIzq .btns-vista-dispositivo.btnsGrlas .btnAct {
+        flex: 1 1 calc(33.333% - 4px);
+        min-width: 0;
+    }
+
+    /*
+     * Botón «Nuevo componente»: el HTML se inyecta en #editall desde el lienzo (iframe);
+     * los estilos del iframe no aplican al padre, por eso va aquí.
+     */
+    #editall .secmenu {
+        margin-top: 4px;
+    }
+    #editall .btnAddComponent {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 17rem;
+        min-height: 46px;
+        margin: 6px 0 16px 0;
+        padding: 0 48px 0 0;
+        border: none;
+        border-radius: 999px;
+        cursor: pointer;
+        color: #fff;
+        font-family: inherit;
+        background: linear-gradient(145deg, #c9aa7a 0%, #a88958 55%, #957a4e 100%);
+        box-shadow:
+            0 4px 14px rgba(62, 26, 27, 0.22),
+            0 1px 0 rgba(255, 255, 255, 0.25) inset;
+        position: relative;
+        overflow: visible;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+    #editall .btnAddComponent:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.04);
+        box-shadow:
+            0 8px 22px rgba(62, 26, 27, 0.28),
+            0 1px 0 rgba(255, 255, 255, 0.28) inset;
+    }
+    #editall .btnAddComponent:active {
+        transform: translateY(0);
+        filter: brightness(0.98);
+    }
+    #editall .btnAddComponent:focus-visible {
+        outline: 2px solid #7e2d43;
+        outline-offset: 3px;
+    }
+    #editall .btnAddComponent .btn-text {
+        flex: 1;
+        padding: 12px 8px 12px 20px;
+        margin: 0;
+        text-align: center;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: #fff;
+        line-height: 1.25;
+        user-select: none;
+    }
+    #editall .btnAddComponent .circleButton {
+        position: absolute;
+        right: -4px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: linear-gradient(160deg, #9a3032 0%, #6f2224 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        z-index: 2;
+    }
+    #editall .btnAddComponent .circleButton i {
+        color: #fff;
+        font-size: 22px;
+        line-height: 1;
+    }
+</style>
+
+<button class="btnCollapseMovil"><i class="fas fa-angle-double-right"></i></button>
+<div id="menuIzq">
+    <div class="headMenu">
+        <div class="logoSeccion">
+            <img src="assets/img/Logo_morena.png" class="img-logo">
+            <button class="btnCollapse"><i class="fas fa-angle-double-left"></i></button>
+        </div>
+        <div class="l-div">
+            <label class="borde-izq aztecGold_bg"><span class="aztecGold_bg"></span></label>
+            <label class="borde-der solid_bg"><span></span></label>
+        </div>
+        <div class="usuario row">
+            <div class="datDer">
+                <p>
+                    Editando página:
+                </p>
+                <label>
+                    <%=datapagina.nombre_pagina%>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="bodyMenu menu-calc-h">
+        <!-- Botón para editar la página-->
+        <p>Datos generales de la página:</p>
+        <div class="btnsGrlas">
+            <!-- Editar -->
+            <button class="btnAct oro editpag" data-hover="EDITAR" data-cy="<%-idcypher%>">
+                <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
+            </button>
+            <% if (typeof tieneDominio !== 'undefined' && tieneDominio) { %>
+            <!-- Publicar / Actualizar: visible solo con dominio asignado. Inicia deshabilitado, se habilita al detectar cambios. -->
+            <button id="btnPubPag" class="btnAct <%= (typeof datapagina !== 'undefined' && datapagina.publicada) ? 'verde_b' : 'gris' %> pubpag" 
+                data-hover="<%= (typeof datapagina !== 'undefined' && datapagina.publicada) ? 'Actualizar HTML estático' : 'Publicar' %>"
+                data-cy="<%-idcypher%>" 
+                data-stat="<%= (typeof datapagina !== 'undefined' && datapagina.publicada) ? '1' : '0' %>" 
+                data-type="<%= (typeof datapagina !== 'undefined' && datapagina.fk_id_cat_type_pagina) ? datapagina.fk_id_cat_type_pagina : '0' %>"
+                data-page-publicada="<%= (typeof datapagina !== 'undefined' && datapagina.publicada) ? '1' : '0' %>"
+                <%= (typeof datapagina !== 'undefined' && datapagina.publicada) ? 'data-update-only="1"' : '' %>
+                disabled
+                title="<%= (typeof datapagina !== 'undefined' && datapagina.publicada) ? 'Realice cambios en la página para habilitar la actualización del HTML estático' : 'Guarde cambios en la página para habilitar la publicación' %>">
+                <img src="assets/img/upload.svg" class="<%= (typeof datapagina !== 'undefined' && datapagina.publicada) ? 'activo' : 'inactivo' %>">
+            </button>
+            <% if (typeof previewUrlStatic !== 'undefined' && previewUrlStatic) { %>
+            <a href="<%= previewUrlStatic %>" class="btnAct oro" data-hover="Vista previa" target="_blank" rel="noopener noreferrer" title="Abrir el sitio estático generado en una nueva pestaña (tras publicar o actualizar HTML)">
+                <i class="fa-solid fa-eye" aria-hidden="true"></i>
+            </a>
+            <% } %>
+            <% } %>
+            <!-- El value guarda el numero mayor de seccion identificado en la página -->
+            <input type="hidden" id="idlastsec" name="idlastsec" value="99999">
+        </div>
+        <div class="btnsGrlas btns-vista-dispositivo" role="group" aria-label="Vista del lienzo por dispositivo">
+            <button type="button" id="btnVistaMobile" class="btnAct btn-vista-dispositivo" data-mode="mobile" data-hover="Móvil" title="Vista móvil" aria-pressed="false">
+                <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="btnVistaTablet" class="btnAct btn-vista-dispositivo" data-mode="tablet" data-hover="Tableta" title="Vista tableta" aria-pressed="false">
+                <i class="fa-solid fa-tablet-screen-button" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="btnVistaDesktop" class="btnAct oro btn-vista-dispositivo" data-mode="desktop" data-hover="Escritorio" title="Vista escritorio" aria-pressed="true">
+                <i class="fa-solid fa-desktop" aria-hidden="true"></i>
+            </button>
+        </div>
+        <hr>
+        <!-- Menú creación: controles de la sección elegida en el lienzo (orden, columnas, luego componentes vía modal) -->
+        <div class="menu-creacion-bloque" id="bloqueMenuCreacion">
+            <p class="menu-creacion-titulo">Menú creación</p>
+            <p class="menu-creacion-sub">Pulsa un bloque en el lienzo para editarlo.</p>
+            <div id="editallPlaceholder" role="status">Sin sección seleccionada</div>
+            <div id="editall" class="editall-vacio"></div>
+        </div>
+        <hr>
+        <!-- <p>Editar componentes:</p> -->
+        <div id="compListCreate">
+            <ul class="list-group mt-3">
+                <li class="list-group-item first_item_comp">Componentes</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<template id="resetMenu">
+    <p>Administrar página:</p>
+</template>
+<template id="menuCompSelect">
+    <!-- Componentes -->
+    <div class="boxB-component">
+        <div class="inline-components">
+            <ul id="ulcomp" data-idsec="" data-numcols="" data-idcol="">
+                <% for (const comp of dataComp)  {
+                    %>
+                    <li id="tr1">
+                        <button  
+                            class="mList" 
+                            data-tipcomp="<%- comp.id_cat_wb_componente %>" 
+                            data-hasfile="<%- comp.has_file %>"
+                            data-tablecomp="<%- comp.table_componente %>">
+                            <img 
+                                class="btn-componente" 
+                                src="<%- comp.icon_comp %>" 
+                                alt="<%- comp.shortcut %>">
+                        </button>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</template>
+<template id="nuevaSeccion">
+    <div class="menuminint">
+        <form action="#" id="nuevaSec">
+            <input type="hidden" min="0" max="" value="1" id="odersec" name="odersec" class="form-control">
+
+            <input type="hidden" id="idsec" name="idsec">
+            <span class="section-order-label" id="sectionOrderHeading">Orden</span>
+            <div class="row mb-3 gx-2 gy-2 section-order-buttons">
+                <div class="col-6">
+                    <button type="button" id="orderUp" class="btnAco rojo_guinda w-100 btn-seccion-orden" title="Subir sección">
+                        <span class="disNo"></span><i class="fa-solid fa-arrow-up" aria-hidden="true"></i> Subir
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button type="button" id="orderDown" class="btnAco rojo_guinda w-100 btn-seccion-orden" title="Bajar sección">
+                        <span class="disNo"></span><i class="fa-solid fa-arrow-down" aria-hidden="true"></i> Bajar
+                    </button>
+                </div>
+            </div>
+            <label id="style_columnas" for="numcols">Columnas</label>
+            <label class="comp_text_menu">Selecciona un recuadro para agregar una columna:</label>
+            <div class="colsedit row">
+                <div class="col-md-3 blockcol">
+                    <button id="col1" data-col="1" class="btn-cols active" type="button"></button>
+                </div>
+                <div class="col-md-3 blockcol">
+                    <button id="col2" data-col="2" class="btn-cols" type="button" ></button>
+                </div>
+                <div class="col-md-3 blockcol">
+                    <button id="col3" data-col="3" class="btn-cols" type="button" ></button>
+                </div>
+                <div class="col-md-3 blockcol">
+                    <button id="col4" data-col="4" class="btn-cols" type="button" ></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</template>
+
+<script>
+(function () {
+    var mqMobile = window.matchMedia('(max-width: 576px)');
+
+    function templateDerEl() {
+        return document.getElementById('templateDer');
+    }
+
+    function syncMenuLayout() {
+        var mobile = mqMobile.matches;
+        var $menu = $('#menuIzq');
+        var $btnMov = $('.btnCollapseMovil');
+        var td = templateDerEl();
+        if (mobile) {
+            $btnMov.show();
+            $menu.hide();
+            if (td) td.style.setProperty('width', '100%');
+        } else {
+            $btnMov.hide();
+            $menu.css('display', '');
+            if (td) td.style.setProperty('width', 'calc(100% - 260px)');
+        }
+    }
+
+    function resetMenuCreacionPanel() {
+        $('#editall').empty().addClass('editall-vacio');
+        $('#editallPlaceholder').show();
+        $('#bloqueMenuCreacion .menu-creacion-sub').show();
+    }
+
+    function bindViewportDeviceButtons() {
+        $('.btn-vista-dispositivo').off('click.viewMode').on('click.viewMode', function (e) {
+            e.preventDefault();
+            var mode = $(this).attr('data-mode');
+            if (mode) window.setEditorViewportMode(mode);
+        });
+    }
+
+    function bindMenuToggles() {
+        $('.btnCollapse').off('click.menuCMS').on('click.menuCMS', function (e) {
+            e.preventDefault();
+            $('#menuIzq').hide();
+            $('.btnCollapseMovil').show();
+            var td = templateDerEl();
+            if (td) td.style.setProperty('width', '100%');
+            (typeof window.$mc === 'function' ? window.$mc('.pub_columna') : $('.pub_columna')).removeClass('active').removeClass('selected');
+            (typeof window.$mc === 'function' ? window.$mc('.pub_seccion') : $('.pub_seccion')).removeClass('active').addClass('removeAfter');
+            resetMenuCreacionPanel();
+        });
+        $('.btnCollapseMovil').off('click.menuCMS').on('click.menuCMS', function (e) {
+            e.preventDefault();
+            $('#menuIzq').show();
+            $('.btnCollapseMovil').hide();
+            var td = templateDerEl();
+            if (td) td.style.setProperty('width', 'calc(100% - 260px)');
+            (typeof window.$mc === 'function' ? window.$mc('.pub_seccion') : $('.pub_seccion')).removeClass('removeAfter');
+        });
+    }
+
+    $(function () {
+        syncMenuLayout();
+        bindMenuToggles();
+        bindViewportDeviceButtons();
+        $(window).on('resize.menuCMS orientationchange.menuCMS', syncMenuLayout);
+        if (typeof mqMobile.addEventListener === 'function') {
+            mqMobile.addEventListener('change', syncMenuLayout);
+        } else if (typeof mqMobile.addListener === 'function') {
+            mqMobile.addListener(syncMenuLayout);
+        }
+    });
+})();
+
+    function mostrarRenderizado(idpagcy){
+        // console.log(idpagcy)
+        fetch('/consultarURL', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                idpagcy: idpagcy
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success){
+                // Abrir en pestaña nueva: si la vista previa usa pushState en la misma pestaña,
+                // el botón «atrás» del navegador puede volver a rutas como /inicio sin prefijo de app
+                // y el servidor responde 404. En nueva pestaña el historial del CMS no se mezcla.
+                var previewUrl = data.url;
+                if (previewUrl) {
+                    var w = window.open(previewUrl, '_blank', 'noopener,noreferrer');
+                    if (!w) window.location.href = previewUrl;
+                }
+                return;
+            }
+
+            return $.alert({
+                title: "LA URL no pudo ser construida",
+                content: 'Ocurrió un error inesperado.',
+                theme: 'modern',
+                type: "red"
+            });
+        }).catch(error => {
+            return $.alert({
+                title: "LA URL no pudo ser construida",
+                content: error.responseJSON?.message || 'Ocurrió un error inesperado.',
+                theme: 'modern',
+                type: "red"
+            });
+        });
+    }
+
+    // -----------------------------------------------------------
+    // Botón Publicar/Actualizar: mostrado cuando tieneDominio (instancia con dominio asignado).
+    // Inicia deshabilitado y se habilita con __setDraftDirty() al detectar cambios (guardar sección, componente, etc.).
+    // __setDraftClean() lo deshabilita tras publicar. Definidos en editpag.ejs.
+    // -----------------------------------------------------------
+
+</script>

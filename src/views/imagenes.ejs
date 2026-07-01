@@ -1,0 +1,765 @@
+<%- include('partials/header'); %>
+<%- include('partials/menu'); %>
+
+<!-- Fancybox (misma versión que header) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/filepond@4/dist/filepond.min.css">
+<link rel="stylesheet" href="https://unpkg.com/filepond-plugin-image-preview@4/dist/filepond-plugin-image-preview.min.css">
+<script src="https://unpkg.com/filepond@4/dist/filepond.min.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.min.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.min.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview@4/dist/filepond-plugin-image-preview.min.js"></script>
+
+<style>
+    /* Colores institucionales */
+    .fm-guinda { background-color: #8e2c2d; }
+    .fm-guinda-light { background-color: rgba(142, 44, 45, 0.08); }
+    .fm-guinda-text { color: #8e2c2d; }
+    .fm-oro { background-color: #bc955b; color: #fff; }
+    .fm-oro-text { color: #bc955b; }
+    .fm-oro-border { border-color: #bc955b; }
+
+    #templateDer { padding: 0; }
+    .file-manager-wrap {
+        display: flex;
+        min-height: calc(100vh - 120px);
+        background: #f8f9fa;
+    }
+    .fm-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        background: #fff;
+        margin: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        overflow: hidden;
+    }
+    .fm-search-bar {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: #fff;
+    }
+    .fm-search-bar .fm-btn-new {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: #8e2c2d;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .fm-search-bar .fm-btn-new:hover { background: #6b2021; color: #fff; }
+    .fm-search-bar input {
+        flex: 1;
+        max-width: 400px;
+        padding: 0.5rem 1rem 0.5rem 2.25rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 0.95rem;
+    }
+    .fm-search-bar input:focus { border-color: #8e2c2d; outline: none; box-shadow: 0 0 0 2px rgba(142,44,45,0.15); }
+    .fm-search-bar .fm-search-wrap { position: relative; flex: 1; max-width: 400px; }
+    .fm-search-bar .fm-search-wrap i { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #888; font-size: 0.9rem; }
+    .fm-content-title { padding: 1rem 1.5rem; font-weight: 600; color: #333; font-size: 1.05rem; border-bottom: 1px solid #eee; }
+    .fm-list { flex: 1; overflow: auto; }
+    .fm-list table { width: 100%; border-collapse: collapse; }
+    .fm-list th {
+        text-align: left;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        border-bottom: 1px solid #eee;
+        background: #fafafa;
+    }
+    .fm-list td { padding: 0.75rem 1.5rem; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+    .fm-list tr { cursor: pointer; transition: background 0.15s; }
+    .fm-list tbody tr:hover { background: #f8f9fa; }
+    .fm-list tbody tr.fm-selected { background: rgba(142, 44, 45, 0.08); }
+    .fm-list .fm-cell-name { display: flex; align-items: center; gap: 0.75rem; }
+    .fm-list .fm-cell-name .fm-icon-wrap {
+        width: 40px; height: 40px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+        background: #f0f0f0; display: flex; align-items: center; justify-content: center;
+    }
+    .fm-list .fm-cell-name .fm-icon-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .fm-list .fm-cell-name .fm-name-text { font-weight: 500; color: #333; }
+    .fm-list .fm-date { color: #666; font-size: 0.9rem; }
+    .fm-list .fm-row-actions { opacity: 0; transition: opacity 0.2s; }
+    .fm-list tr:hover .fm-row-actions { opacity: 1; }
+    .fm-list .fm-row-actions button {
+        background: none; border: none; color: #888; padding: 0.25rem; cursor: pointer; border-radius: 4px;
+    }
+    .fm-list .fm-row-actions button:hover { color: #8e2c2d; background: rgba(142,44,45,0.08); }
+    .fm-empty { padding: 3rem; text-align: center; color: #888; }
+    .fm-pagination-wrap { padding: 1rem 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: center; }
+
+    /* Panel derecho detalle */
+    .fm-detail {
+        width: 320px;
+        min-width: 320px;
+        background: #fff;
+        border-radius: 12px;
+        margin: 1rem 1rem 1rem 0;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #eee;
+    }
+    .fm-detail-placeholder {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        padding: 2rem;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+    .fm-detail-content { display: none; flex: 1; flex-direction: column; overflow: hidden; padding: 1.25rem; }
+    .fm-detail-content.active { display: flex; }
+    .fm-detail-preview {
+        width: 100%;
+        aspect-ratio: 1;
+        max-height: 200px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #f5f5f5;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .fm-detail-preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .fm-detail-title { font-weight: 600; color: #333; margin-bottom: 1rem; font-size: 1rem; word-break: break-word; }
+    .fm-detail-section { margin-bottom: 1rem; }
+    .fm-detail-section label { display: block; font-size: 0.75rem; font-weight: 600; color: #666; text-transform: uppercase; margin-bottom: 0.35rem; }
+    .fm-detail-link-wrap { display: flex; gap: 0.5rem; align-items: stretch; }
+    .fm-detail-link-wrap input {
+        flex: 1;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        background: #fafafa;
+    }
+    .fm-detail-link-wrap input:focus { outline: none; border-color: #8e2c2d; background: #fff; }
+    .fm-detail-link-wrap .btn-copy {
+        padding: 0.5rem 1rem;
+        background: #8e2c2d;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.2s;
+    }
+    .fm-detail-link-wrap .btn-copy:hover { background: #6b2021; }
+    .fm-detail-link-wrap .btn-copy.copied { background: #159d15; }
+    .fm-detail-meta { font-size: 0.85rem; color: #666; }
+    .fm-detail-meta span { display: block; margin-bottom: 0.25rem; }
+
+    /* Paginación */
+    .fm-pagination-wrap .pagination { margin: 0; }
+    .fm-pagination-wrap .page-link { color: #8e2c2d; }
+    .fm-pagination-wrap .page-item.active .page-link { background-color: #8e2c2d; border-color: #8e2c2d; }
+
+    /* Modal Imagen: mismo diseño que instancias (inputs + FilePond) */
+    #modalGral #newpage .form-label-inst { margin-bottom: 0.4rem; font-size: 13px; font-weight: 500; color: #343a40; }
+    #modalGral #newpage .form-control,
+    #modalGral #newpage .form-select {
+        background: #f0f0f0; border: 1px solid #e2e2e2; border-radius: 8px;
+        padding: 0.5rem 0.85rem; font-size: 14px; color: #212529;
+    }
+    #modalGral #newpage .form-control::placeholder { color: #6c757d; }
+    #modalGral #newpage .form-control:focus,
+    #modalGral #newpage .form-select:focus {
+        background: #fff; border-color: #8e2c2d; box-shadow: 0 0 0 0.2rem rgba(142, 44, 45, 0.12);
+        outline: 0;
+    }
+    #modalGral #newpage .filepond-row { margin-bottom: 1rem; }
+    /* Contenedor: un solo borde gris, sin contornos rojos ni focus */
+    #modalGral #newpage .filepond--root {
+        max-height: 120px; min-height: 96px; position: relative; pointer-events: auto !important;
+        border: 1px solid #e0e0e0 !important; border-radius: 8px !important;
+        background: #f8f9fa !important;
+        outline: none !important; box-shadow: none !important;
+    }
+    #modalGral #newpage .filepond--root:hover,
+    #modalGral #newpage .filepond--root.filepond--drag-over {
+        border-color: #ccc !important; background: #f0f1f2 !important;
+    }
+    #modalGral #newpage .filepond--root *,
+    #modalGral #newpage .filepond--root *:focus { pointer-events: auto !important; outline: none !important; box-shadow: none !important; }
+    #modalGral #newpage .filepond--panel-root,
+    #modalGral #newpage .filepond--panel-top,
+    #modalGral #newpage .filepond--panel-center,
+    #modalGral #newpage .filepond--panel-bottom,
+    #modalGral #newpage .filepond--panel {
+        border: none !important; background: transparent !important;
+        outline: none !important; box-shadow: none !important;
+    }
+    #modalGral #newpage .filepond--drop-label {
+        position: absolute !important; left: 0 !important; right: 0 !important; top: 0 !important; bottom: 0 !important;
+        margin: 0 !important; padding: 0 !important; min-height: 0 !important; height: 100% !important;
+        display: flex !important; align-items: center !important; justify-content: center !important;
+        border: none !important; background: transparent !important; border-radius: 0 !important;
+        color: #495057 !important; font-size: 14px !important; text-align: center !important;
+        pointer-events: auto !important; cursor: pointer;
+    }
+    #modalGral #newpage .filepond--drop-label label { cursor: pointer; margin: 0; }
+    #modalGral #newpage .filepond--label-action { color: #8e2c2d !important; font-weight: 600; }
+    /* Tarjeta del archivo cargado: visible y neutra */
+    #modalGral #newpage .filepond--item-panel {
+        background: #fff !important;
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+    }
+    #modalGral #newpage .filepond--item .filepond--file-action-button {
+        background: #6c757d !important;
+        color: #fff !important;
+    }
+    #modalGral #newpage .filepond--item .filepond--file-info,
+    #modalGral #newpage .filepond--item .filepond--file-info-main,
+    #modalGral #newpage .filepond--item .filepond--file-info-sub,
+    #modalGral #newpage .filepond--item .filepond--file-status,
+    #modalGral #newpage .filepond--item .filepond--file-status-main,
+    #modalGral #newpage .filepond--item .filepond--file-status-sub {
+        color: #212529 !important;
+    }
+    /* Vista previa de la imagen cargada: visible, no blanco */
+    #modalGral #newpage .filepond--item .filepond--image-preview-wrapper {
+        z-index: 1;
+        min-height: 5rem;
+        max-height: 7rem;
+    }
+    #modalGral #newpage .filepond--item .filepond--image-preview {
+        background: #f0f0f0;
+    }
+    #modalGral #newpage .filepond--item .filepond--image-preview img,
+    #modalGral #newpage .filepond--item .filepond--image-preview canvas {
+        max-height: 7rem;
+        object-fit: contain;
+    }
+    #modalGral #newpage .filepond--credits { display: none; }
+</style>
+
+<div id="templateDer">
+    <div class="file-manager-wrap">
+        <main class="fm-main">
+            <div class="fm-search-bar">
+                <div class="fm-search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search" placeholder="Buscar imágenes..." autocomplete="off">
+                </div>
+                <button type="button" class="fm-btn-new cargapagina" id="crear_pagaPrincipal">
+                    <i class="fas fa-plus"></i> Crear nueva
+                </button>
+            </div>
+            <div class="fm-content-title">Mis imágenes</div>
+            <div class="fm-list">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Última modificación</th>
+                            <th>Categoría</th>
+                            <th style="width: 50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="image-container"></tbody>
+                </table>
+                <div class="fm-empty d-none" id="fm-empty">No se encontraron imágenes.</div>
+            </div>
+            <div class="fm-pagination-wrap">
+                <nav><ul class="pagination justify-content-center" id="pagination"></ul></nav>
+            </div>
+        </main>
+
+        <!-- Panel detalle -->
+        <aside class="fm-detail">
+            <div class="fm-detail-placeholder" id="fm-detail-placeholder">
+                Selecciona una imagen para ver el detalle y copiar el enlace.
+            </div>
+            <div class="fm-detail-content" id="fm-detail-content">
+                <div class="fm-detail-preview"><img id="fm-detail-img" src="" alt=""></div>
+                <div class="fm-detail-title" id="fm-detail-title"></div>
+                <div class="fm-detail-section">
+                    <label>Enlace (copiar y pegar)</label>
+                    <div class="fm-detail-link-wrap">
+                        <input type="text" id="fm-detail-link" readonly>
+                        <button type="button" class="btn-copy" id="fm-btn-copy-link" title="Copiar enlace">Copiar</button>
+                    </div>
+                </div>
+                <div class="fm-detail-meta" id="fm-detail-meta"></div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<template id="Nuevaimg">
+    <div class="container-fluid px-0">
+        <form id="newpage" class="needs-validation">
+            <input type="hidden" id="cyphval" name="cyphval" value="<%-idcypher%>">
+            <div class="row g-3 mb-0">
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label class="form-label-inst d-block" for="tipo_tag">Categoría de imagen *</label>
+                    <select id="tipo_tag" name="tipo_tag" class="form-select" required>
+                        <option value="" selected disabled>Selecciona una categoría</option>
+                        <% for (const tag of tags) { %>
+                        <option value="<%-tag.id_cat_tag%>"><%-tag.tag%></option>
+                        <% } %>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label class="form-label-inst d-block" for="nameimg">Nombre de la imagen *</label>
+                    <input type="text" class="form-control" name="nameimg" id="nameimg" placeholder="Ej: Banner principal" required>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <label class="form-label-inst d-block" for="descriptionimg">Descripción</label>
+                    <input type="text" class="form-control" name="descriptionimg" id="descriptionimg" placeholder="Opcional">
+                </div>
+                <div class="col-12 filepond-row">
+                    <label class="form-label-inst d-block">Imagen *</label>
+                    <input type="file" id="cargar-imag" name="cargar-imag" class="filepond-imagen" accept="image/jpeg,image/png" data-max-file-size="2MB">
+                    <small class="d-block text-muted mt-1">JPG o PNG. Máx. 2 MB.</small>
+                </div>
+            </div>
+        </form>
+    </div>
+</template>
+
+<%- include('partials/footerNoMx'); %>
+
+<script>
+(function () {
+    const itemsPerPage = 15;
+    let currentPage = 1;
+    let currentSearch = '';
+    let searchTimeout;
+    let allImages = [];
+
+    function normalizeMediaUrl(url) {
+        let out = String(url || '');
+        while (out.includes('/cdn/cdn/')) {
+            out = out.replace(/\/cdn\/cdn\//g, '/cdn/');
+        }
+        return out;
+    }
+
+    function buildImageSrc(item) {
+        const filePath = String(item?.file_path || '');
+        if (!filePath) return '/assets/img/default_morena.png';
+        if (/^https?:\/\//i.test(filePath)) return normalizeMediaUrl(filePath);
+
+        const storagePath = String(item?.storageM?.storage_path || '').trim();
+        if (storagePath) {
+            return normalizeMediaUrl(`${storagePath}${filePath}`);
+        }
+        return normalizeMediaUrl(`https://cdn.morena.app/${filePath.replace(/^\/+/, '')}`);
+    }
+
+    function formatDate(d) {
+        if (!d) return '—';
+        const date = new Date(d);
+        return date.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderImages(imagesToShow) {
+        const $container = $('#image-container');
+        const $empty = $('#fm-empty');
+        $container.empty();
+        $empty.addClass('d-none');
+
+        if (!imagesToShow || imagesToShow.length === 0) {
+            $empty.removeClass('d-none');
+            return;
+        }
+
+        imagesToShow.forEach(function (item) {
+            const src = buildImageSrc(item);
+            const name = (item.detalles && item.detalles.nombre) ? item.detalles.nombre : (item.file_name || 'Sin nombre');
+            const safeName = name.replace(/"/g, '&quot;');
+            const dateStr = formatDate(item.file_date);
+            const id = item.id_file;
+            const catTag = (item.detalles && Array.isArray(item.detalles.cat_tags) && item.detalles.cat_tags.length)
+                ? item.detalles.cat_tags.map(function (t) { return t && t.tag ? t.tag : ''; }).filter(Boolean).join(', ')
+                : 'Sin categoría';
+
+            const $tr = $(`
+                <tr class="fm-row" data-id="${id}" data-src="${src.replace(/"/g, '&quot;')}" data-name="${safeName}" data-date="${dateStr}" data-cat="${String(catTag).replace(/"/g, '&quot;')}">
+                    <td>
+                        <div class="fm-cell-name">
+                            <div class="fm-icon-wrap"><img src="${src}" alt="" loading="lazy"></div>
+                            <span class="fm-name-text">${name}</span>
+                        </div>
+                    </td>
+                    <td class="fm-date">${dateStr}</td>
+                    <td class="fm-date">${catTag}</td>
+                    <td>
+                        <div class="fm-row-actions">
+                            <button type="button" class="fm-btn-open" title="Abrir"><i class="fas fa-expand"></i></button>
+                            <button type="button" class="fm-btn-delete-img" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `);
+
+            $tr.find('.fm-btn-delete-img').on('click', function (e) {
+                e.stopPropagation();
+                var idFile = $tr.data('id');
+                var name = $tr.data('name').replace(/&quot;/g, '"');
+                $.alert({
+                    title: '¿Eliminar imagen?',
+                    content: 'Se eliminará la imagen "' + name + '". Esta acción no se puede deshacer.',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: 'red',
+                    buttons: {
+                        Aceptar: {
+                            text: 'Sí, eliminar',
+                            btnClass: 'btn-danger',
+                            action: function () {
+                                var fd = new FormData();
+                                fd.append('id_file', idFile);
+                                fd.append('cyphval', '<%-idcypher%>');
+                                $.ajax({
+                                    url: '/DeleteImg',
+                                    method: 'POST',
+                                    data: fd,
+                                    processData: false,
+                                    contentType: false,
+                                    beforeSend: function () { $('#lockscreen').show(); },
+                                    complete: function () { $('#lockscreen').hide(); },
+                                    success: function (data) {
+                                        if (data.success) {
+                                            $.alert({ title: 'Listo', content: data.message, theme: 'modern', icon: 'fa-solid fa-check', type: 'green', buttons: { Aceptar: { text: 'Aceptar', btnClass: 'btn-success', action: function () { loadImages(currentPage, currentSearch); } } } });
+                                        } else {
+                                            $.alert({ title: 'Error', content: data.message || 'No se pudo eliminar.', theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+                                        }
+                                    },
+                                    error: function () {
+                                        $.alert({ title: 'Error', content: 'Error al eliminar la imagen.', theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+                                    }
+                                });
+                            }
+                        },
+                        Cancelar: { text: 'Cancelar', btnClass: 'btn-secondary', action: function () {} }
+                    }
+                });
+            });
+
+            $tr.on('click', function (e) {
+                if ($(e.target).closest('.fm-row-actions').length) return;
+                const src = $(this).data('src');
+                const name = $(this).data('name').replace(/&quot;/g, '"');
+                const date = $(this).data('date');
+                const cat = $(this).data('cat') || 'Sin categoría';
+                $container.find('tr').removeClass('fm-selected');
+                $(this).addClass('fm-selected');
+                showDetail(src, name, date, cat);
+                if (typeof Fancybox !== 'undefined') {
+                    Fancybox.show([{ src: src, type: 'image', caption: name }]);
+                }
+            });
+
+            $tr.find('.fm-btn-open').on('click', function (e) {
+                e.stopPropagation();
+                const src = $tr.data('src');
+                const name = $tr.data('name').replace(/&quot;/g, '"');
+                const cat = $tr.data('cat') || 'Sin categoría';
+                $tr.addClass('fm-selected').siblings().removeClass('fm-selected');
+                showDetail(src, name, $tr.data('date'), cat);
+                if (typeof Fancybox !== 'undefined') {
+                    Fancybox.show([{ src: src, type: 'image', caption: name }]);
+                }
+            });
+
+            $container.append($tr);
+        });
+    }
+
+    function showDetail(src, name, dateStr, catTag) {
+        $('#fm-detail-placeholder').hide();
+        $('#fm-detail-content').addClass('active');
+        $('#fm-detail-img').attr('src', src).attr('alt', name);
+        $('#fm-detail-title').text(name);
+        $('#fm-detail-link').val(src);
+        $('#fm-detail-meta').html(
+            '<span>Última modificación: ' + (dateStr || '—') + '</span>' +
+            '<span>Categoría: ' + (catTag || 'Sin categoría') + '</span>'
+        );
+        $('#fm-btn-copy-link').removeClass('copied').text('Copiar');
+    }
+
+    $('#fm-btn-copy-link').on('click', function () {
+        const input = document.getElementById('fm-detail-link');
+        input.select();
+        input.setSelectionRange(0, 99999);
+        try {
+            navigator.clipboard.writeText(input.value);
+            $(this).addClass('copied').text('Copiado');
+            setTimeout(function () { $('#fm-btn-copy-link').removeClass('copied').text('Copiar'); }, 2000);
+        } catch (e) {
+            document.execCommand('copy');
+            $(this).addClass('copied').text('Copiado');
+            setTimeout(function () { $('#fm-btn-copy-link').removeClass('copied').text('Copiar'); }, 2000);
+        }
+    });
+
+    function renderPagination(totalItems, itemsPerPageVal, page) {
+        const totalPages = Math.ceil(totalItems / itemsPerPageVal);
+        const $pagination = $('#pagination');
+        $pagination.empty();
+        if (totalPages <= 1) return;
+
+        function addPageItem(pg, label, disabled, active, isDots) {
+            let liClass = 'page-item';
+            if (disabled) liClass += ' disabled';
+            if (active) liClass += ' active';
+            if (isDots) {
+                $pagination.append(`<li class="${liClass}"><span class="page-link">...</span></li>`);
+            } else {
+                $pagination.append(`<li class="${liClass}"><a class="page-link" href="#" data-page="${pg}">${label}</a></li>`);
+            }
+        }
+
+        addPageItem(page - 1, '«', page === 1);
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) addPageItem(i, i, false, i === page);
+        } else {
+            if (page <= 4) {
+                for (let i = 1; i <= 5; i++) addPageItem(i, i, false, i === page);
+                addPageItem(null, '...', true, false, true);
+                addPageItem(totalPages, totalPages, false, page === totalPages);
+            } else if (page >= totalPages - 3) {
+                addPageItem(1, 1, false, page === 1);
+                addPageItem(null, '...', true, false, true);
+                for (let i = totalPages - 4; i <= totalPages; i++) addPageItem(i, i, false, i === page);
+            } else {
+                addPageItem(1, 1, false, page === 1);
+                addPageItem(null, '...', true, false, true);
+                for (let i = page - 1; i <= page + 1; i++) addPageItem(i, i, false, i === page);
+                addPageItem(null, '...', true, false, true);
+                addPageItem(totalPages, totalPages, false, page === totalPages);
+            }
+        }
+        addPageItem(page + 1, '»', page === totalPages);
+    }
+
+    function loadImages(page, search) {
+        $.ajax({
+            url: '/GetImages?i=<%-idcypher%>&page=' + page + '&limit=' + itemsPerPage + '&search=' + encodeURIComponent(search || ''),
+            method: 'GET',
+            beforeSend: function () { $('#lockscreen').show(); },
+            success: function (data) {
+                const images = data.images || [];
+                const totalItems = data.totalItems || 0;
+                currentPage = data.currentPage || page;
+                renderImages(images);
+                renderPagination(totalItems, itemsPerPage, currentPage);
+            },
+            error: function () {
+                $.alert({
+                    title: 'Error',
+                    content: 'Error al cargar las imágenes.',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: 'red'
+                });
+            },
+            complete: function () { $('#lockscreen').hide(); }
+        });
+    }
+
+    $('#search').on('input', function () {
+        const val = $(this).val();
+        currentSearch = val;
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function () { loadImages(1, currentSearch); }, 500);
+    });
+
+    $('#pagination').on('click', '.page-link', function (e) {
+        e.preventDefault();
+        const $li = $(this).closest('.page-item');
+        if ($li.hasClass('disabled') || $li.hasClass('active')) return;
+        const targetPage = parseInt($(this).data('page'), 10);
+        if (!isNaN(targetPage)) loadImages(targetPage, currentSearch);
+    });
+
+    loadImages(1, '');
+})();
+
+if (typeof FilePond !== 'undefined') {
+    FilePond.registerPlugin(FilePondPluginFileValidateType, FilePondPluginFileValidateSize, FilePondPluginImagePreview);
+}
+function destroyFilePondImagen() {
+    window._lastFileImagen = null;
+    if (window.pondImagen) {
+        try { FilePond.destroy(window.pondImagen); } catch (e) {}
+        window.pondImagen = null;
+    }
+}
+function initFilePondImagen() {
+    window._lastFileImagen = null;
+    var input = document.getElementById('cargar-imag');
+    if (!input) return;
+    var fpMaxImg = 2 * 1024 * 1024;
+    window.pondImagen = FilePond.create(input, {
+        allowMultiple: false,
+        allowDrop: true,
+        dropOnElement: true,
+        dropOnPage: false,
+        acceptedFileTypes: ['image/jpeg', 'image/png'],
+        maxFileSize: '2MB',
+        allowImagePreview: true,
+        imagePreviewMaxHeight: 140,
+        beforeAddFile: function (item) {
+            var sz = item && (typeof item.fileSize === 'number' ? item.fileSize : (item.file && item.file.size));
+            if (sz > fpMaxImg) {
+                $.alert({
+                    title: 'Archivo demasiado grande',
+                    content: 'El tamaño máximo permitido es 2 MB.',
+                    theme: 'modern',
+                    type: 'red',
+                });
+                return false;
+            }
+            return true;
+        },
+        labelMaxFileSize: 'Tamaño máximo: {filesize}',
+        labelMaxFileSizeExceeded: 'El archivo supera el tamaño máximo permitido ({filesize}).',
+        labelFileTypeNotAllowed: 'Tipo de archivo no permitido',
+        labelIdle: 'Arrastre aquí o <span class="filepond--label-action">seleccione</span><br><small class="text-muted">JPG o PNG, máx. 2 MB</small>',
+        labelFileProcessing: 'Subiendo',
+        labelFileProcessingComplete: 'Listo',
+        labelTapToCancel: 'cancelar',
+        labelTapToRetry: 'reintentar',
+        onupdatefiles: function (items) {
+            window._lastFileImagen = null;
+            if (!items.length || !items[0]) return;
+            var it = items[0];
+            var f = it.file;
+            var sz = typeof it.fileSize === 'number' ? it.fileSize : (f && f.size);
+            if (!f || sz > fpMaxImg) return;
+            window._lastFileImagen = f;
+        }
+    });
+}
+function allowDropInModalImagen() {
+    var body = document.querySelector('#modalGral .modal-body');
+    if (!body) return;
+    body.removeEventListener('dragover', preventDefaultFilesImagen);
+    body.removeEventListener('dragenter', preventDefaultFilesImagen);
+    body.removeEventListener('drop', preventDefaultFilesImagen);
+    body.addEventListener('dragover', preventDefaultFilesImagen, false);
+    body.addEventListener('dragenter', preventDefaultFilesImagen, false);
+    body.addEventListener('drop', preventDefaultFilesImagen, false);
+}
+function preventDefaultFilesImagen(e) {
+    if (e.dataTransfer && e.dataTransfer.types && e.dataTransfer.types.indexOf('Files') !== -1) e.preventDefault();
+}
+
+$(".cargapagina").on('click', NuevaPagPrincipalModal);
+
+function NuevaPagPrincipalModal() {
+    destroyFilePondImagen();
+    limpieza_modalGral();
+    modalGral_addTit('NUEVA IMAGEN');
+    modalGral_addSubtit('Carga la imagen que requieras, recuerda que esta estará expuesta en una liga pública');
+    modalGral_bodyAppend(getHtmlTemplate('Nuevaimg'));
+    modalGral_addFooter(
+        '<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">' +
+        '<p>CANCELAR</p><div class="btnIcon"><div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div><span class="s-guinda"></span></div></button>' +
+        '<a href="#" class="btnGral verde_t" onclick="CrearImg()">' +
+        '<p>CREAR</p><div class="btnIcon"><div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div><span class="s-verde"></span></div></a>'
+    );
+    var modalEl = document.getElementById('modalGral');
+    if (modalEl) {
+        modalEl.addEventListener('hidden.bs.modal', function onHidden() {
+            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+            destroyFilePondImagen();
+        }, { once: true });
+    }
+    (new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false })).show();
+    setTimeout(function () {
+        initFilePondImagen();
+        allowDropInModalImagen();
+    }, 50);
+}
+
+function getFileFromPondImagen() {
+    var maxBytes = 2 * 1024 * 1024;
+    if (window._lastFileImagen instanceof File && window._lastFileImagen.size <= maxBytes) return window._lastFileImagen;
+    var pond = window.pondImagen;
+    if (pond && pond.files && pond.files.length) {
+        var first = pond.files[0];
+        if (first && first.file && first.file.size <= maxBytes) return first.file;
+    }
+    var input = document.getElementById('cargar-imag');
+    if (input && input.files && input.files.length && input.files[0].size <= maxBytes) return input.files[0];
+    return null;
+}
+
+function CrearImg() {
+    var form = document.getElementById('newpage');
+    if (form && !form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+    }
+    if (!$('#tipo_tag').val()) {
+        $.alert({ title: 'Atención', content: 'Debe seleccionar una categoría de imagen.', theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+        return;
+    }
+    var archivo = getFileFromPondImagen();
+    if (!archivo) {
+        $.alert({ title: 'Atención', content: 'Debe seleccionar una imagen (JPG o PNG, máx. 2 MB).', theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+        return;
+    }
+    var formData = new FormData();
+    formData.append('cyphval', $('#cyphval').val());
+    formData.append('tipo_tag', $('#tipo_tag').val());
+    formData.append('nameimg', $('#nameimg').val().trim());
+    formData.append('descriptionimg', $('#descriptionimg').val().trim());
+    formData.append('cargar-imag', archivo);
+    $('#lockscreen').show();
+    fetch('/CreateImg', { method: 'POST', body: formData })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            $('#lockscreen').hide();
+            if (data.success) {
+                $.alert({
+                    title: 'Se guardó correctamente',
+                    content: 'Se ha guardado la imagen correctamente',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-check',
+                    type: 'green',
+                    buttons: { Aceptar: { text: 'Aceptar', btnClass: 'btn-success', action: function () { window.location.reload(); } } }
+                });
+            } else {
+                $.alert({ title: 'Advertencia', content: data.message, theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+            }
+        })
+        .catch(function (err) {
+            $('#lockscreen').hide();
+            console.error('Error:', err);
+        });
+}
+</script>

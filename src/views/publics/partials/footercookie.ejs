@@ -1,0 +1,30 @@
+<script>
+    $(function () {
+
+        $(document).each(function(index) {
+            let idc=$(this).attr('id');
+            let idsec=$(this).data('sec');
+            let idcol=$(this).data('col');
+            fetch('/getComponenteObj',{
+                method: 'POST',
+                body:   JSON.stringify({
+                    idp: '<%=dataapp.id_sysapp%>',
+                    id_comp:idc ,
+                    data_comp: $(this).data('comp')
+                }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+                .then(response=>response.json())
+                .then(data=>{
+                    if(data.success){
+                        max_num_comp=data.id_comp > max_num_comp? data.id_comp:max_num_comp;
+                        componentdata[data.id_comp]=data.objc;
+                        componentdata[data.id_comp].saved=true;
+                        componentdata[data.id_comp].modified=false;
+                    }
+                })
+        });
+    });
+</script>

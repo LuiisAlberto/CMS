@@ -1,0 +1,535 @@
+<!-- Fancybox CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+
+<style>
+    /* No forzar display en .fancybox__container: en Fancybox 5 rompe el layout interno, el cierre y el ajuste al viewport. */
+    .fancybox__container {
+        z-index: 99999 !important;
+    }
+    .coleccion-fancybox-root .fancybox__slide {
+        padding: 12px;
+        box-sizing: border-box;
+    }
+    .coleccion-fancybox-root .fancybox__viewport {
+        max-height: 100vh !important;
+    }
+    .coleccion-fancybox-root .fancybox__content {
+        max-width: min(96vw, 100%) !important;
+        max-height: 92vh !important;
+        overflow: hidden !important;
+    }
+    .coleccion-fancybox-root img.fancybox__image {
+        max-width: min(96vw, 100%) !important;
+        max-height: 88vh !important;
+        object-fit: contain !important;
+        width: auto !important;
+        height: auto !important;
+    }
+    .coleccion-fancybox-root .f-button.is-close-btn {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>
+
+<%
+let id_sysapp = null;
+if (objcomp.tagcontent) {
+    id_sysapp = (objcomp.tagcontent[0] && objcomp.tagcontent[0].fk_id_sysapp != null)
+        ? objcomp.tagcontent[0].fk_id_sysapp
+        : (objcomp.id_sysapp != null ? objcomp.id_sysapp : null);
+%>
+<div class="coleccion-fotografica-wrapper">
+    <div class="coleccion-tabs-container mt-3">
+        <div class="coleccion-arrow coleccion-arrow-left" data-role="coleccion-left-arrow"></div>
+        <div class="coleccion-tabs-wrapper">
+            <div class="coleccion-tabs" data-role="coleccion-tabs">
+                <% objcomp.wb_comp_coleccion_fotografica.forEach((item, idx) => { %>
+                    <div class="coleccion-tab <%= idx === 0 ? 'active' : '' %>"
+                        data-idtag="<%= item.cat_tag.id_cat_tag %>"
+                        data-target="<%= item.cat_tag.tag.replace(/\s+/g, '-').toLowerCase() %>">
+                        <%= item.cat_tag.tag %>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+        <div class="coleccion-arrow coleccion-arrow-right" data-role="coleccion-right-arrow"></div>
+    </div>
+
+<% } else { %>
+    <p>No hay categorías disponibles.</p>
+<% } %>
+
+<input type="hidden" class="txt_target">
+
+<!-- Contenedores de cada categoría -->
+<% if (objcomp.tagcontent) { %>
+
+    <% objcomp.wb_comp_coleccion_fotografica.forEach((item, i) => {
+        let tagKey = item.cat_tag.tag.replace(/\s+/g, '-').toLowerCase();
+    %>
+        <div id="<%= tagKey %>" class="coleccion-tab-content <%= i === 0 ? 'active' : '' %>">
+            <div class="row mt-3 mb-5">
+                <div id="descripcion">
+                    <p><%= item.cat_tag.descripcion_tag %></p>
+                </div>
+            </div>
+            <div id="<%= tagKey %>-img"></div>
+        </div>
+    <% }) %>
+
+</div>
+
+<% } else { %>
+    <p>No hay imágenes disponibles.</p>
+<% } %>
+<%
+/** JSON embebido en <script>: escapar '<' evita que nombres con "</script>" cierren el tag y rompan el JS en prod (minify/CDN). */
+function safeJsonForInlineScript(val) {
+    return JSON.stringify(val).replace(/</g, '\\u003c');
+}
+
+const baseCdnCol = 'https://cdn.morena.app/';
+const preloadedImagesByTag = {};
+const itemsCol = Array.isArray(objcomp && objcomp.tagcontent) ? objcomp.tagcontent : [];
+itemsCol.forEach((img) => {
+    const tags = Array.isArray(img.cat_tags)
+        ? img.cat_tags
+        : (Array.isArray(img.catTags) ? img.catTags : []);
+    const fileArr = Array.isArray(img.fk_id_file) ? img.fk_id_file : [];
+    let fileObj = fileArr[0] || {};
+    if ((!fileObj || !fileObj.file_path) && img.fk_id_file && typeof img.fk_id_file === 'object' && !Array.isArray(img.fk_id_file)) {
+        fileObj = img.fk_id_file;
+    }
+    if (!fileObj || !fileObj.file_path) {
+        const arch = img.archivoimg || img.archivoImg;
+        if (arch) {
+            const st = arch.storage || arch.Storage;
+            fileObj = {
+                file_path: arch.file_path || arch.filePath,
+                storage_path: st ? (st.storage_path || st.storagePath) : null
+            };
+        }
+    }
+    const filePath = fileObj.file_path ? String(fileObj.file_path).replace(/^\//, '') : '';
+    let src = '';
+    if (filePath) {
+        src = baseCdnCol + filePath;
+    }
+    if (!src) {
+        const arch = img.archivoimg || img.archivoImg;
+        if (arch && arch.file_path) {
+            const fp = String(arch.file_path).replace(/^\//, '');
+            src = baseCdnCol + fp;
+        }
+    }
+    const payload = {
+        id_wb_img: img.id_wb_img,
+        nombre: img.nombre || '',
+        contenido_alt: img.contenido_alt || '',
+        src: src
+    };
+    tags.forEach((t) => {
+        if (!t || t.id_cat_tag == null) return;
+        const k = String(t.id_cat_tag);
+        if (!preloadedImagesByTag[k]) preloadedImagesByTag[k] = [];
+        preloadedImagesByTag[k].push(payload);
+    });
+});
+
+const tagImgApiUrlRaw = (typeof process !== 'undefined' && process.env && String(process.env.TAG_IMG_API_URL || '').trim())
+    ? String(process.env.TAG_IMG_API_URL).trim()
+    : '/getDataTag';
+%>
+
+<script>
+    const ID_SYSAPP = <%- safeJsonForInlineScript(id_sysapp) %>;
+    const TAG_IMG_API_URL = <%- safeJsonForInlineScript(tagImgApiUrlRaw) %>;
+    const PAGE_SIZE = 6;
+    const IS_FILE_PROTOCOL = window.location.protocol === 'file:' || window.location.protocol === '';
+    const PRELOADED_IMAGES_BY_TAG = <%- safeJsonForInlineScript(preloadedImagesByTag) %>;
+
+    // IDs pueden tener comas u otros caracteres; #id rompe en jQuery. Usar [id="..."]
+    function selectorForId(id) {
+        if (!id) return '';
+        return '[id="' + String(id).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"]';
+    }
+    function $byTargetId(targetVal, suffix) {
+        var id = (targetVal || '') + (suffix || '');
+        return id ? $(selectorForId(id)) : $();
+    }
+
+    /**
+     * Fancybox.bind a veces no intercepta (iframe, orden de scripts, etc.) y el navegador abre el href:
+     * imagen a tamaño real, scrollbars, sin UI. Siempre prevenimos el default y abrimos con Fancybox.show.
+     */
+    (function setupColeccionFancyboxDelegation() {
+        if (window.__coleccionFancyboxDelegation) return;
+        window.__coleccionFancyboxDelegation = true;
+        $(document).on('click', '.coleccion-fotografica-wrapper a.js-coleccion-fb', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var $link = $(this);
+            var href = $link.attr('href');
+            if (!href) return;
+            var $wrapper = $link.closest('.coleccion-fotografica-wrapper');
+            var gid = $link.attr('data-coleccion-group') || '';
+            var $same = $wrapper.find('a.js-coleccion-fb').filter(function() {
+                return (String($(this).attr('data-coleccion-group') || '')) === gid;
+            });
+            var items = [];
+            $same.each(function() {
+                var $a = $(this);
+                var h = $a.attr('href');
+                if (!h) return;
+                items.push({
+                    src: h,
+                    type: 'image',
+                    caption: $a.attr('data-caption') || ''
+                });
+            });
+            if (!items.length) {
+                items.push({ src: href, type: 'image', caption: $link.attr('data-caption') || '' });
+            }
+            var startIndex = Math.max(0, $same.index($link));
+            if (typeof Fancybox === 'undefined' || typeof Fancybox.show !== 'function') {
+                window.open(href, '_blank', 'noopener,noreferrer');
+                return;
+            }
+            Fancybox.show(items, {
+                startIndex: startIndex,
+                mainClass: 'coleccion-fancybox-root',
+                closeButton: true,
+                backdropClick: 'close',
+                Toolbar: {
+                    display: {
+                        left: [],
+                        middle: [],
+                        right: ['close']
+                    }
+                },
+                Images: {
+                    initialSize: 'fit',
+                    Panzoom: {
+                        maxScale: 1
+                    }
+                },
+                wheel: false
+            });
+        });
+    })();
+
+    function getLocalTagImg(tagId, page, search) {
+        const images = (PRELOADED_IMAGES_BY_TAG[String(tagId)] || []).filter((img) => {
+            const src = String((img && img.src) || '').trim();
+            return src !== '' && !src.endsWith('/undefined') && !src.includes('undefined/');
+        });
+        const query = String(search || '').trim().toLowerCase();
+        const filtered = query
+            ? images.filter((img) => {
+                const n = String(img.nombre || '').toLowerCase();
+                const a = String(img.contenido_alt || '').toLowerCase();
+                return n.includes(query) || a.includes(query);
+            })
+            : images;
+
+        const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+        const safePage = Math.max(1, Math.min(parseInt(page, 10) || 1, Math.max(1, totalPages || 1)));
+        const start = (safePage - 1) * PAGE_SIZE;
+        const paginated = filtered.slice(start, start + PAGE_SIZE);
+
+        return {
+            imagenes: paginated,
+            totalPages: totalPages,
+            currentPage: safePage
+        };
+    }
+
+    function renderTagImages(data, targetVal, search, callback) {
+        const imagenes = (data && Array.isArray(data.imagenes)) ? data.imagenes : [];
+        const totalPages = (data && data.totalPages != null) ? data.totalPages : 0;
+        const currentPage = (data && data.currentPage != null) ? data.currentPage : 1;
+
+        let html = `
+        <div class="coleccion-search-container mb-5">
+            <form class="coleccion-search-form mt-3">
+                <input type="text" class="coleccion-search-input" placeholder="Buscar imágenes..." value="${(search || '').replace(/"/g, '&quot;')}">
+                <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+        </div>
+        <div class="conColfotografica">`;
+
+        const groupAttr = String(targetVal || '').replace(/"/g, '&quot;');
+        imagenes.forEach(img => {
+            const imgSrc = (img.src || '').replace(/"/g, '&quot;');
+            const imgAlt = (img.contenido_alt || img.nombre || '').replace(/"/g, '&quot;');
+            const imgNombre = (img.nombre || '').replace(/"/g, '&quot;');
+            html += `
+            <div class="contColl1">
+                <a href="${img.src || ''}" class="js-coleccion-fb" data-coleccion-group="${groupAttr}" data-caption="${imgNombre}">
+                    <img src="${imgSrc}" alt="${imgAlt}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';">
+                    <span class="img-placeholder" style="display:none; padding:1rem;">Imagen no disponible</span>
+                </a>
+                <div class="hovertext">${(img.nombre || '').replace(/</g,'&lt;')}<br>${(img.contenido_alt || '').replace(/</g,'&lt;')}</div>
+                <div class="contButton">
+                    <a href="${img.src || ''}" download="${(img.nombre || 'imagen').replace(/"/g,'')}">
+                        <button class="btnDownload"><i class="fa-solid fa-arrow-down"></i></button>
+                    </a>
+                </div>
+            </div>`;
+        });
+
+        if (imagenes.length === 0) {
+            html += '<p class="text-muted text-center py-4">No hay imágenes en esta categoría.</p>';
+        }
+
+        html += `</div>
+        <nav><ul class="pagination d-flex justify-content-center"></ul></nav>`;
+
+        var $imgContainer = $byTargetId(targetVal, '-img');
+        var $container = $imgContainer.closest(".coleccion-fotografica-wrapper");
+        $imgContainer.html(html);
+        construirPaginador(totalPages, currentPage, $container.length ? $container : null);
+        if (callback) callback();
+    }
+
+    // ---------------------------
+    // CARGAR IMÁGENES DEL TAG
+    // target = data-target de la pestaña (ej: "nombre-categoria") para actualizar #nombre-categoria-img
+    // ---------------------------
+    function getTagImg(tagId, page, search, target, callback) {
+        if (typeof target === 'function') { callback = target; target = ''; }
+        var targetVal = target || '';
+        if (!targetVal) return;
+
+        const localTagImages = (PRELOADED_IMAGES_BY_TAG[String(tagId)] || []).filter((img) => {
+            const src = String((img && img.src) || '').trim();
+            return src !== '' && !src.endsWith('/undefined') && !src.includes('undefined/');
+        });
+        if (localTagImages.length > 0) {
+            const localData = getLocalTagImg(tagId, page, search);
+            renderTagImages(localData, targetVal, search, callback);
+            return;
+        }
+
+        // En apertura local (file://) no existe endpoint /getDataTag; evitar CORS/ERR_FAILED.
+        if (IS_FILE_PROTOCOL) {
+            renderTagImages({ imagenes: [], totalPages: 0, currentPage: 1 }, targetVal, search, callback);
+            return;
+        }
+
+        $.ajax({
+            url: TAG_IMG_API_URL,
+            type: "POST",
+            data: {
+                id_sysapp: (ID_SYSAPP != null && ID_SYSAPP !== '') ? ID_SYSAPP : undefined,
+                tag: tagId,
+                page: page,
+                search: search || ''
+            },
+            dataType: "json",
+            success: function (data) {
+                renderTagImages(data, targetVal, search, callback);
+            },
+            error: function (xhr) {
+                var errMsg = 'Error al cargar las imágenes. ';
+                if (xhr && xhr.responseJSON && xhr.responseJSON.message) errMsg += xhr.responseJSON.message;
+                else if (xhr && xhr.status) errMsg += ' (Código: ' + xhr.status + ')';
+                let html = `
+                <div class="coleccion-search-container mb-5">
+                    <form class="coleccion-search-form mt-3">
+                        <input type="text" class="coleccion-search-input" placeholder="Buscar imágenes..." value="${(search || '').replace(/"/g, '&quot;')}">
+                        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </form>
+                </div>
+                <div class="conColfotografica">`;
+                html += '<p class="text-danger text-center py-4">' + errMsg + '</p></div>';
+                $byTargetId(targetVal, '-img').html(html);
+                if (callback) callback();
+            }
+        });
+    }
+
+    function construirPaginador(total, current, $scope) {
+        let pag = ($scope && $scope.length) ? $scope.find(".pagination") : $(".pagination");
+        if (!pag.length) return;
+        pag = pag.first();
+        pag.empty();
+
+        // Prev
+        pag.append(`
+        <li class="page-item ${current === 1 ? "disabled" : ""}">
+            <a class="page-link" data-page="${current - 1}">&laquo;</a>
+        </li>`);
+
+        for (let i = 1; i <= total; i++) {
+            pag.append(`
+            <li class="page-item ${i === current ? "active" : ""}">
+                <a class="page-link" data-page="${i}">${i}</a>
+            </li>`);
+        }
+
+        // Next
+        pag.append(`
+        <li class="page-item ${current === total ? "disabled" : ""}">
+            <a class="page-link" data-page="${current + 1}">&raquo;</a>
+        </li>`);
+    }
+
+    // ---------------------------
+    // BUSCADOR CON DEBOUNCE
+    // ---------------------------
+    let searchTimeout = null;
+
+    $(document).on("input", ".coleccion-search-input", function () {
+        var $wrapper = $(this).closest(".coleccion-fotografica-wrapper");
+        var $activeTab = $wrapper.find(".coleccion-tab.active");
+        var value = $(this).val();
+        var tab = $activeTab.data("idtag");
+        var target = $activeTab.data("target");
+        var cursor = this.selectionStart;
+
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function () {
+            getTagImg(tab, 1, value, target, function () {
+                var newInput = $byTargetId(target, '-img').find('.coleccion-search-input');
+                if (newInput.length) {
+                    newInput[0].focus();
+                    newInput[0].setSelectionRange(Math.min(cursor, newInput.val().length), Math.min(cursor, newInput.val().length));
+                }
+            });
+        }, 400);
+    });
+
+    $(document).on("submit", ".coleccion-search-form", function (e) {
+        e.preventDefault();
+        var $wrapper = $(this).closest(".coleccion-fotografica-wrapper");
+        var $activeTab = $wrapper.find(".coleccion-tab.active");
+        getTagImg($activeTab.data("idtag"), 1, $(this).find("input").val(), $activeTab.data("target"));
+    });
+
+    // ---------------------------
+    // TABS Y FLECHAS (robusto por wrapper)
+    //----------------------------
+    function getVisibleTabsCount() {
+        return window.innerWidth <= 768 ? 1 : 3;
+    }
+
+    function updateTabsWindowAndArrows($wrapper) {
+        const $tabs = $wrapper.find('.coleccion-tab');
+        const total = $tabs.length;
+        const activeIndex = Math.max(0, $tabs.index($tabs.filter('.active').first()));
+        const $left = $wrapper.find('[data-role="coleccion-left-arrow"]').first();
+        const $right = $wrapper.find('[data-role="coleccion-right-arrow"]').first();
+        const visibleTabs = getVisibleTabsCount();
+
+        if (total <= visibleTabs) {
+            $tabs.css('display', 'flex');
+            $left.toggleClass('disabled', activeIndex <= 0);
+            $right.toggleClass('disabled', activeIndex >= total - 1);
+            return;
+        }
+
+        const start = Math.min(
+            Math.max(0, activeIndex - (visibleTabs - 1)),
+            total - visibleTabs
+        );
+        const end = start + visibleTabs - 1;
+        $tabs.each(function (i) {
+            $(this).css('display', (i >= start && i <= end) ? 'flex' : 'none');
+        });
+        $left.toggleClass('disabled', activeIndex <= 0);
+        $right.toggleClass('disabled', activeIndex >= total - 1);
+    }
+
+    function activateTabAtIndex($wrapper, index) {
+        const $tabs = $wrapper.find('.coleccion-tab');
+        if (!$tabs.length || index < 0 || index >= $tabs.length) return;
+
+        const $tab = $tabs.eq(index);
+        $tabs.removeClass('active');
+        $tab.addClass('active');
+
+        const target = $tab.data('target');
+        const tag = $tab.data('idtag');
+        $wrapper.find('.txt_target').val(target);
+        $wrapper.find('.coleccion-tab-content').removeClass('active');
+        $wrapper.find(selectorForId(target)).addClass('active');
+
+        getTagImg(tag, 1, "", target);
+        updateTabsWindowAndArrows($wrapper);
+    }
+
+    $(document)
+        .off('click.coleccionTab', '.coleccion-fotografica-wrapper .coleccion-tab')
+        .on('click.coleccionTab', '.coleccion-fotografica-wrapper .coleccion-tab', function () {
+            const $wrapper = $(this).closest('.coleccion-fotografica-wrapper');
+            const idx = $wrapper.find('.coleccion-tab').index(this);
+            activateTabAtIndex($wrapper, idx);
+        });
+
+    $(document)
+        .off('click.coleccionLeft', '.coleccion-fotografica-wrapper [data-role="coleccion-left-arrow"]')
+        .on('click.coleccionLeft', '.coleccion-fotografica-wrapper [data-role="coleccion-left-arrow"]', function (e) {
+            e.preventDefault();
+            const $wrapper = $(this).closest('.coleccion-fotografica-wrapper');
+            const $tabs = $wrapper.find('.coleccion-tab');
+            const activeIndex = Math.max(0, $tabs.index($tabs.filter('.active').first()));
+            if (activeIndex > 0) activateTabAtIndex($wrapper, activeIndex - 1);
+        });
+
+    $(document)
+        .off('click.coleccionRight', '.coleccion-fotografica-wrapper [data-role="coleccion-right-arrow"]')
+        .on('click.coleccionRight', '.coleccion-fotografica-wrapper [data-role="coleccion-right-arrow"]', function (e) {
+            e.preventDefault();
+            const $wrapper = $(this).closest('.coleccion-fotografica-wrapper');
+            const $tabs = $wrapper.find('.coleccion-tab');
+            const activeIndex = Math.max(0, $tabs.index($tabs.filter('.active').first()));
+            if (activeIndex < $tabs.length - 1) activateTabAtIndex($wrapper, activeIndex + 1);
+        });
+
+    // ---------------------------
+    // PAGINACIÓN
+    //----------------------------
+    $(document).on("click", ".page-link", function (e) {
+        e.preventDefault();
+        if ($(this).parent().hasClass("disabled")) return;
+        var $wrapper = $(this).closest(".coleccion-fotografica-wrapper");
+        var $activeTab = $wrapper.find(".coleccion-tab.active");
+        var page = Number($(this).data("page"));
+        var searchVal = $wrapper.find(".coleccion-search-input").val();
+        getTagImg($activeTab.data("idtag"), page, searchVal, $activeTab.data("target"));
+    });
+
+    $(document).ready(function() {
+        var $wrappers = $('.coleccion-fotografica-wrapper');
+        // Cargar imágenes de la primera pestaña al abrir la página
+        $wrappers.each(function() {
+            var $firstTab = $(this).find('.coleccion-tab.active').first();
+            if (!$firstTab.length) $firstTab = $(this).find('.coleccion-tab').first();
+            if ($firstTab.length) {
+                const idx = $(this).find('.coleccion-tab').index($firstTab);
+                activateTabAtIndex($(this), Math.max(0, idx));
+            }
+        });
+    });
+
+    // ---------------------------
+    // PRIMERA TAB AUTOMÁTICA
+    //----------------------------
+    setTimeout(() => {
+        $('.coleccion-fotografica-wrapper').each(function() {
+            var $firstTab = $(this).find(".coleccion-tab").first();
+            if ($firstTab.length) {
+                const idx = $(this).find('.coleccion-tab').index($firstTab);
+                activateTabAtIndex($(this), Math.max(0, idx));
+            }
+        });
+    }, 500);
+
+    $(window).off('resize.coleccionTabs').on('resize.coleccionTabs', function() {
+        $('.coleccion-fotografica-wrapper').each(function() {
+            updateTabsWindowAndArrows($(this));
+        });
+    });
+</script>

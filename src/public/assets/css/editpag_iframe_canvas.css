@@ -1,0 +1,39 @@
+/**
+ * Documento del iframe del lienzo: el ancho del iframe es el viewport real,
+ * así que #templateDer debe ocupar el 100% (no el ancho “menú + lienzo” del editor completo).
+ */
+body.editpag-canvas-body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+}
+main.editpag-canvas-main {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+#editorCanvasWrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+body.editpag-canvas-body #templateDer {
+    width: 100% !important;
+    max-width: 100% !important;
+    float: none !important;
+    height: auto !important;
+    min-height: calc(100vh - 38px);
+    box-sizing: border-box;
+    padding: 10px !important;
+}
+
+/* Modal Bootstrap en el documento del iframe: por encima del lienzo y con backdrop usable */
+body.editpag-canvas-body .modal-backdrop {
+    z-index: 10050 !important;
+}
+body.editpag-canvas-body #modalGral.modal {
+    z-index: 10055 !important;
+}
+body.editpag-canvas-body.modal-open {
+    overflow: hidden;
+}

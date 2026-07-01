@@ -1,0 +1,433 @@
+<%- include('partials/header'); %>
+<%- include('partials/menu'); %>
+
+<style>
+    .hrefdoc { color: brown; }
+    .categorias-toolbar { align-items: flex-end; }
+    .categorias-toolbar .btnAco { white-space: nowrap; }
+
+    .categorias-filtros-panel {
+        background: linear-gradient(165deg, #faf9f7 0%, #f3efe8 55%, #faf8f4 100%);
+        border: 1px solid rgba(159, 31, 65, 0.14);
+        border-radius: 16px;
+        padding: 1.15rem 1.4rem 1.2rem;
+        box-shadow: 0 4px 22px rgba(82, 24, 30, 0.07);
+        position: relative;
+        overflow: hidden;
+    }
+    .categorias-filtros-panel::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(180deg, #9f1f41 0%, #bc955c 50%, #681b33 100%);
+        border-radius: 16px 0 0 16px;
+    }
+    .categorias-filtros-panel .categorias-toolbar {
+        position: relative;
+        z-index: 1;
+        margin-bottom: 0 !important;
+    }
+    .categorias-filtros-label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #681b33;
+        margin-bottom: 0.4rem;
+        line-height: 1.2;
+    }
+    .categorias-filtros-panel .form-select.form-basic-lleno {
+        min-width: 200px;
+        max-width: 280px;
+        border: 1px solid #dcd7cf;
+        background: #fff;
+        border-radius: 10px;
+        height: 42px;
+        font-weight: 600;
+        font-size: 13px;
+        color: #2d2d2d;
+        padding: 0.35rem 2.25rem 0.35rem 0.85rem;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .categorias-filtros-panel .form-select.form-basic-lleno:focus {
+        border-color: #9f1f41;
+        box-shadow: 0 0 0 3px rgba(159, 31, 65, 0.14);
+        outline: none;
+    }
+    @media (max-width: 576px) {
+        .categorias-filtros-panel .form-select.form-basic-lleno {
+            max-width: 100%;
+            min-width: 100%;
+        }
+    }
+</style>
+
+<div id="templateDer">
+
+    <div class="limit-home">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-12 col-12 t-c">
+                <h5 class="tit-seccion guinda_t">Administrador <b>de Categorías (Tags)</b></h5>
+                <div class="l-div">
+                    <label class="borde-izq oroMorena"><span class="diagonal gris_t"></span></label>
+                    <label class="borde-der solid_bg"><span></span></label>
+                </div>
+            </div>
+            <div class="subenun ma-t2">
+                <p class="subtit">
+                    Gestiona las categorías para imágenes, páginas y documentos. Estas tags se usan en todo el sistema.
+                </p>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="categorias-filtros-panel mb-3">
+            <div class="row categorias-toolbar g-3 align-items-end">
+                <div class="col-12 col-sm-auto">
+                    <label class="categorias-filtros-label" for="filtro-tipo">Filtrar por tipo</label>
+                    <select id="filtro-tipo" class="form-select form-basic-lleno" aria-label="Filtrar categorías por tipo">
+                        <option value="" <%= (!tipo_selected ? 'selected' : '') %>>Todos</option>
+                        <% (typeTags || []).forEach(function(t) { %>
+                        <option value="<%= t.slug %>" <%= String(tipo_selected) === String(t.slug) ? 'selected' : '' %>><%= t.cat_type_tag %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-auto">
+                    <label class="categorias-filtros-label" for="filtro-instancia">Instancia</label>
+                    <select id="filtro-instancia" class="form-select form-basic-lleno" aria-label="Filtrar por instancia">
+                        <% (instanciaOpcionesFiltro || instanciaOpciones || []).forEach(function(o) { %>
+                        <option value="<%= o.value %>" <%= (instancia_selected === o.value) ? 'selected' : '' %>><%= o.label %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-auto ms-sm-auto">
+                    <button class="btnAco rojo_guinda" id="btn-nueva-categoria" <%= (typeof allowedInstanceTypes !== 'undefined' && Array.isArray(allowedInstanceTypes) && allowedInstanceTypes.length === 0) ? 'disabled title="No tiene acceso a ninguna instancia"' : '' %>>
+                        <span class="disNo">NUEVA CATEGORÍA</span><i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="tablefont">
+            <table class="table-s" id="tb-categorias">
+                <thead>
+                <tr>
+                    <th>Tag</th>
+                    <th>Tipo</th>
+                    <th>Instancia</th>
+                    <th>Descripción</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                    <th style="display:none;">ID</th>
+                </tr>
+                </thead>
+                <tbody>
+                <%
+                const list = tagsList || [];
+                for (const t of list) {
+                    const tipo = (typeMap && typeMap[t.fk_id_cat_type_tag]) ? typeMap[t.fk_id_cat_type_tag] : '';
+                %>
+                <%
+                const instanciaLabel = (typeof typeMapInstancia !== 'undefined' && typeMapInstancia[t.fk_id_sysapp_type]) ? typeMapInstancia[t.fk_id_sysapp_type] : (t.fk_id_sysapp_type ? 'Tipo ' + t.fk_id_sysapp_type : '—');
+                %>
+                <tr data-tipo-id="<%= t.fk_id_cat_type_tag %>" data-fk-sysapp-type="<%= t.fk_id_sysapp_type != null ? t.fk_id_sysapp_type : '' %>">
+                    <td><%- t.tag %></td>
+                    <td><%- tipo %></td>
+                    <td><%- instanciaLabel %></td>
+                    <td><%- t.descripcion_tag || '' %></td>
+                    <td>
+                        <button type="button" class="btnAct oro btn-editar-tag"
+                                data-id="<%= t.id_cat_tag %>"
+                                data-tipo="<%= t.fk_id_cat_type_tag %>"
+                                data-tag="<%= t.tag %>"
+                                data-desc="<%- (t.descripcion_tag || '') %>"
+                                data-fk-sysapp-type="<%= t.fk_id_sysapp_type != null ? t.fk_id_sysapp_type : '' %>"
+                                data-hover="EDITAR">
+                            <i class="fa-regular fa-pen-to-square" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btnAct guinda btn-eliminar-tag"
+                                data-id="<%= t.id_cat_tag %>"
+                                data-tag="<%- t.tag %>"
+                                data-hover="BORRAR">
+                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                    <td class="d-none cat-id-col"><%= t.id_cat_tag %></td>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<template id="FormCategoria">
+    <div class="col-sm-12 col-md-12">
+        <form id="form-categoria" class="limit-form row needs-validation">
+            <input type="hidden" id="cat-id" name="id_cat_tag" value="">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="titForm verde_t" for="cat-tipo">Tipo de categoría <span class="text-danger">*</span></label>
+                    <select id="cat-tipo" name="tipo_tag" class="form-select form-basic-lleno" required>
+                        <option value="">Seleccione un tipo</option>
+                        <% (typeTags || []).forEach(function(t) { %>
+                        <option value="<%= t.id_cat_type_tag %>"><%= t.cat_type_tag %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="titForm verde_t" for="cat-tag">Nombre (tag) <span class="text-danger">*</span></label>
+                    <input type="text" id="cat-tag" name="tag" class="form-control form-basic-lleno" required placeholder="Ej: Comunicados">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="titForm verde_t" for="cat-instancia">Instancia <span class="text-danger">*</span></label>
+                    <select id="cat-instancia" name="fk_id_sysapp_type" class="form-select form-basic-lleno" required>
+                        <option value="">Seleccione instancia</option>
+                        <% (instanciaOpciones || []).forEach(function(o) { if (o.value && o.value !== '') { %>
+                        <option value="<%= o.value %>"><%= o.label %></option>
+                        <% } }); %>
+                    </select>
+                </div>
+                <div class="col-12 mb-3">
+                    <label class="titForm verde_t" for="cat-desc">Descripción</label>
+                    <textarea id="cat-desc" name="descripcion_tag" class="form-control form-basic-lleno" rows="2" placeholder="Opcional"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+</template>
+
+<%- include('partials/footerNoMx'); %>
+
+<script>
+$(function () {
+    var table = $('#tb-categorias').DataTable({
+        // Priorizar lo más reciente (útil al crear nuevas categorías).
+        order: [[6, 'desc']],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.5/i18n/es-MX.json'
+        }
+    });
+
+    function buildCategoriasUrl() {
+        var tipoV = $('#filtro-tipo').val();
+        var instV = $('#filtro-instancia').val();
+        var params = new URLSearchParams();
+        if (instV) params.set('instancia', instV);
+        if (tipoV) params.set('tipo', tipoV);
+        var qs = params.toString();
+        return qs ? '/categorias?' + qs : '/categorias';
+    }
+
+    $('#filtro-instancia').on('change', function () {
+        window.location.href = buildCategoriasUrl();
+    });
+
+    $('#filtro-tipo').on('change', function () {
+        window.location.href = buildCategoriasUrl();
+    });
+
+    function abrirModal(titulo, subtitulo, esEdicion) {
+        limpieza_modalGral();
+        modalGral_addTit(titulo);
+        modalGral_addSubtit(subtitulo);
+        modalGral_bodyAppend(getHtmlTemplate('FormCategoria'));
+        modalGral_addFooter(
+            '<button class="btnGral guinda_t" type="button" data-bs-dismiss="modal">' +
+            '<p>CANCELAR</p><div class="btnIcon"><div class="boxIcon guinda"><img src="assets/img/TIMES.svg"></div><span class="s-guinda"></span></div></button>' +
+            '<a href="#" class="btnGral verde_t" id="btn-guardar-cat">' +
+            '<p>GUARDAR</p><div class="btnIcon"><div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div><span class="s-verde"></span></div></a>'
+        );
+        $('#cat-id').val(esEdicion ? '' : '');
+        $('#cat-tipo').val('');
+        $('#cat-tag').val('');
+        $('#cat-desc').val('');
+        var instanciaId = (typeof selected_instancia_id !== 'undefined' && selected_instancia_id) ? selected_instancia_id : '';
+        $('#cat-instancia').val(instanciaId);
+        (new bootstrap.Modal($('#modalGral')[0], { backdrop: 'static', keyboard: false })).show();
+    }
+
+    $('#btn-nueva-categoria').on('click', function () {
+        abrirModal('NUEVA CATEGORÍA', 'Crea una categoría para usarla en imágenes, páginas o documentos.', false);
+        $('#btn-guardar-cat').off('click').on('click', guardarCreate);
+    });
+
+    $(document).on('click', '.btn-editar-tag', function () {
+        var id = $(this).data('id');
+        var tipo = $(this).data('tipo');
+        var tag = $(this).data('tag');
+        var desc = $(this).data('desc') || '';
+        var fkSysappType = $(this).data('fk-sysapp-type');
+        abrirModal('EDITAR CATEGORÍA', 'Modifica los datos de la categoría.', true);
+        $('#cat-id').val(id);
+        $('#cat-tipo').val(tipo);
+        $('#cat-tag').val(tag);
+        $('#cat-desc').val(desc);
+        $('#cat-instancia').val(fkSysappType !== undefined && fkSysappType !== '' ? String(fkSysappType) : '');
+        $('#btn-guardar-cat').off('click').on('click', function () { guardarUpdate(id); });
+    });
+
+    function guardarCreate() {
+        var tipo = $('#cat-tipo').val();
+        var tag = $('#cat-tag').val().trim();
+        var desc = $('#cat-desc').val().trim();
+        var inst = $('#cat-instancia').val();
+        if (!tipo || !tag) {
+            $.alert({
+                title: 'Atención',
+                content: 'Tipo y nombre son obligatorios.',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'red'
+            });
+            return;
+        }
+        if (!inst) {
+            $.alert({
+                title: 'Atención',
+                content: 'La instancia es obligatoria. Seleccione un tipo de instancia.',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'red'
+            });
+            return;
+        }
+        var fd = new FormData();
+        fd.append('tipo_tag', tipo);
+        fd.append('tag', tag);
+        fd.append('descripcion_tag', desc);
+        fd.append('fk_id_sysapp_type', inst);
+        $('#lockscreen').show();
+        fetch('/categorias/create', { method: 'POST', body: fd })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                $('#lockscreen').hide();
+                if (data.success) {
+                    $.alert({
+                        title: 'Éxito',
+                        content: data.message,
+                        theme: 'modern',
+                        icon: 'fa-solid fa-check',
+                        type: 'green',
+                        buttons: { Aceptar: { text: 'Aceptar', btnClass: 'btn-success', action: function () { window.location.reload(); } } }
+                    });
+                } else {
+                    $.alert({ title: 'Advertencia', content: data.message || 'Error al crear.', theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+                }
+            })
+            .catch(function (e) {
+                $('#lockscreen').hide();
+                $.alert({ title: 'Error', content: 'Error de conexión.', theme: 'modern', type: 'red' });
+            });
+    }
+
+    function guardarUpdate(id) {
+        var tipo = $('#cat-tipo').val();
+        var tag = $('#cat-tag').val().trim();
+        var desc = $('#cat-desc').val().trim();
+        var inst = $('#cat-instancia').val();
+        if (!tipo || !tag) {
+            $.alert({
+                title: 'Atención',
+                content: 'Tipo y nombre son obligatorios.',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'red'
+            });
+            return;
+        }
+        if (!inst) {
+            $.alert({
+                title: 'Atención',
+                content: 'La instancia es obligatoria. Seleccione un tipo de instancia.',
+                theme: 'modern',
+                icon: 'fa-solid fa-triangle-exclamation',
+                type: 'red'
+            });
+            return;
+        }
+        var fd = new FormData();
+        fd.append('id_cat_tag', id);
+        fd.append('tipo_tag', tipo);
+        fd.append('tag', tag);
+        fd.append('descripcion_tag', desc);
+        fd.append('fk_id_sysapp_type', inst);
+        $('#lockscreen').show();
+        fetch('/categorias/update', { method: 'POST', body: fd })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                $('#lockscreen').hide();
+                if (data.success) {
+                    $.alert({
+                        title: 'Éxito',
+                        content: data.message,
+                        theme: 'modern',
+                        icon: 'fa-solid fa-check',
+                        type: 'green',
+                        buttons: { Aceptar: { text: 'Aceptar', btnClass: 'btn-success', action: function () { window.location.reload(); } } }
+                    });
+                } else {
+                    $.alert({ title: 'Advertencia', content: data.message || 'Error al actualizar.', theme: 'modern', icon: 'fa-solid fa-triangle-exclamation', type: 'red' });
+                }
+            })
+            .catch(function (e) {
+                $('#lockscreen').hide();
+                $.alert({ title: 'Error', content: 'Error de conexión.', theme: 'modern', type: 'red' });
+            });
+    }
+
+    $(document).on('click', '.btn-eliminar-tag', function () {
+        var id = $(this).data('id');
+        var tag = $(this).data('tag');
+        $.alert({
+            title: '¿Eliminar categoría?',
+            content: 'Se eliminará la categoría "<strong>' + tag + '</strong>". No se podrá usar en nuevos contenidos.',
+            theme: 'modern',
+            icon: 'fa-solid fa-triangle-exclamation',
+            type: 'red',
+            buttons: {
+                Aceptar: {
+                    text: 'Sí, eliminar',
+                    btnClass: 'btn-success',
+                    action: function () {
+                        var fd = new FormData();
+                        fd.append('id_cat_tag', id);
+                        $('#lockscreen').show();
+                        fetch('/categorias/delete', { method: 'POST', body: fd })
+                            .then(function (r) { return r.json(); })
+                            .then(function (data) {
+                                $('#lockscreen').hide();
+                                if (data.success) {
+                                    $.alert({
+                                        title: 'Éxito',
+                                        content: data.message,
+                                        theme: 'modern',
+                                        icon: 'fa-solid fa-check',
+                                        type: 'green',
+                                        buttons: { Aceptar: { text: 'Aceptar', btnClass: 'btn-success', action: function () { window.location.reload(); } } }
+                                    });
+                                } else {
+                                    $.alert({ title: 'Advertencia', content: data.message || 'Error al eliminar.', theme: 'modern', type: 'red' });
+                                }
+                            })
+                            .catch(function (e) {
+                                $('#lockscreen').hide();
+                                $.alert({ title: 'Error', content: 'Error de conexión.', theme: 'modern', type: 'red' });
+                            });
+                    }
+                },
+                Cancelar: { text: 'Cancelar', btnClass: 'btn-alert', action: function () {} }
+            }
+        });
+    });
+});
+</script>

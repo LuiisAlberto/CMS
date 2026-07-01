@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+      }
+
+      .cls-2, .cls-3, .cls-4, .cls-5, .cls-6 {
+        font-size: 6px;
+      }
+
+      .cls-2, .cls-7 {
+        letter-spacing: 0em;
+      }
+
+      .cls-3, .cls-8 {
+        letter-spacing: 0em;
+      }
+
+      .cls-4, .cls-9 {
+        letter-spacing: 0em;
+      }
+
+      .cls-5, .cls-10 {
+        letter-spacing: 0em;
+      }
+
+      .cls-11 {
+        font-size: 7px;
+      }
+
+      .cls-12 {
+        font-family: Montserrat-Light, Montserrat;
+        font-size: 8px;
+        font-weight: 300;
+      }
+
+      .cls-12, .cls-13 {
+        fill: #1a1a1a;
+      }
+
+      .cls-13 {
+        font-family: MinionConceptRoman-Bold, 'Minion Variable Concept';
+        font-variation-settings: 'wght' 700, 'opsz' 11;
+        font-weight: 700;
+      }
+
+      .cls-14 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-15 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-16 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-17 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-18 {
+        letter-spacing: -.05em;
+      }
+
+      .cls-19 {
+        letter-spacing: 0em;
+      }
+
+      .cls-20 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-21 {
+        letter-spacing: 0em;
+      }
+
+      .cls-22 {
+        letter-spacing: .02em;
+      }
+
+      .cls-23 {
+        letter-spacing: .02em;
+      }
+
+      .cls-24 {
+        letter-spacing: .04em;
+      }
+
+      .cls-25 {
+        letter-spacing: 0em;
+      }
+
+      .cls-26 {
+        letter-spacing: .01em;
+      }
+
+      .cls-27 {
+        letter-spacing: 0em;
+      }
+    </style>
+  </defs>
+  <rect class="cls-1" x="-.75" y="-1.25" width="64" height="64" rx="8" ry="8"/>
+  <text class="cls-12" transform="translate(19.56 53.67)"><tspan class="cls-18" x="0" y="0">T</tspan><tspan class="cls-14" x="4.06" y="0">e</tspan><tspan x="8.72" y="0">x</tspan><tspan class="cls-15" x="12.87" y="0">t</tspan><tspan x="15.9" y="0">o</tspan></text>
+  <text class="cls-13" transform="translate(10.08 15.16)"><tspan class="cls-6"><tspan class="cls-22" x="0" y="0">L</tspan><tspan x="3.65" y="0">or</tspan><tspan class="cls-8" x="9.29" y="0">e</tspan><tspan x="12.04" y="0">m i</tspan><tspan class="cls-8" x="20.13" y="0">p</tspan><tspan class="cls-21" x="23.45" y="0">s</tspan><tspan x="25.76" y="0">um </tspan></tspan><tspan class="cls-3" x="0" y="8.4">dol</tspan><tspan class="cls-6" x="8.35" y="8.4">or s</tspan><tspan class="cls-2" x="17.67" y="8.4">i</tspan><tspan class="cls-6" x="19.39" y="8.4">t a</tspan><tspan class="cls-4" x="25.58" y="8.4">m</tspan><tspan class="cls-5" x="30.61" y="8.4">e</tspan><tspan class="cls-6" x="33.34" y="8.4">t</tspan><tspan class="cls-11" x="35.36" y="8.4"> </tspan><tspan class="cls-6"><tspan class="cls-25" x="0" y="15.6">c</tspan><tspan x="2.62" y="15.6">o</tspan><tspan class="cls-19" x="5.81" y="15.6">n</tspan><tspan class="cls-27" x="9.19" y="15.6">s</tspan><tspan class="cls-23" x="11.59" y="15.6">e</tspan><tspan class="cls-26" x="14.4" y="15.6">c</tspan><tspan class="cls-16" x="17.05" y="15.6">t</tspan><tspan class="cls-10" x="18.97" y="15.6">e</tspan><tspan class="cls-20" x="21.7" y="15.6">t</tspan><tspan x="23.64" y="15.6">ur </tspan></tspan><tspan class="cls-6"><tspan x="0" y="22.8">adipis</tspan><tspan class="cls-8" x="15.36" y="22.8">i</tspan><tspan class="cls-27" x="17.17" y="22.8">c</tspan><tspan x="19.79" y="22.8">i</tspan><tspan class="cls-17" x="21.56" y="22.8">n</tspan><tspan x="24.89" y="22.8">g </tspan><tspan class="cls-9" x="29.16" y="22.8">e</tspan><tspan x="31.9" y="22.8">l</tspan><tspan class="cls-7" x="33.61" y="22.8">i</tspan><tspan class="cls-24" x="35.33" y="22.8">t</tspan><tspan x="37.58" y="22.8">.</tspan></tspan></text>
+</svg>

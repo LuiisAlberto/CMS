@@ -1,0 +1,14 @@
+/**
+ * Shell del editor (página padre): menú + iframe del lienzo.
+ * El viewport responsivo real lo define el ancho del iframe (como las DevTools).
+ */
+
+#templateDer.templateDer--viewport-sim {
+    background-color: #e6e2dc;
+}
+
+#templateDer.templateDer--canvas-host {
+    width: calc(100% - 260px);
+    float: left;
+    box-sizing: border-box;
+}

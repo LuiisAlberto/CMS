@@ -1,0 +1,119 @@
+<%- include('partials/headeredit'); %>
+<link href="/assets/css/editor_viewport_shim.css" rel="stylesheet">
+<script>
+(function () {
+    window.$mc = function (sel, ctx) {
+        var f = document.getElementById('editCanvasFrame');
+        if (!f || !f.contentDocument) return typeof ctx !== 'undefined' ? jQuery(sel, ctx) : jQuery(sel);
+        return jQuery(sel, f.contentDocument);
+    };
+})();
+</script>
+<%- include('./partials/menu_creacion.ejs', { dataComp: dataComp }) %>
+
+<!-- FilePond (modales de menú / flujos que usan la página padre si aplica) -->
+<link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+<script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+
+<style>
+    #editorCanvasWrapper { margin: 0; padding: 0; }
+    #templateDer.templateDer--canvas-host {
+        padding: 0 !important;
+        overflow: auto;
+    }
+    #editCanvasFrame {
+        display: block;
+        width: 100%;
+        min-height: calc(100vh - 38px);
+        height: calc(100vh - 38px);
+        border: 0;
+        vertical-align: top;
+        background: #fff;
+    }
+    #editCanvasFrame.viewport-mobile {
+        width: 390px;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #editCanvasFrame.viewport-tablet {
+        width: 768px;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #editCanvasFrame.viewport-desktop {
+        width: 100%;
+    }
+</style>
+
+<div id="editorCanvasWrapper">
+    <div id="templateDer" class="templateDer--canvas-host">
+        <iframe id="editCanvasFrame"
+            title="Lienzo de edición"
+            class="viewport-desktop"
+            src="<%= typeof canvasIframeSrc !== 'undefined' ? canvasIframeSrc : '' %>"></iframe>
+    </div>
+</div>
+
+<script>
+(function () {
+    function templateDerEl() {
+        return document.getElementById('templateDer');
+    }
+    function editCanvasFrameEl() {
+        return document.getElementById('editCanvasFrame');
+    }
+    window.setEditorViewportMode = function (mode) {
+        var m = (mode === 'mobile' || mode === 'tablet' || mode === 'desktop') ? mode : 'desktop';
+        var fr = editCanvasFrameEl();
+        if (fr) {
+            fr.classList.remove('viewport-mobile', 'viewport-tablet', 'viewport-desktop');
+            fr.classList.add('viewport-' + m);
+            try {
+                if (fr.contentWindow && fr.contentWindow.dispatchEvent) {
+                    fr.contentWindow.dispatchEvent(new Event('resize'));
+                }
+            } catch (e) {}
+        }
+        var td = templateDerEl();
+        if (td) {
+            if (m === 'desktop') td.classList.remove('templateDer--viewport-sim');
+            else td.classList.add('templateDer--viewport-sim');
+        }
+        if (typeof jQuery !== 'undefined') {
+            jQuery('.btn-vista-dispositivo').removeClass('oro').attr('aria-pressed', 'false');
+            jQuery('.btn-vista-dispositivo[data-mode="' + m + '"]').addClass('oro').attr('aria-pressed', 'true');
+        }
+        if (typeof window.dispatchEvent === 'function') {
+            window.dispatchEvent(new Event('resize'));
+        }
+        if (typeof jQuery !== 'undefined' && jQuery(window).trigger) {
+            jQuery(window).trigger('resize');
+        }
+    };
+})();
+</script>
+<script>
+(function () {
+    function canvasWin() {
+        var f = document.getElementById('editCanvasFrame');
+        return f && f.contentWindow ? f.contentWindow : null;
+    }
+    /** Listado #compListCreate está en este documento; editCompModal vive en el iframe del lienzo. */
+    window.invokeCanvasEditComp = function (id) {
+        var w = canvasWin();
+        if (w && typeof w.editCompModal === 'function') return w.editCompModal(id);
+        console.warn('editCompModal: lienzo no listo o no disponible.');
+    };
+    window.invokeCanvasDeleteComp = function (id) {
+        var w = canvasWin();
+        if (w && typeof w.deleteComp === 'function') return w.deleteComp(id);
+        console.warn('deleteComp: lienzo no listo o no disponible.');
+    };
+})();
+</script>

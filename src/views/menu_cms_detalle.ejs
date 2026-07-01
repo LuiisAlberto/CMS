@@ -1,0 +1,1165 @@
+<%- include('partials/header'); %>
+    <%- include('partials/menu'); %>
+        <style>
+            /* Evitar el hueco blanco grande:
+               Forzamos que el área editable tenga altura controlada y scroll interno.
+               Así el contenido no "pasa" más allá y el viewport no queda con espacio vacío. */
+            #templateDer{
+                /* Delegar el scroll al módulo; el height real lo define el CSS global. */
+                overflow-y: hidden !important;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Módulo principal de niveles (scroll interno). */
+            .contenedor-scroll{
+                flex: 1 1 auto;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            .img-fluid {
+                max-width: 40% !important;
+                display: block;
+                margin: 0 auto;
+            }
+
+            /* Colores institucionales: guinda #52181E / #8e2c2d, oro #bc955b */
+            .boxNiveles {
+                background: rgba(82, 24, 30, 0.06);
+                padding: 14px;
+                border-radius: 8px;
+                min-height: 200px;
+            }
+
+            .boxNiveles>.contenedor-nivel:empty::after {
+                content: 'Arrastra aquí elementos del nivel';
+                display: block;
+                color: #6c757d;
+                font-size: 13px;
+                padding: 12px;
+                text-align: center;
+            }
+
+            .contNivel {
+                background: #fff;
+                border-radius: 10px;
+                margin: 10px 0;
+                overflow: visible;
+                transition: transform 0.2s ease, opacity 0.2s ease;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            }
+
+            .d-flex {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+
+            button span {
+                font-size: 12px;
+                font-weight: 700;
+            }
+
+            .form-select {
+                width: 100%;
+                padding: 8px 10px;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                background-color: #fff;
+                font-size: 14px;
+            }
+
+            .form-select:focus {
+                border-color: #52181E;
+                box-shadow: 0 0 0 2px rgba(82, 24, 30, 0.15);
+            }
+
+            .btn-disabled {
+                background-color: #adb5bd !important;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+
+            /* Niveles con colores institucionales (guinda/oro y variantes) */
+            .nivel-color-0 {
+                border-left: 5px solid #52181E;
+            }
+
+            .nivel-color-1 {
+                border-left: 5px solid #8e2c2d;
+            }
+
+            .nivel-color-2 {
+                border-left: 5px solid #bc955b;
+            }
+
+            .nivel-color-3 {
+                border-left: 5px solid #6d2e2e;
+            }
+
+            .nivel-color-4 {
+                border-left: 5px solid #9a7b4f;
+            }
+
+            /* Badge: texto largo sin cortar; wrap y tooltip completo */
+            .nivel-badge {
+                white-space: normal !important;
+                word-break: break-word;
+                min-height: 1.5em;
+                max-width: 100%;
+                text-align: left;
+                line-height: 1.25;
+            }
+
+            .btnToggleNivel {
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .btnToggleNivel>span:first-of-type {
+                flex: 1 1 60%;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            /* Panel del ítem de menú: no usamos Bootstrap collapse, lo controlamos con una clase */
+            .menu-detalle-panel {
+                display: none;
+                background: #fff;
+                padding: 1rem;
+                border-top: 1px solid rgba(82, 24, 30, 0.12);
+            }
+
+            .menu-detalle-panel.menu-detalle-panel--abierto {
+                display: block !important;
+            }
+
+            .contNivel .accordion-header {
+                margin: 0;
+            }
+
+            .contNivel .accordion-button::after {
+                display: none;
+            }
+
+            .contNivel .accordion-button:not(.collapsed) .menu-detalle-chevron {
+                transform: rotate(180deg);
+            }
+
+            .menu-detalle-chevron {
+                transition: transform 0.2s ease;
+                margin-left: auto;
+            }
+
+            /* Drag & Drop */
+            .contNivel.arrastrando {
+                opacity: 0.5;
+                border: 2px dashed #52181E;
+            }
+
+            .contenedor-nivel.drag-over {
+                background-color: rgba(82, 24, 30, 0.08);
+                border: 2px dashed #52181E;
+            }
+
+            /* Error visual */
+            .error-field {
+                border: 2px solid #8e2c2d !important;
+                box-shadow: 0 0 0 2px rgba(142, 44, 45, 0.2) !important;
+            }
+
+            /* Sección formulario menú: textos de ayuda y botones */
+            .menu-detalle-form .menu-detalle-hint {
+                font-size: 12px;
+                color: #6c757d;
+                margin-top: 4px;
+                line-height: 1.35;
+            }
+
+            .menu-detalle-form .form-group-menu {
+                margin-bottom: 1rem;
+            }
+
+            .menu-detalle-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                align-items: center;
+                margin-top: 1.25rem;
+                padding-top: 1rem;
+                border-top: 1px solid rgba(82, 24, 30, 0.12);
+            }
+
+            .menu-detalle-actions .btn-menu {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 18px;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 600;
+                border: none;
+                cursor: pointer;
+                transition: opacity 0.2s, transform 0.15s;
+            }
+
+            .menu-detalle-actions .btn-menu:hover {
+                opacity: 0.92;
+            }
+
+            .menu-detalle-actions .btn-menu-oro {
+                background: #bc955b;
+                color: #fff;
+            }
+
+            .menu-detalle-actions .btn-menu-guinda {
+                background: #52181E;
+                color: #fff;
+            }
+
+            .menu-detalle-upload-zone {
+                border: 2px dashed rgba(82, 24, 30, 0.25);
+                border-radius: 10px;
+                padding: 16px;
+                text-align: center;
+                background: rgba(82, 24, 30, 0.03);
+            }
+
+            .menu-detalle-upload-zone .btn-subir-imagen {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                background: #bc955b;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                transition: opacity 0.2s;
+            }
+
+            .menu-detalle-upload-zone .btn-subir-imagen:hover {
+                opacity: 0.9;
+            }
+
+            .menu-detalle-upload-zone .input-file {
+                position: absolute;
+                width: 0.1px;
+                height: 0.1px;
+                opacity: 0;
+                overflow: hidden;
+                z-index: -1;
+            }
+
+            .menu-detalle-upload-zone .nombre-archivo {
+                font-size: 12px;
+                color: #6c757d;
+                margin-top: 6px;
+                word-break: break-all;
+            }
+        </style>
+
+        <div id="templateDer">
+            <div id="menuDetalleConfig"
+                data-menu-id="<%= menuId %>"
+                data-paginas-instancia="<%- encodeURIComponent(JSON.stringify(typeof paginasInstancia !== 'undefined' ? paginasInstancia : [])) %>"
+                data-datos-menu="<%- encodeURIComponent(JSON.stringify(menuDetalle_lim || [])) %>">
+            </div>
+
+            <div class="limit-home">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6 col-md-8 col-sm-12 t-c">
+                        <h5 class="tit-seccion guinda_t">
+                            Administrador de <b>menú</b>
+                        </h5>
+                    </div>
+                    <div class="subenun ma-t2">
+                        <p class="subtit">
+                            Administra los menús y sus elementos. Arrastra para organizar la jerarquía. Selecciona un
+                            elemento para editar nombre, tipo de redirección y URL.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="row contenedor-scroll">
+                <div class="col-md-3" data-nivel="1">
+                    <div class="boxNiveles">
+                        <div class="mb-3">
+                            <button id="agregarPrimerNivel" class="btnAct oro" data-hover="AGREGAR">
+                                <i class="fa-solid fa-file-circle-plus"></i>
+                            </button>
+                        </div>
+                        <div id="primerNivelContainer" class="contenedor-nivel"></div>
+                    </div>
+                </div>
+                <div class="col-md-3" data-nivel="2">
+                    <div class="boxNiveles">
+                        <div id="segundoNivelContainer" class="contenedor-nivel"></div>
+                    </div>
+                </div>
+                <div class="col-md-3" data-nivel="3">
+                    <div class="boxNiveles">
+                        <div id="tercerNivelContainer" class="contenedor-nivel"></div>
+                    </div>
+                </div>
+                <div class="col-md-3" data-nivel="4">
+                    <div class="boxNiveles">
+                        <div id="cuartoNivelContainer" class="contenedor-nivel"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+                <button id="btnGuardarMenu" class="btnSec" type="button">
+                    GUARDAR CAMBIOS <i class="fa-solid fa-floppy-disk"></i>
+                </button>
+            </div>
+        </div>
+        <script>
+            const contenedores = {
+                1: document.getElementById("primerNivelContainer"),
+                2: document.getElementById("segundoNivelContainer"),
+                3: document.getElementById("tercerNivelContainer"),
+                4: document.getElementById("cuartoNivelContainer")
+            };
+            const maxNivel1 = 8;
+
+            const menuConfigEl = document.getElementById('menuDetalleConfig');
+            const menuId = Number(menuConfigEl?.dataset.menuId || 0);
+            const paginasInstancia = JSON.parse(
+                decodeURIComponent(menuConfigEl?.dataset.paginasInstancia || '[]')
+            );
+            let datosMenu = JSON.parse(decodeURIComponent(menuConfigEl?.dataset.datosMenu || '[]'));
+            let estructura = [];
+            let nuevoId = 0;
+            const imagenesMenus = {};
+
+            const btnAgregarNivel1 = document.getElementById("agregarPrimerNivel");
+            const btnGuardarMenu = document.getElementById("btnGuardarMenu");
+
+            document.addEventListener("DOMContentLoaded", () => {
+                // Agrupa los elementos por nivel
+                const elementosPorNivel = [1, 2, 3, 4].reduce((acc, nivel) => {
+                    acc[nivel] = datosMenu
+                        .filter(i => i.link_nivel === nivel)
+                        .sort((a, b) => a.orden_visible - b.orden_visible);
+                    return acc;
+                }, {});
+
+                document.addEventListener("click", e => {
+                    const sub = e.target.closest(".btnSubNivel");
+                    const del = e.target.closest(".btnEliminar");
+                    const tog = e.target.closest(".btnToggleNivel");
+
+                    if (sub) {
+                        agregarElemento(parseInt(sub.dataset.nivel) + 1, sub.dataset.itemId);
+                        // Actualizar badges después de agregar subnivel
+                        setTimeout(() => {
+                            actualizarTodosLosBadges();
+                        }, 100);
+                    }
+
+                    if (del) {
+                        const idEliminar = del.dataset.itemId;
+                        $.confirm({
+                            title: 'Eliminar elemento',
+                            content: '¿Estás seguro que deseas eliminar este elemento?<br><b>Esta acción es irreversible.</b>',
+                            icon: 'fa-solid fa-triangle-exclamation',
+                            theme: 'modern',
+                            type: 'red',
+                            buttons: {
+                                CONFIRMAR: {
+                                    text: 'Eliminar',
+                                    btnClass: 'btn-red',
+                                    action: function () {
+                                        eliminarItem(idEliminar);
+                                    }
+                                },
+                                CANCELAR: {
+                                    text: 'Cancelar'
+                                }
+                            }
+                        });
+                    }
+
+                    if (tog) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        const id = tog.dataset.id;
+                        const nivel = parseInt(tog.dataset.nivel, 10);
+                        const panelEl = document.getElementById('panel-' + id);
+                        if (!panelEl) return;
+
+                        const estabaAbierto = panelEl.classList.contains('menu-detalle-panel--abierto');
+
+                        if (!estabaAbierto) {
+                            // Cerrar otros paneles del mismo nivel para mantener orden (opcional, pero ayuda a la claridad)
+                            const container = tog.closest('.contenedor-nivel');
+                            if (container) {
+                                container.querySelectorAll('.menu-detalle-panel--abierto').forEach(p => {
+                                    if (p.id !== 'panel-' + id) p.classList.remove('menu-detalle-panel--abierto');
+                                });
+                                container.querySelectorAll('.btnToggleNivel:not(.collapsed)').forEach(b => {
+                                    if (b !== tog) {
+                                        b.classList.add('collapsed');
+                                        b.setAttribute('aria-expanded', 'false');
+                                    }
+                                });
+                            }
+
+                            // Abrir: primero cargar subniveles, luego mostrar el panel
+                            mostrarSubniveles(id, nivel);
+                            panelEl.classList.add('menu-detalle-panel--abierto');
+                            tog.classList.remove('collapsed');
+                            tog.setAttribute('aria-expanded', 'true');
+                        } else {
+                            // Cerrar: solo ocultar, sin recargar
+                            panelEl.classList.remove('menu-detalle-panel--abierto');
+                            tog.classList.add('collapsed');
+                            tog.setAttribute('aria-expanded', 'false');
+                        }
+                    }
+                });
+
+                // 🔹 Construcción recursiva de los menús y sus hijos
+                function construirMenu(items, nivel = 1, padreId = null) {
+                    if (!items || !items.length) return;
+                    items.forEach(item => {
+                        agregarElemento(nivel, padreId, item);
+
+                        if (Array.isArray(item.submenus) && item.submenus.length > 0) {
+                            construirMenu(item.submenus, nivel + 1, item.id_wb_menu_link);
+                        }
+                    });
+                }
+
+                // 🔹 Construye el nivel raíz (nivel 1)
+                const nivel1 = elementosPorNivel[1];
+                construirMenu(nivel1, 1, null);
+
+                // Actualizar todos los badges después de construir el menú completo
+                setTimeout(() => {
+                    document.querySelectorAll('.nivel-badge').forEach(badge => {
+                        const button = badge.closest('.btnToggleNivel');
+                        if (button) {
+                            const id = button.dataset.id;
+                            const nivel = parseInt(button.dataset.nivel);
+                            const idPadre = button.dataset.idPadre;
+
+                            // Actualizar badge para todos los niveles
+                            const ruta = obtenerRutaJerarquica(id);
+                            let nuevoTexto = `Nivel ${nivel}`;
+
+                            if (ruta) {
+                                const textoDescriptivo = rutaATextoDescriptivo(ruta, nivel);
+                                if (textoDescriptivo) {
+                                    nuevoTexto = textoDescriptivo;
+                                } else {
+                                    nuevoTexto = `Nivel ${nivel} - Ruta: ${ruta}`;
+                                }
+                            } else if (idPadre) {
+                                // Si no hay ruta pero hay padre, mostrar info del padre
+                                const nombrePadre = obtenerNombrePadre(idPadre);
+                                if (nombrePadre) {
+                                    const nombreCorto = nombrePadre.length > 20 ? nombrePadre.substring(0, 20) + '...' : nombrePadre;
+                                    nuevoTexto = `Nivel ${nivel} - Padre: ${nombreCorto}`;
+                                } else {
+                                    nuevoTexto = `Nivel ${nivel} - Subitem`;
+                                }
+                            }
+
+                            badge.textContent = nuevoTexto;
+                            badge.title = nuevoTexto;
+                        }
+                    });
+                }, 200);
+            });
+
+
+            btnAgregarNivel1.addEventListener("click", () => {
+                agregarElemento(1, null);
+                // Actualizar badges después de agregar nuevo elemento
+                setTimeout(() => {
+                    actualizarTodosLosBadges();
+                }, 100);
+            });
+
+            // Función para actualizar todos los badges
+            function actualizarTodosLosBadges() {
+                document.querySelectorAll('.nivel-badge').forEach(badge => {
+                    const button = badge.closest('.btnToggleNivel');
+                    if (button) {
+                        const id = button.dataset.id;
+                        const nivel = parseInt(button.dataset.nivel);
+                        const idPadre = button.dataset.idPadre;
+
+                        // Actualizar badge para todos los niveles
+                        const ruta = obtenerRutaJerarquica(id);
+                        let nuevoTexto = `Nivel ${nivel}`;
+
+                        if (ruta) {
+                            const textoDescriptivo = rutaATextoDescriptivo(ruta, nivel);
+                            if (textoDescriptivo) {
+                                nuevoTexto = textoDescriptivo;
+                            } else {
+                                nuevoTexto = `Nivel ${nivel} - Ruta: ${ruta}`;
+                            }
+                        } else if (idPadre) {
+                            // Si no hay ruta pero hay padre, mostrar info del padre
+                            const nombrePadre = obtenerNombrePadre(idPadre);
+                            if (nombrePadre) {
+                                const nombreCorto = nombrePadre.length > 20 ? nombrePadre.substring(0, 20) + '...' : nombrePadre;
+                                nuevoTexto = `Nivel ${nivel} - Padre: ${nombreCorto}`;
+                            } else {
+                                nuevoTexto = `Nivel ${nivel} - Subitem`;
+                            }
+                        }
+
+                        badge.textContent = nuevoTexto;
+                        badge.title = nuevoTexto;
+                    }
+                });
+            }
+
+            btnGuardarMenu.addEventListener("click", guardarTodos);
+            function obtenerNuevoID() { return `nuevo-${nuevoId++}`; }
+
+            function buscarNodo(arr, id) {
+                if (!arr || !arr.length) return null;
+                for (const nodo of arr) {
+                    if (nodo.id == id) return nodo;
+                    const hijo = buscarNodo(nodo.hijos || [], id);
+                    if (hijo) return hijo;
+                }
+                return null;
+            }
+
+            // Función para obtener la ruta jerárquica del item (ej: "1.2.3")
+            function obtenerRutaJerarquica(idItem, estructuraActual = estructura, ruta = []) {
+                for (let i = 0; i < estructuraActual.length; i++) {
+                    const nodo = estructuraActual[i];
+                    const nuevaRuta = [...ruta, i + 1];
+
+                    if (nodo.id == idItem) {
+                        return nuevaRuta.join('.');
+                    }
+
+                    if (nodo.hijos && nodo.hijos.length > 0) {
+                        const resultado = obtenerRutaJerarquica(idItem, nodo.hijos, nuevaRuta);
+                        if (resultado) return resultado;
+                    }
+                }
+                return null;
+            }
+
+            // Función para convertir número a ordinal en español
+            function numeroAOrdinal(num) {
+                const ordinales = {
+                    1: 'primer',
+                    2: 'segundo',
+                    3: 'tercer',
+                    4: 'cuarto',
+                    5: 'quinto',
+                    6: 'sexto',
+                    7: 'séptimo',
+                    8: 'octavo',
+                    9: 'noveno',
+                    10: 'décimo',
+                    11: 'undécimo',
+                    12: 'duodécimo',
+                    13: 'decimotercer',
+                    14: 'decimocuarto',
+                    15: 'decimoquinto',
+                    16: 'decimosexto',
+                    17: 'decimoséptimo',
+                    18: 'decimoctavo',
+                    19: 'decimonoveno',
+                    20: 'vigésimo'
+                };
+
+                if (ordinales[num]) {
+                    return ordinales[num];
+                }
+
+                // Para números mayores a 20, usar formato genérico
+                return `${num}°`;
+            }
+
+            // Función para convertir ruta numérica a texto descriptivo
+            function rutaATextoDescriptivo(ruta, nivel) {
+                if (!ruta) return null;
+
+                const partes = ruta.split('.');
+                if (partes.length === 0) return null;
+
+                // El último número es la posición en el nivel actual
+                const posicionEnNivel = parseInt(partes[partes.length - 1]);
+
+                // Si es nivel 1: "item X - nivel 1"
+                if (nivel === 1) {
+                    return `item ${posicionEnNivel} - nivel 1`;
+                }
+
+                // Si es nivel 2 o superior: "item X - subnivel Y del nivel Z"
+                // donde Y es el nivel actual y Z es el nivel padre (nivel - 1)
+                const nivelPadre = nivel - 1;
+                return `item ${posicionEnNivel} - subnivel ${nivel} del nivel ${nivelPadre}`;
+            }
+
+            // Función para obtener el nombre del padre
+            function obtenerNombrePadre(idPadre) {
+                if (!idPadre) return null;
+                const padre = buscarNodo(estructura, idPadre);
+                return padre ? padre.nombre : null;
+            }
+
+            function agregarElemento(nivel, idPadre = null, datos = null, soloRender = false) {
+                if (nivel > 4) return;
+                let id = datos ? datos.id_wb_menu_link : obtenerNuevoID();
+                if (document.getElementById(id)) return;
+
+                // DEFAULTS para nuevos
+                if (!datos && !soloRender) {
+                    // Tipo redirección: 1 = Separador, 2 = Página. fk_id_wb_pagina solo guarda el id real de página (null para separador).
+                    const tipoRedireccionDefault = (nivel === 4) ? 2 : 1;
+                    datos = {
+                        id_wb_menu_link: id,
+                        fk_id_wb_menu: menuId,
+                        fk_id_wb_menu_link_superior: idPadre ? parseInt(idPadre) : null,
+                        link_nivel: nivel,
+                        nombre: `Nuevo menú ${id}`,
+                        fk_id_cat_type_users: [1],
+                        id_cat_type_link: 1,
+                        fk_id_wb_pagina: tipoRedireccionDefault === 2 && paginasInstancia.length ? paginasInstancia[0].id_wb_pagina : null,
+                        url_link: '',
+                        url_imagen: '',
+                        submenu: []
+                    };
+                }
+
+                const nuevoNodo = {
+                    id,
+                    nombre: datos?.nombre || `Nuevo menú ${id}`,
+                    nivel,
+                    padreId: idPadre,
+                    hijos: [],
+                    ...datos
+                };
+
+                // Si viene del back y es nivel 4 sin página definida, asignar primera página si hay
+                if (nivel === 4 && (!nuevoNodo.fk_id_wb_pagina || nuevoNodo.fk_id_wb_pagina === 0 || nuevoNodo.fk_id_wb_pagina === 1) && paginasInstancia.length) {
+                    nuevoNodo.fk_id_wb_pagina = paginasInstancia[0].id_wb_pagina;
+                }
+
+                if (!soloRender) {
+                    if (idPadre) {
+                        const padre = buscarNodo(estructura, idPadre);
+                        if (padre) padre.hijos.push(nuevoNodo);
+                    } else {
+                        estructura.push(nuevoNodo);
+                    }
+                }
+
+                const div = document.createElement("div");
+                div.classList.add("contNivel");
+                div.id = id;
+
+                // Colores institucionales para badges (guinda/oro)
+                let badgeText = `Nivel ${nivel}`;
+                let badgeColor = nivel === 1 ? '#52181E' : nivel === 2 ? '#8e2c2d' : nivel === 3 ? '#bc955b' : '#6d2e2e';
+
+                // Calcular el texto descriptivo inicial
+                // Para nivel 1, calcular después de agregar a estructura
+                // Para otros niveles, necesitamos el padre
+                setTimeout(() => {
+                    const ruta = obtenerRutaJerarquica(id);
+                    if (ruta) {
+                        const textoDescriptivo = rutaATextoDescriptivo(ruta, nivel);
+                        if (textoDescriptivo) {
+                            badgeText = textoDescriptivo;
+                            const badgeElement = div.querySelector('.nivel-badge');
+                            if (badgeElement) {
+                                badgeElement.textContent = badgeText;
+                                badgeElement.title = badgeText;
+                            }
+                        }
+                    }
+                }, 50);
+
+                div.innerHTML = `
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading-${id}">
+                    <button class="accordion-button collapsed btnToggleNivel"
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls="panel-${id}"
+                        data-nivel="${nivel}"
+                        data-id="${id}"
+                        data-id-padre="${idPadre ?? ''}">
+                        <span>${nuevoNodo.nombre}</span>
+                        <span class="badge nivel-badge" style="margin-left: 8px; background-color: ${badgeColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;" title="${badgeText}">${badgeText}</span>
+                        <i class="fas fa-chevron-down menu-detalle-chevron" aria-hidden="true"></i>
+                    </button>
+                </h2>
+                <div id="panel-${id}" class="menu-detalle-panel" role="region" aria-labelledby="heading-${id}">
+                    <div class="menu-detalle-form">
+                        <div class="form-group-menu">
+                            <label class="titForm guinda_t">Nombre del menú</label>
+                            <input type="text" class="form-control nombre-item" value="${nuevoNodo.nombre}" placeholder="Ej. Inicio, Convocatorias">
+                        </div>
+                        <div class="form-group-menu">
+                            <label class="titForm guinda_t">Tipo de redirección</label>
+                            <select class="form-select tipoPagina">
+                                <option value="1" ${(!nuevoNodo.fk_id_wb_pagina || nuevoNodo.fk_id_wb_pagina === 0 || nuevoNodo.fk_id_wb_pagina === 1) ? 'selected' : ''}>Separador</option>
+                                <option value="2" ${(nuevoNodo.fk_id_wb_pagina && Number(nuevoNodo.fk_id_wb_pagina) > 1) ? 'selected' : ''}>Página interna</option>
+                            </select>
+                            <p class="menu-detalle-hint">Separador: agrega un subnivel debajo de este ítem. Página interna: enlaza a una página de esta instancia.</p>
+                        </div>
+                        <div class="form-group-menu pagina-interna-group" style="display: ${(nuevoNodo.fk_id_wb_pagina && Number(nuevoNodo.fk_id_wb_pagina) > 1) ? 'block' : 'none'};">
+                            <label class="titForm guinda_t">Página de la instancia</label>
+                            <select class="form-select select-pagina-interna">
+                                <option value="">— Selecciona página —</option>
+                                ${(paginasInstancia || []).map(p => `<option value="${p.id_wb_pagina}" ${nuevoNodo.fk_id_wb_pagina == p.id_wb_pagina ? 'selected' : ''}>${(p.nombre_pagina || '').replace(/"/g, '&quot;')}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group-menu url-group">
+                            <label class="titForm guinda_t">URL (opcional, para enlaces externos)</label>
+                            <input type="text" class="form-control url-link" value="${nuevoNodo.url_link ?? ''}" placeholder="https://... o ruta">
+                            <p class="menu-detalle-hint">Para enlaces externos o rutas personalizadas.</p>
+                        </div>
+                        <div class="form-group-menu" style="display:none;">
+                            <label class="titForm guinda_t">Tipo de usuario</label>
+                            <select class="form-select select-sec tipo-usuario">
+                                <option value="1" selected>Administrador</option>
+                                <option value="2" ${datos.fk_id_cat_type_users && datos.fk_id_cat_type_users.includes(2) ? 'selected' : ''}>Editor</option>
+                            </select>
+                        </div>
+                        <div class="form-group-menu">
+                            <label class="titForm guinda_t">Tipo de link</label>
+                            <select class="form-select select-sec tipo-link">
+                                <option value="">Selecciona</option>
+                                <option value="1" ${datos.id_cat_type_link == 1 ? 'selected' : ''}>Link interno</option>
+                                <option value="2" ${datos.id_cat_type_link == 2 ? 'selected' : ''}>Link externo</option>
+                            </select>
+                        </div>
+
+                        ${nivel === 1 ? `
+                            <div class="form-group-menu">
+                                <label class="titForm guinda_t">Imagen de este nivel</label>
+                                <p class="menu-detalle-hint">Obligatoria para nivel 1. Es la imagen que se muestra para este ítem en el menú.</p>
+                                ${datos.url_imagen && datos.url_imagen !== '' ?
+                            `<div class="mb-3">
+                                        <div class="imagen-previa">
+                                            <img src="${datos.url_imagen}" alt="Imagen del menú" class="img-fluid">
+                                        </div>
+                                        <div class="menu-detalle-actions mt-3">
+                                            <button type="button" class="btn-menu btn-menu-guinda" onclick="borrarImagen('${id}')">
+                                                <i class="fa-solid fa-trash"></i> Eliminar imagen
+                                            </button>
+                                        </div>
+                                    </div>`
+                            :
+                            `<div id="btnCarga-${id}" class="menu-detalle-upload-zone">
+                                        <input type="file" name="imagen" id="input-file-${id}" class="input-file" data-item-id="${id}" accept="image/*" onchange="cargarImagenMenu(this.files, '${id}')">
+                                        <label for="input-file-${id}" class="btn-subir-imagen">
+                                            <i class="fa-solid fa-cloud-arrow-up"></i> Subir imagen
+                                        </label>
+                                        <p id="fileName-${id}" class="nombre-archivo">Ningún archivo elegido</p>
+                                    </div>
+                                    <div id="btnCargaBorrar-${id}" style="display: none;"></div>`}
+                            </div>
+                        ` : ''}
+
+                        <div class="menu-detalle-actions">
+                            ${nivel < 4 ? `
+                                <button id="btnSubNivel-${id}" class="btn-menu btn-menu-oro btnSubNivel" data-nivel="${nivel}" data-item-id="${id}">
+                                    <i class="fa-solid fa-plus"></i> Agregar subnivel
+                                </button>` : ""}
+                            <button type="button" class="btn-menu btn-menu-guinda btnEliminar" data-item-id="${id}">
+                                <i class="fa-solid fa-trash"></i> Eliminar ítem
+                            </button>
+                        </div>
+                        ${nivel < 4 ? `<p class="menu-detalle-hint mt-2 mb-0">Solo si es <strong>Separador</strong>: el botón «Agregar subnivel» crea un elemento debajo de este.</p>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+
+                contenedores[nivel].appendChild(div);
+
+                // El badge se actualizará después de construir todo el menú
+
+                // 🔹 Sincronizar título del acordeón y spans con data-id-padre
+                const inputNombre = div.querySelector('.nombre-item');
+                const headerSpan = div.querySelector('.btnToggleNivel span');
+                if (inputNombre && headerSpan) {
+                    const syncNombre = () => {
+                        const nuevoTexto = inputNombre.value.trim() || 'Sin nombre';
+                        headerSpan.textContent = nuevoTexto;
+
+                        document
+                            .querySelectorAll(`span[data-id-padre="${id}"]`)
+                            .forEach(sp => { sp.textContent = nuevoTexto; });
+                    };
+                    inputNombre.addEventListener('input', syncNombre);
+                }
+
+                // 🔹 Tipo de redirección → selector de página interna + URL + botón de subnivel
+                const tipoPaginaSelect = div.querySelector('.tipoPagina');
+                const paginaInternaGroup = div.querySelector('.pagina-interna-group');
+                const selectPaginaInterna = div.querySelector('.select-pagina-interna');
+                const inputURL = div.querySelector('.url-link');
+                const btnSubNivel = div.querySelector('.btnSubNivel');
+
+                function quitarSubnivelDeItem(idItem) {
+                    const item = buscarNodo(estructura, idItem);
+                    if (!item || !item.hijos || !item.hijos.length) return;
+                    const idsAEliminar = [];
+                    function recolectarIds(nodo) {
+                        idsAEliminar.push(nodo.id);
+                        if (nodo.hijos && nodo.hijos.length) nodo.hijos.forEach(recolectarIds);
+                    }
+                    item.hijos.forEach(recolectarIds);
+                    item.hijos = [];
+                    idsAEliminar.forEach(idDel => {
+                        const el = document.getElementById(idDel);
+                        if (el) el.remove();
+                    });
+                    actualizarTodosLosBadges();
+                }
+
+                function actualizarEstadoPorTipoPagina() {
+                    const esPagina = tipoPaginaSelect.value === '2';
+
+                    if (paginaInternaGroup) paginaInternaGroup.style.display = esPagina ? 'block' : 'none';
+                    if (selectPaginaInterna && !esPagina) selectPaginaInterna.value = '';
+
+                    if (inputURL) {
+                        if (esPagina) {
+                            inputURL.disabled = false;
+                        } else {
+                            inputURL.disabled = true;
+                            inputURL.value = '';
+                        }
+                    }
+
+                    if (btnSubNivel) {
+                        if (esPagina) {
+                            btnSubNivel.disabled = true;
+                            btnSubNivel.classList.add('btn-disabled');
+                            btnSubNivel.style.display = 'none';
+                            quitarSubnivelDeItem(id);
+                        } else {
+                            btnSubNivel.disabled = false;
+                            btnSubNivel.classList.remove('btn-disabled');
+                            btnSubNivel.style.display = 'block';
+                        }
+                    }
+                }
+
+                tipoPaginaSelect.addEventListener('change', actualizarEstadoPorTipoPagina);
+                actualizarEstadoPorTipoPagina(); // también aplica al pintar desde BD
+            }
+
+            function actualizarEstadoBoton() {
+                const numItemsNivel1 = contenedores[1].querySelectorAll(".contNivel").length;
+                btnAgregarNivel1.disabled = numItemsNivel1 >= maxNivel1;
+                btnAgregarNivel1.classList.toggle("btn-disabled", numItemsNivel1 >= maxNivel1);
+            }
+
+            function mostrarSubniveles(id, nivel) {
+                reconstruirEstructura();
+                for (let n = nivel + 1; n <= 4; n++) {
+                    contenedores[n].innerHTML = "";
+                    contenedores[n].dataset.parentId = null;
+                }
+
+                const item = buscarNodo(estructura, id);
+                if (item?.hijos && item.hijos.length > 0) {
+                    item.hijos.forEach(sub => agregarElemento(nivel + 1, id, sub, true));
+                }
+            }
+
+            function eliminarItem(id) {
+                estructura = eliminarNodo(estructura, id);
+            }
+
+            function eliminarNodo(arr, id) {
+                return arr.filter(nodo => {
+                    if (String(nodo.id) === String(id)) {
+                        eliminarNodoDOMRecursivo(nodo);
+                        return false;
+                    }
+
+                    if (nodo.hijos && nodo.hijos.length) {
+                        nodo.hijos = eliminarNodo(nodo.hijos, id);
+                    }
+                    return true;
+                });
+            }
+
+            function eliminarNodoDOMRecursivo(nodo) {
+                if (nodo.hijos && nodo.hijos.length) {
+                    nodo.hijos.forEach(hijo => eliminarNodoDOMRecursivo(hijo));
+                }
+
+                const el = document.getElementById(nodo.id);
+                if (el) el.remove();
+
+                if (imagenesMenus[nodo.id]) delete imagenesMenus[nodo.id];
+            }
+
+            async function guardarTodos() {
+                reconstruirEstructura();
+
+                // Mantener consistencia entre el orden visual y el orden persistido en BD.
+                // El backend ordena por `orden_visible`, así que lo recalculamos desde el DOM actual.
+                [1, 2, 3, 4].forEach(nivel => {
+                    const cont = contenedores[nivel];
+                    if (!cont) return;
+
+                    const hijos = Array.from(cont.children).filter(el => el.classList?.contains('contNivel'));
+                    hijos.forEach((el, idx) => {
+                        const nodo = buscarNodo(estructura, el.id);
+                        if (nodo) nodo.orden_visible = idx + 1;
+                    });
+                });
+
+                if (!validarMenu()) {
+                    return;
+                }
+
+                const jsonFinal = JSON.stringify(estructura);
+                const formData = new FormData();
+                formData.append("menus", jsonFinal);
+                Object.entries(imagenesMenus).forEach(([key, file]) => {
+                    formData.append(key, file);
+                });
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const menuIdFromUrl = urlParams.get('menuId');
+                formData.append("menuId", menuIdFromUrl);
+
+                const loading = $.alert({ title: 'Guardando', content: 'Procesando...', buttons: false, closeIcon: false });
+                try {
+                    const res = await fetch('/guardarMenu', { method: 'POST', body: formData });
+                    const data = await res.json();
+                    loading.close();
+                    if (data.success) {
+                        $.alert({ title: 'Éxito', content: 'Menús guardados correctamente.', type: 'blue', icon: 'fa-solid fa-circle-check' });
+                    } else {
+                        $.alert({ title: 'Error', content: data.message || 'No se pudo guardar.', type: 'red' });
+                    }
+                } catch (e) {
+                    loading.close();
+                    $.alert({ title: 'Error', content: 'Error al guardar.', type: 'red' });
+                }
+            }
+
+            function cargarImagenMenu(files, id) {
+                if (!files[0]) return;
+                const f = files[0];
+
+                if (!['image/jpeg', 'image/png'].includes(f.type) || f.size > 2 * 1024 * 1024) {
+                    return $.alert({ title: 'Error', content: 'Solo JPG o PNG menores a 2MB.', type: 'red' });
+                }
+
+                imagenesMenus[id] = f;
+                $(`#fileName-${id}`).text(f.name).css('color', '#52181E');
+
+                const cont = document.getElementById(id);
+                if (cont) {
+                    const btn = cont.querySelector('.accordion-button');
+                    if (btn) btn.classList.remove('error-field');
+                }
+                const area = document.getElementById(`btnCarga-${id}`);
+                if (area) area.classList.remove('error-field');
+            }
+
+            function reconstruirEstructura() {
+                function actualizarNodo(nodo) {
+                    console.log('Actualizando nodo:', nodo);
+                    const div = document.getElementById(nodo.id);
+
+                    if (div) {
+                        nodo.nombre = div.querySelector(".nombre-item")?.value || nodo.nombre;
+                        nodo.url_link = div.querySelector(".url-link")?.value || nodo.url_link;
+                        const tipoRedir = div.querySelector(".tipoPagina")?.value;
+                        const idPagina = div.querySelector(".select-pagina-interna")?.value;
+                        nodo.fk_id_wb_pagina = (tipoRedir === '2' && idPagina) ? parseInt(idPagina, 10) : null;
+                        nodo.fk_id_cat_type_users = [
+                            parseInt(div.querySelector(".tipo-usuario")?.value) || nodo.fk_id_cat_type_users[0]
+                        ];
+                        nodo.id_cat_type_link = parseInt(div.querySelector(".tipo-link")?.value) || nodo.id_cat_type_link;
+                    }
+
+                    if (nodo.hijos && nodo.hijos.length > 0) {
+                        nodo.hijos.forEach(hijo => actualizarNodo(hijo));
+                    }
+
+                    return nodo;
+                }
+
+                estructura.forEach(nodo => actualizarNodo(nodo));
+            }
+
+            function validarMenu() {
+                document.querySelectorAll('.error-field').forEach(el => el.classList.remove('error-field'));
+
+                let valido = true;
+                const faltantes = [];
+
+                function revisarNodo(nodo) {
+                    const nivel = parseInt(nodo.nivel || nodo.link_nivel, 10) || 1;
+
+                    if (nivel === 1) {
+                        const tieneNuevaImagen = !!imagenesMenus[nodo.id];
+                        const tieneImagenGuardada = !!(nodo.url_imagen && String(nodo.url_imagen).trim() !== '');
+
+                        if (!tieneNuevaImagen && !tieneImagenGuardada) {
+                            valido = false;
+                            faltantes.push({
+                                id: nodo.id,
+                                nombre: nodo.nombre || 'Sin nombre',
+                                nivel
+                            });
+
+                            const div = document.getElementById(nodo.id);
+                            if (div) {
+                                const btn = div.querySelector('.accordion-button');
+                                if (btn) btn.classList.add('error-field');
+
+                                const areaCarga = div.querySelector(`#btnCarga-${nodo.id}`) || div.querySelector('.input-file');
+                                if (areaCarga) areaCarga.classList.add('error-field');
+                            }
+                        }
+                    }
+
+                    if (Array.isArray(nodo.hijos) && nodo.hijos.length) {
+                        nodo.hijos.forEach(revisarNodo);
+                    }
+                }
+
+                estructura.forEach(revisarNodo);
+
+                if (!valido) {
+                    const lista = faltantes
+                        .map(f => `Nivel ${f.nivel} – ${f.nombre}`)
+                        .join('<br>');
+
+                    $.alert({
+                        title: 'Imágenes obligatorias',
+                        content: 'Los menús de nivel 1 deben tener imagen.<br><br>' + lista,
+                        type: 'red'
+                    });
+                }
+
+                return valido;
+            }
+
+            borrarImagen = function (idItem) {
+                $.confirm({
+                    title: 'Eliminar imagen',
+                    content: '¿Estás seguro que deseas eliminar la imagen seleccionada?',
+                    type: 'orange',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    buttons: {
+                        CONFIRMAR: {
+                            btnClass: 'btn-orange',
+                            action: function () {
+                                const loading = $.alert({
+                                    title: 'Procesando',
+                                    content: 'Eliminando imagen...',
+                                    icon: 'fa-solid fa-spinner fa-spin',
+                                    closeIcon: false,
+                                    buttons: false
+                                });
+
+                                $.ajax({
+                                    url: '/eliminar-imagen-menu',
+                                    method: 'POST',
+                                    data: {
+                                        id_wb_menu_link: idItem,
+                                        _token: $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    success: function (response) {
+                                        loading.close();
+
+                                        if (response.success) {
+                                            const item = buscarPorID(estructura, idItem);
+                                            if (item) {
+                                                item.url_imagen = '';
+                                            }
+
+                                            const nuevoBloqueCarga = `
+                                        <div id="btnCarga-${idItem}" class="menu-detalle-upload-zone">
+                                            <input type="file" name="imagen" id="input-file-${idItem}" class="input-file" data-item-id="${idItem}" accept="image/*" onchange="cargarImagenMenu(this.files, '${idItem}')">
+                                            <label for="input-file-${idItem}" class="btn-subir-imagen">
+                                                <i class="fa-solid fa-cloud-arrow-up"></i> Subir imagen
+                                            </label>
+                                            <p id="fileName-${idItem}" class="nombre-archivo">Ningún archivo elegido</p>
+                                        </div>
+                                        <div id="btnCargaBorrar-${idItem}" style="display: none;"></div>
+                                    `;
+
+                                            const imagenPrev = $(`#${idItem} .imagen-previa`);
+
+                                            // En el render inicial el contenedor real usa `.mb-3` (no `.mb-5`),
+                                            // por eso antes no se reemplazaba y la imagen “seguía perdurando”.
+                                            const contenedorImagen =
+                                                imagenPrev.closest('.mb-3').length
+                                                    ? imagenPrev.closest('.mb-3')
+                                                    : imagenPrev.closest('.mb-5');
+
+                                            if (contenedorImagen && contenedorImagen.length) {
+                                                contenedorImagen.replaceWith(nuevoBloqueCarga);
+                                            } else if (imagenPrev && imagenPrev.length) {
+                                                // Fallback: reemplazar el padre directo de `.imagen-previa`
+                                                imagenPrev.parent().replaceWith(nuevoBloqueCarga);
+                                            }
+
+                                            $.alert({
+                                                title: 'Listo',
+                                                content: 'Imagen eliminada correctamente.',
+                                                type: 'blue',
+                                                icon: 'fa-solid fa-circle-check'
+                                            });
+                                        } else {
+                                            mostrarError("Error", response.message || "No se pudo eliminar la imagen");
+                                        }
+                                    },
+                                    error: function () {
+                                        loading.close();
+                                        mostrarError("Error", "No se pudo conectar con el servidor");
+                                    }
+                                });
+                            }
+                        },
+                        CANCELAR: {
+                            btnClass: 'btn-default'
+                        }
+                    }
+                });
+            };
+
+            function buscarPorID(obj, idBuscado) {
+                const items = Array.isArray(obj) ? obj : Object.values(obj);
+                for (const item of items) {
+                    if (item.id_wb_menu_link == idBuscado) {
+                        return item;
+                    }
+                    if (item.submenu) {
+                        const encontrado = buscarPorID(item.submenu, idBuscado);
+                        if (encontrado) return encontrado;
+                    }
+                }
+                return null;
+            }
+        </script>

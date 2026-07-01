@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+      }
+
+      .cls-2, .cls-3 {
+        fill: #5a3d2b;
+      }
+
+      .cls-4 {
+        fill: #d6cfc4;
+      }
+
+      .cls-4, .cls-3, .cls-5 {
+        stroke: #b3b3b3;
+        stroke-miterlimit: 10;
+        stroke-width: .25px;
+      }
+
+      .cls-6 {
+        fill: #1a1a1a;
+        font-size: 8px;
+      }
+
+      .cls-6, .cls-7 {
+        font-family: Montserrat-Light, Montserrat;
+        font-weight: 300;
+      }
+
+      .cls-7 {
+        font-size: 2px;
+      }
+
+      .cls-8 {
+        fill: #b98d68;
+      }
+
+      .cls-9 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-10 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-11 {
+        letter-spacing: 0em;
+      }
+
+      .cls-12 {
+        letter-spacing: 0em;
+      }
+
+      .cls-13 {
+        letter-spacing: 0em;
+      }
+
+      .cls-5 {
+        fill: #fff;
+      }
+    </style>
+  </defs>
+  <rect class="cls-1" x="-.75" y="-1.25" width="64" height="65.7" rx="8" ry="8"/>
+  <rect class="cls-4" x="8.25" y="10.75" width="47" height="5"/>
+  <rect class="cls-5" x="8.25" y="15.75" width="47" height="5"/>
+  <rect class="cls-5" x="8.25" y="20.75" width="47" height="5"/>
+  <rect class="cls-5" x="8.25" y="25.75" width="47" height="5"/>
+  <rect class="cls-5" x="8.25" y="30.75" width="47" height="5"/>
+  <rect class="cls-5" x="8.25" y="35.75" width="47" height="5"/>
+  <text class="cls-6" transform="translate(11.93 54.65)"><tspan class="cls-11" x="0" y="0">A</tspan><tspan class="cls-13" x="5.6" y="0">c</tspan><tspan x="9.97" y="0">o</tspan><tspan class="cls-9" x="14.93" y="0">r</tspan><tspan x="17.97" y="0">deón</tspan></text>
+  <polygon class="cls-3" points="8.25 15.75 15.08 15.75 13.25 10.75 8.25 10.75 8.25 15.75"/>
+  <text class="cls-7" transform="translate(11.28 19.03)"><tspan class="cls-12" x="0" y="0">L</tspan><tspan x="1.15" y="0">o</tspan><tspan class="cls-10" x="2.39" y="0">r</tspan><tspan x="3.15" y="0">em ipsum dolor</tspan></text>
+  <text class="cls-7" transform="translate(11.19 23.97)"><tspan class="cls-12" x="0" y="0">L</tspan><tspan x="1.15" y="0">o</tspan><tspan class="cls-10" x="2.39" y="0">r</tspan><tspan x="3.15" y="0">em ipsum dolor</tspan></text>
+  <text class="cls-7" transform="translate(11.59 28.97)"><tspan class="cls-12" x="0" y="0">L</tspan><tspan x="1.15" y="0">o</tspan><tspan class="cls-10" x="2.39" y="0">r</tspan><tspan x="3.15" y="0">em ipsum dolor</tspan></text>
+  <text class="cls-7" transform="translate(11.59 33.97)"><tspan class="cls-12" x="0" y="0">L</tspan><tspan x="1.15" y="0">o</tspan><tspan class="cls-10" x="2.39" y="0">r</tspan><tspan x="3.15" y="0">em ipsum dolor</tspan></text>
+  <text class="cls-7" transform="translate(11.59 38.97)"><tspan class="cls-12" x="0" y="0">L</tspan><tspan x="1.15" y="0">o</tspan><tspan class="cls-10" x="2.39" y="0">r</tspan><tspan x="3.15" y="0">em ipsum dolor</tspan></text>
+  <rect class="cls-2" x="43.25" y="17.75" width="8" height="2" rx="1" ry="1"/>
+  <rect class="cls-2" x="43.25" y="22.75" width="8" height="2" rx="1" ry="1"/>
+  <rect class="cls-2" x="43.25" y="27.75" width="8" height="2" rx="1" ry="1"/>
+  <rect class="cls-2" x="43.25" y="32.75" width="8" height="2" rx="1" ry="1"/>
+  <rect class="cls-2" x="43.25" y="37.75" width="8" height="2" rx="1" ry="1"/>
+  <rect class="cls-8" x="52.25" y="12.75" width="2" height="2"/>
+</svg>

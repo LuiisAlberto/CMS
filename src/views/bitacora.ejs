@@ -1,0 +1,647 @@
+<%- include('partials/header'); %>
+<%- include('partials/menu'); %>
+<%
+  const pag = typeof pagination !== 'undefined' && pagination
+    ? pagination
+    : { page: 1, perPage: 25, total: 0, totalPages: 1, from: 0, to: 0 };
+  function bitacoraQuery(pageNum) {
+    const p = new URLSearchParams();
+    if (filtros.id_sysapp) p.set('id_sysapp', filtros.id_sysapp);
+    if (filtros.fecha_inicio) p.set('fecha_inicio', filtros.fecha_inicio);
+    if (filtros.fecha_fin) p.set('fecha_fin', filtros.fecha_fin);
+    if (filtros.tipo_usuario) p.set('tipo_usuario', filtros.tipo_usuario);
+    if (filtros.buscar) p.set('buscar', filtros.buscar);
+    p.set('page', String(pageNum));
+    return '/admin/bitacora?' + p.toString();
+  }
+  var pageLinks = [];
+  var tp = pag.totalPages;
+  var cur = pag.page;
+  if (tp <= 1) {
+    pageLinks = [1];
+  } else if (tp <= 9) {
+    for (var i = 1; i <= tp; i++) pageLinks.push(i);
+  } else {
+    pageLinks.push(1);
+    var lo = Math.max(2, cur - 2);
+    var hi = Math.min(tp - 1, cur + 2);
+    if (lo > 2) pageLinks.push(0);
+    for (var j = lo; j <= hi; j++) pageLinks.push(j);
+    if (hi < tp - 1) pageLinks.push(0);
+    pageLinks.push(tp);
+  }
+%>
+<div id="templateDer">
+  <div class="limit-home">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8 col-sm-12 col-12 t-c">
+        <h5 class="tit-seccion guinda_t">Bitácora <b>CMS</b></h5>
+        <div class="l-div">
+          <label class="borde-izq oroMorena"><span class="diagonal gris_t"></span></label>
+          <label class="borde-der solid_bg"><span></span></label>
+        </div>
+      </div>
+      <div class="subenun ma-t2">
+        <p class="subtit">Consulta de movimientos realizados dentro del CMS.</p>
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mt-4 mb-4">
+    <form class="bitacora-filters-form" method="GET" action="/admin/bitacora">
+      <input type="hidden" name="page" value="1">
+      <div class="bitacora-filters-card bitacora-filters">
+        <p class="bitacora-filters-heading"><i class="fa-solid fa-filter me-2" aria-hidden="true"></i>Filtros de búsqueda</p>
+        <div class="row g-3 g-lg-4 align-items-end bitacora-filters-fields">
+          <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+            <label class="form-label" for="bitacora-id-sysapp">Instancia</label>
+            <select class="form-select" id="bitacora-id-sysapp" name="id_sysapp">
+              <option value="">Todas</option>
+              <% (instances || []).forEach(function(inst) { %>
+                <option value="<%= inst.id_sysapp %>" <%= filtros.id_sysapp == String(inst.id_sysapp) ? 'selected' : '' %>>
+                  <%= inst.app_name %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+            <label class="form-label" for="bitacora-fecha-ini">Fecha inicio</label>
+            <input type="date" class="form-control" id="bitacora-fecha-ini" name="fecha_inicio" value="<%= filtros.fecha_inicio %>">
+          </div>
+          <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+            <label class="form-label" for="bitacora-fecha-fin">Fecha fin</label>
+            <input type="date" class="form-control" id="bitacora-fecha-fin" name="fecha_fin" value="<%= filtros.fecha_fin %>">
+          </div>
+          <div class="col-12 col-md-6 col-lg-4 col-xl-2">
+            <label class="form-label" for="bitacora-tipo-user">Tipo de usuario</label>
+            <select class="form-select" id="bitacora-tipo-user" name="tipo_usuario">
+              <option value="">Todos</option>
+              <% (tiposUsuario || []).forEach(function(tu) { %>
+                <option value="<%= tu.id_cat_type_users %>" <%= filtros.tipo_usuario == String(tu.id_cat_type_users) ? 'selected' : '' %>>
+                  <%= tu.type_user %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-12 col-md-6 col-lg-8 col-xl-4">
+            <label class="form-label" for="bitacora-buscar">Buscar texto</label>
+            <input type="text" class="form-control" id="bitacora-buscar" name="buscar" value="<%= filtros.buscar || '' %>"
+              placeholder="Acción, usuario, instancia, página, detalle…" autocomplete="off">
+          </div>
+        </div>
+        <div class="bitacora-filters-actions-wrap">
+          <div class="bitacora-filter-actions" role="group" aria-label="Acciones del filtro">
+            <button class="btn bitacora-btn-filtrar" type="submit">
+              <i class="fa-solid fa-magnifying-glass me-2" aria-hidden="true"></i>Filtrar
+            </button>
+            <a href="/admin/bitacora" class="btn bitacora-btn-limpiar">
+              <i class="fa-solid fa-rotate-left me-2" aria-hidden="true"></i>Limpiar
+            </a>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="table-responsive mt-4 bitacora-table-wrap">
+      <table class="table table-striped table-hover align-middle bitacora-table">
+        <caption class="bitacora-caption">Registros de auditoría del CMS</caption>
+        <thead>
+          <tr>
+            <th scope="col">Fecha</th>
+            <th scope="col">Instancia</th>
+            <th scope="col">Acción</th>
+            <th scope="col">Usuario actor</th>
+            <th scope="col">Tipo usuario</th>
+            <th scope="col">Usuario afectado</th>
+            <th scope="col">Página CMS</th>
+            <th scope="col">IP origen</th>
+            <th scope="col">Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!rows || !rows.length) { %>
+            <tr>
+              <td colspan="9" class="text-center text-muted py-4">Sin resultados para los filtros seleccionados.</td>
+            </tr>
+          <% } %>
+          <% (rows || []).forEach(function(r) { %>
+            <tr>
+              <td><%= r.f_reg ? new Date(r.f_reg).toLocaleString('es-MX') : '-' %></td>
+              <td><%= r.instancia_nombre || (r.fk_id_sysapp ? ('#' + r.fk_id_sysapp) : '-') %></td>
+              <td title="<%= r.accion_clave || '' %>"><%= r.accion_descripcion || r.accion_clave || '-' %></td>
+              <td><%= r.actor_nombre || (r.actor_id ? ('#' + r.actor_id) : '-') %></td>
+              <td><%= r.actor_tipo_usuario || '-' %></td>
+              <td><%= r.afectado_nombre || (r.afectado_id ? ('#' + r.afectado_id) : '-') %></td>
+              <td class="bitacora-pagina-cell">
+                <% var _pid = r.id_wb_pagina != null ? parseInt(r.id_wb_pagina, 10) : NaN; %>
+                <% if (Number.isFinite(_pid) && _pid > 0) { %>
+                  <span class="bitacora-pagina-titulo"><%= r.pagina_nombre || ('Página #' + _pid) %></span>
+                  <small class="text-muted d-block">ID <%= _pid %><% if (r.pagina_url_safe) { %> · /<%= r.pagina_url_safe %><% } %></small>
+                <% } else { %>
+                  <span class="text-muted bitacora-pagina-na" title="Solo aplica cuando el movimiento está ligado a una página del sitio (wb_pagina). Alta de instancia, responsables, usuarios CMS o sesión no tienen página concreta.">Sin página del sitio</span>
+                <% } %>
+              </td>
+              <td><%= r.ip_display != null ? r.ip_display : '—' %></td>
+              <td class="bitacora-detalle-cell text-nowrap">
+                <% if (r.detalle == null) { %>
+                  <span class="text-muted">—</span>
+                <% } else {
+                  var _detB64 = Buffer.from(JSON.stringify(r.detalle), 'utf8').toString('base64');
+                  var _accLabel = String(r.accion_descripcion || r.accion_clave || 'Movimiento').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+                  var _instLabel = String(r.instancia_nombre || (r.fk_id_sysapp ? ('Instancia #' + r.fk_id_sysapp) : '—')).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+                  var _fechaIso = r.f_reg ? new Date(r.f_reg).toISOString() : '';
+                %>
+                  <button type="button" class="btn bitacora-btn-ver-detalle bitacora-open-detalle"
+                    data-bs-toggle="modal" data-bs-target="#bitacoraDetalleModal"
+                    data-bit-id="<%= r.id_bitacora %>"
+                    data-bit-fecha="<%= _fechaIso %>"
+                    data-bit-accion="<%= _accLabel %>"
+                    data-bit-instancia="<%= _instLabel %>"
+                    data-bit-detalle-b64="<%= _detB64 %>">
+                    <i class="fa-regular fa-file-lines me-1" aria-hidden="true"></i>Ver detalle
+                  </button>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (pag.total > 0) { %>
+    <nav class="mt-4 d-flex justify-content-center align-items-center flex-column bitacora-pagination-host" id="bitacoraPaginationHosting" aria-label="Páginas de resultados">
+      <div class="inst-pagination-inner">
+        <% if (pag.page <= 1) { %>
+          <span class="inst-page-btn inst-page-arrow" aria-disabled="true" tabindex="-1"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></span>
+        <% } else { %>
+          <a class="inst-page-btn inst-page-arrow" href="<%= bitacoraQuery(pag.page - 1) %>" aria-label="Página anterior"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></a>
+        <% } %>
+        <div class="inst-page-numbers">
+          <% pageLinks.forEach(function(pi) { %>
+            <% if (pi === 0) { %>
+              <span class="inst-page-ellipsis" aria-hidden="true">…</span>
+            <% } else { %>
+              <a class="inst-page-btn <%= pi === pag.page ? 'is-active' : '' %>" href="<%= bitacoraQuery(pi) %>" <%= pi === pag.page ? 'aria-current="page"' : '' %>><%= pi %></a>
+            <% } %>
+          <% }); %>
+        </div>
+        <% if (pag.page >= pag.totalPages) { %>
+          <span class="inst-page-btn inst-page-arrow" aria-disabled="true" tabindex="-1"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+        <% } else { %>
+          <a class="inst-page-btn inst-page-arrow" href="<%= bitacoraQuery(pag.page + 1) %>" aria-label="Página siguiente"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+        <% } %>
+      </div>
+      <p class="inst-pagination-meta mb-0">
+        Mostrando <strong><%= pag.from %></strong>–<strong><%= pag.to %></strong> de <strong><%= pag.total %></strong> registros
+        · Página <%= pag.page %> de <%= pag.totalPages %>
+      </p>
+    </nav>
+    <% } else { %>
+    <p class="inst-pagination-meta text-center mt-4 mb-0 text-muted">Sin registros con los filtros actuales.</p>
+    <% } %>
+  </div>
+</div>
+
+<!-- Modal detalle bitácora -->
+<div class="modal fade" id="bitacoraDetalleModal" tabindex="-1" aria-labelledby="bitacoraDetalleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content bitacora-detalle-modal">
+      <div class="modal-header bitacora-detalle-modal-header">
+        <div>
+          <h5 class="modal-title mb-0" id="bitacoraDetalleModalLabel">Detalle del movimiento</h5>
+          <p class="bitacora-detalle-modal-sub mb-0 mt-1" id="bitacoraDetalleModalSub"></p>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body bitacora-detalle-modal-body" id="bitacoraDetalleModalBody"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bitacora-filters-card {
+    background: linear-gradient(180deg, #fffefb 0%, #ffffff 48%);
+    border: 1px solid rgba(185, 141, 104, 0.28);
+    border-radius: 16px;
+    padding: 1.35rem 1.5rem 1.5rem;
+    box-shadow: 0 10px 40px rgba(82, 24, 30, 0.07), 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  }
+  .bitacora-filters-heading {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #52181e;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin: 0 0 1.1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(185, 141, 104, 0.4);
+  }
+  .bitacora-filters-heading i {
+    color: var(--dorado, #b98d68);
+    opacity: 0.95;
+  }
+  .bitacora-filters .form-label {
+    font-weight: 600;
+    color: #4a4540;
+    font-size: 0.82rem;
+    margin-bottom: 0.35rem;
+  }
+  .bitacora-filters .form-control,
+  .bitacora-filters .form-select {
+    border-radius: 10px;
+    border: 1px solid #dcd7cf;
+    background: #faf9f7;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .bitacora-filters .form-control:hover,
+  .bitacora-filters .form-select:hover {
+    border-color: #c9c2b8;
+  }
+  .bitacora-filters .form-control:focus,
+  .bitacora-filters .form-select:focus {
+    border-color: var(--dorado, #b98d68);
+    box-shadow: 0 0 0 3px rgba(185, 141, 104, 0.22);
+    background: #fff;
+  }
+  .bitacora-filters-actions-wrap {
+    margin-top: 1.35rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .bitacora-filter-actions {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+  }
+  .bitacora-btn-filtrar {
+    background: linear-gradient(135deg, #8e2c2d 0%, #6b2021 100%);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    border-radius: 999px;
+    padding: 0.55rem 1.65rem;
+    min-width: 140px;
+    box-shadow: 0 4px 14px rgba(142, 44, 45, 0.32);
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+  }
+  .bitacora-btn-filtrar:hover {
+    background: linear-gradient(135deg, #7a2627 0%, #52181e 100%);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(142, 44, 45, 0.4);
+    transform: translateY(-1px);
+  }
+  .bitacora-btn-filtrar:focus {
+    box-shadow: 0 0 0 3px rgba(185, 141, 104, 0.45);
+  }
+  .bitacora-btn-limpiar {
+    background: #fff;
+    color: #52181e;
+    font-weight: 600;
+    border: 2px solid #b98d68;
+    border-radius: 999px;
+    padding: 0.5rem 1.55rem;
+    min-width: 140px;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+  }
+  .bitacora-btn-limpiar:hover {
+    background: #faf6f1;
+    color: #3d1217;
+    border-color: #a17d58;
+    transform: translateY(-1px);
+  }
+  .bitacora-table-wrap {
+    border: 1px solid #e8eaed;
+    border-radius: 10px;
+    background: #fff;
+    padding: 0.25rem;
+  }
+  /* Encabezado legible: el CSS global (.table>thead { color: white }) + fondo claro en th dejaba texto invisible */
+  /* Misma línea que tablas CMS globales: dorado + texto claro (sin verde) */
+  .bitacora-table-wrap .bitacora-table > thead {
+    background-color: var(--dorado, #b98d68);
+    color: #fff;
+  }
+  .bitacora-table-wrap .bitacora-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: var(--dorado, #b98d68) !important;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+  }
+  .bitacora-caption {
+    caption-side: top;
+    padding: 0.35rem 0.25rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #444;
+  }
+  .bitacora-table td {
+    font-size: 0.85rem;
+    vertical-align: top;
+  }
+  .bitacora-btn-ver-detalle {
+    background: #fff;
+    color: var(--rojo-guinda, #8e2c2d);
+    font-weight: 600;
+    font-size: 0.8rem;
+    border: 2px solid var(--dorado, #b98d68);
+    border-radius: 8px;
+    padding: 0.35rem 0.75rem;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .bitacora-btn-ver-detalle:hover {
+    background: var(--rojo-guinda, #8e2c2d);
+    color: #fff;
+    border-color: var(--rojo-guinda, #8e2c2d);
+    box-shadow: 0 2px 8px rgba(142, 44, 45, 0.25);
+  }
+  .bitacora-btn-ver-detalle:focus {
+    box-shadow: 0 0 0 3px rgba(185, 141, 104, 0.45);
+  }
+  .bitacora-detalle-modal-header {
+    background: linear-gradient(135deg, #8b1538 0%, #52181e 100%);
+    color: #fff;
+    border-bottom: none;
+    padding: 1rem 1.25rem;
+  }
+  .bitacora-detalle-modal-header .modal-title {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .bitacora-detalle-modal-sub {
+    font-size: 0.82rem;
+    opacity: 0.92;
+    line-height: 1.35;
+  }
+  .bitacora-detalle-modal-body {
+    background: #faf9f7;
+    padding: 1.25rem;
+  }
+  .bitacora-detalle-kv {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e8e4df;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  }
+  .bitacora-detalle-kv-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 32%) 1fr;
+    gap: 0.75rem 1rem;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid #f0ebe4;
+    align-items: start;
+  }
+  .bitacora-detalle-kv-row:last-child {
+    border-bottom: none;
+  }
+  .bitacora-detalle-kv-key {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8b1538;
+  }
+  .bitacora-detalle-kv-val {
+    font-size: 0.88rem;
+    color: #333;
+    word-break: break-word;
+  }
+  .bitacora-detalle-kv-pre {
+    margin: 0;
+    padding: 0.6rem 0.75rem;
+    background: #f4f1ec;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    max-height: 220px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: 1px solid #e5dfd6;
+  }
+  .bitacora-detalle-raw {
+    margin-top: 1rem;
+  }
+  .bitacora-detalle-raw summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+    font-size: 0.85rem;
+  }
+  .bitacora-detalle-raw pre {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+    padding: 0.75rem;
+    background: #2d2a28;
+    color: #e8e4df;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    max-height: 280px;
+    overflow: auto;
+  }
+  .bitacora-pagina-titulo {
+    font-weight: 600;
+    color: #3c3c3b;
+  }
+  /* Paginador: mismo patrón visual que instancias (pastilla + chevrons) */
+  .bitacora-pagination-host {
+    --inst-guinda: #8b1538;
+    --inst-guinda-oscuro: #52181e;
+    width: 100%;
+  }
+  .bitacora-pagination-host .inst-pagination-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+  }
+  .bitacora-pagination-host .inst-page-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.65rem;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    text-decoration: none;
+    box-sizing: border-box;
+  }
+  .bitacora-pagination-host a.inst-page-btn {
+    color: #555;
+  }
+  .bitacora-pagination-host .inst-page-btn.is-active {
+    background: linear-gradient(135deg, var(--inst-guinda), var(--inst-guinda-oscuro));
+    color: #fff;
+  }
+  .bitacora-pagination-host .inst-page-btn.inst-page-arrow {
+    color: var(--inst-guinda-oscuro);
+  }
+  .bitacora-pagination-host .inst-page-btn:disabled,
+  .bitacora-pagination-host .inst-page-btn[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+  }
+  .bitacora-pagination-host .inst-page-btn:not([aria-disabled="true"]):not(.is-active):hover {
+    background: rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+    color: #333;
+  }
+  .bitacora-pagination-host a.inst-page-btn.is-active:hover {
+    background: linear-gradient(135deg, var(--inst-guinda-oscuro), var(--inst-guinda));
+    color: #fff;
+  }
+  .bitacora-pagination-host .inst-page-numbers {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.15rem;
+    margin: 0 0.1rem;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+  }
+  .bitacora-pagination-host .inst-page-ellipsis {
+    padding: 0 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #999;
+    user-select: none;
+  }
+  .bitacora-pagination-host .inst-pagination-meta {
+    margin-top: 0.4rem;
+    font-size: 0.8rem;
+    color: #777;
+    text-align: center;
+  }
+  @media (max-width: 576px) {
+    .bitacora-pagination-host .inst-pagination-inner {
+      padding: 0.25rem 0.5rem;
+    }
+    .bitacora-pagination-host .inst-page-btn {
+      min-width: 28px;
+      height: 28px;
+      font-size: 0.8rem;
+    }
+    .bitacora-pagination-host .inst-pagination-meta {
+      font-size: 0.75rem;
+    }
+  }
+</style>
+
+<script>
+(function () {
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  function humanKey(k) {
+    return String(k).replace(/_/g, ' ');
+  }
+  function renderDetalle(detalle) {
+    if (detalle === null || detalle === undefined) {
+      return '<p class="text-muted mb-0">Sin datos adicionales.</p>';
+    }
+    if (typeof detalle === 'string') {
+      return '<p class="bitacora-detalle-kv-val mb-0">' + escapeHtml(detalle) + '</p>';
+    }
+    if (typeof detalle !== 'object') {
+      return '<p class="bitacora-detalle-kv-val mb-0">' + escapeHtml(String(detalle)) + '</p>';
+    }
+    if (Array.isArray(detalle)) {
+      if (!detalle.length) {
+        return '<p class="text-muted mb-0">Lista vacía.</p>';
+      }
+      var lis = detalle.map(function (item, i) {
+        var inner = typeof item === 'object'
+          ? '<pre class="bitacora-detalle-kv-pre mb-0">' + escapeHtml(JSON.stringify(item, null, 2)) + '</pre>'
+          : '<span class="bitacora-detalle-kv-val">' + escapeHtml(String(item)) + '</span>';
+        return '<li class="mb-2"><span class="badge rounded-pill me-2" style="background:#b98d68;color:#fff;">' + (i + 1) + '</span>' + inner + '</li>';
+      }).join('');
+      return '<ul class="list-unstyled mb-0">' + lis + '</ul>';
+    }
+    var keys = Object.keys(detalle).sort();
+    if (!keys.length) {
+      return '<p class="text-muted mb-0">Sin campos.</p>';
+    }
+    var rows = keys.map(function (k) {
+      var v = detalle[k];
+      var valHtml;
+      if (v !== null && typeof v === 'object') {
+        valHtml = '<pre class="bitacora-detalle-kv-pre">' + escapeHtml(JSON.stringify(v, null, 2)) + '</pre>';
+      } else {
+        valHtml = '<span class="bitacora-detalle-kv-val">' + escapeHtml(v == null ? '—' : String(v)) + '</span>';
+      }
+      return '<div class="bitacora-detalle-kv-row"><span class="bitacora-detalle-kv-key">' + escapeHtml(humanKey(k)) + '</span><div>' + valHtml + '</div></div>';
+    }).join('');
+    var raw = '<details class="bitacora-detalle-raw"><summary>JSON completo (copiar)</summary><pre>' + escapeHtml(JSON.stringify(detalle, null, 2)) + '</pre></details>';
+    return '<div class="bitacora-detalle-kv">' + rows + '</div>' + raw;
+  }
+  var modalEl = document.getElementById('bitacoraDetalleModal');
+  if (!modalEl) return;
+  modalEl.addEventListener('show.bs.modal', function (ev) {
+    var btn = ev.relatedTarget;
+    if (!btn || !btn.classList.contains('bitacora-open-detalle')) return;
+    var subEl = document.getElementById('bitacoraDetalleModalSub');
+    var bodyEl = document.getElementById('bitacoraDetalleModalBody');
+    var fechaIso = btn.getAttribute('data-bit-fecha') || '';
+    var accion = btn.getAttribute('data-bit-accion') || '';
+    var inst = btn.getAttribute('data-bit-instancia') || '';
+    var idBit = btn.getAttribute('data-bit-id') || '';
+    var lineas = [];
+    if (idBit) lineas.push('Registro #' + idBit);
+    if (fechaIso) {
+      try {
+        lineas.push(new Date(fechaIso).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' }));
+      } catch (e) {
+        lineas.push(fechaIso);
+      }
+    }
+    if (inst && inst !== '—') lineas.push(inst);
+    if (subEl) {
+      subEl.innerHTML = lineas.map(escapeHtml).join(' · ') + (accion ? '<br><strong>' + escapeHtml(accion) + '</strong>' : '');
+    }
+    var detalle = null;
+    try {
+      var b64 = btn.getAttribute('data-bit-detalle-b64') || '';
+      detalle = JSON.parse(atob(b64));
+    } catch (e) {
+      detalle = { error: 'No se pudo interpretar el detalle guardado.' };
+    }
+    if (bodyEl) bodyEl.innerHTML = renderDetalle(detalle);
+  });
+})();
+</script>
+
+<%- include('partials/footerNoMx'); %>

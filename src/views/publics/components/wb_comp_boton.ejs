@@ -1,0 +1,65 @@
+<style>
+    .wb-comp-boton-row {
+        margin-top: 1rem;
+    }
+
+    .wb-comp-boton-link {
+        text-decoration: none;
+    }
+
+    .wb-comp-boton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 10px 22px;
+        min-width: 150px;
+        min-height: 44px;
+        border: 2px solid #8e2c2d;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        overflow: hidden;
+        background: #ffffff;
+        color: #8e2c2d;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 10px rgba(82, 24, 30, 0.12);
+    }
+
+    .wb-comp-boton:hover {
+        background: #8e2c2d;
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .wb-comp-boton-text {
+        position: static;
+        padding: 0;
+        color: inherit;
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.2px;
+    }
+
+    .wb-comp-boton-col {
+        display: flex;
+        align-items: center;
+    }
+</style>
+
+<% if (Array.isArray(objcomp.wb_comp_boton) && objcomp.wb_comp_boton.length > 0) { %>
+    <% objcomp.wb_comp_boton.forEach((button, index) => { %>
+        <div class="row wb-comp-boton-row">
+            <div class="col-lg-2 col-md-3 col-sm-12 mb-2 wb-comp-boton-col">
+                <a class="wb-comp-boton-link" href="<%= button.liga %>">
+                    <div class="wb-comp-boton">
+                        <span class="wb-comp-boton-text"><%= button.texto %></span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    <% }) %>
+<% } else { %>
+    <p>No hay información disponible....</p>
+<% } %>

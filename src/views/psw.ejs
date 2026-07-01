@@ -1,0 +1,546 @@
+<%- include('partials/header'); %>
+
+    <main id="contPrerregistro">
+        <div class="logo-gobmx">
+            <!-- <img src="assets/img/GOBMX.svg"> -->
+        </div>
+        <div id="boxContrasena" class="boxLogin">
+            <div class="headerBox">
+                <!-- <img src="assets/img/Logo_morena.png"> -->
+                <!-- <h2 class="tit-prin blanco_t">CAMBIO DE <br> CONTRASEÑA</h2> -->
+            </div>
+            <div class="bodyBox">
+                <% if (typeof passwordChanged !== 'undefined' && passwordChanged) { %>
+                    <!-- Sección de registro de passkey después de cambiar contraseña -->
+                    <div id="passkeySection" class="row">
+                        <div class="col-12">
+                            <div class="subenun">
+                                <p class="subtit">¡Contraseña actualizada exitosamente!</p>
+                                <span></span>
+                            </div>
+                            <div class="passkey-option-box" style="margin: 30px auto; width: 90%; max-width: 900px; padding: 25px 30px; border: 2px solid #BB965C; border-radius: 12px; background: linear-gradient(135deg, #fff 0%, #faf9f7 100%); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); box-sizing: border-box;">
+                                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+                                    <div style="flex-shrink: 0; width: 60px; height: 60px; background: linear-gradient(135deg, #9F1F41 0%, #681B33 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(159, 31, 65, 0.3);">
+                                        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <!-- Ícono de huella digital reconocible -->
+                                            <path d="M12 1C10.34 1 9 2.34 9 4V6C9 7.66 10.34 9 12 9C13.66 9 15 7.66 15 6V4C15 2.34 13.66 1 12 1Z" fill="white"/>
+                                            <path d="M7 9C5.9 9 5 9.9 5 11V13C5 14.1 5.9 15 7 15C8.1 15 9 14.1 9 13V11C9 9.9 8.1 9 7 9Z" fill="white"/>
+                                            <path d="M17 9C15.9 9 15 9.9 15 11V13C15 14.1 15.9 15 17 15C18.1 15 19 14.1 19 13V11C19 9.9 18.1 9 17 9Z" fill="white"/>
+                                            <path d="M5 16C3.9 16 3 16.9 3 18V20C3 21.1 3.9 22 5 22C6.1 22 7 21.1 7 20V18C7 16.9 6.1 16 5 16Z" fill="white"/>
+                                            <path d="M19 16C17.9 16 17 16.9 17 18V20C17 21.1 17.9 22 19 22C20.1 22 21 21.1 21 20V18C21 16.9 20.1 16 19 16Z" fill="white"/>
+                                            <path d="M12 16C10.9 16 10 16.9 10 18V20C10 21.1 10.9 22 12 22C13.1 22 14 21.1 14 20V18C14 16.9 13.1 16 12 16Z" fill="white"/>
+                                            <!-- Líneas curvas de huella -->
+                                            <path d="M4 8C4 7.45 4.45 7 5 7C5.55 7 6 7.45 6 8C6 8.55 5.55 9 5 9C4.45 9 4 8.55 4 8Z" fill="white"/>
+                                            <path d="M20 8C20 7.45 20.45 7 21 7C21.55 7 22 7.45 22 8C22 8.55 21.55 9 21 9C20.45 9 20 8.55 20 8Z" fill="white"/>
+                                            <path d="M2 14C2 13.45 2.45 13 3 13C3.55 13 4 13.45 4 14C4 14.55 3.55 15 3 15C2.45 15 2 14.55 2 14Z" fill="white"/>
+                                            <path d="M22 14C22 13.45 22.45 13 23 13C23.55 13 24 13.45 24 14C24 14.55 23.55 15 23 15C22.45 15 22 14.55 22 14Z" fill="white"/>
+                                            <!-- Centro -->
+                                            <circle cx="12" cy="12" r="2" fill="white"/>
+                                        </svg>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <h3 style="color: #681B33; margin-bottom: 5px; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.5px;">Autenticación con Llave de acceso</h3>
+                                        <p style="color: #9F1F41; font-size: 0.95rem; font-weight: 500; margin: 0;">(Opcional)</p>
+                                    </div>
+                                </div>
+                                <p style="color: #333; margin-bottom: 25px; line-height: 1.7; font-size: 0.95rem; text-align: left;">
+                                    Puedes registrar una Llave de acceso para iniciar sesión de forma más segura usando tu huella digital, 
+                                    reconocimiento facial o PIN de tu dispositivo. Esto es opcional, puedes hacerlo más tarde.
+                                </p>
+                                <div style="margin-top: 25px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; align-items: stretch;">
+                                    <button type="button" id="registerPasskeyBtn" class="btnGral" style="flex: 1; min-width: 140px; max-width: 100%; padding: 12px 16px; background: linear-gradient(135deg, #9F1F41 0%, #681B33 100%); border: 2px solid #681B33; border-radius: 8px; color: white; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(159, 31, 65, 0.3); display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                                        <span style="color: white; white-space: nowrap; text-align: center; overflow: hidden; text-overflow: ellipsis;">REGISTRAR LLAVE DE ACCESO</span>
+                                    </button>
+                                    <button type="button" id="skipPasskeyBtn" class="btnGral" style="flex: 1; min-width: 140px; max-width: 100%; padding: 12px 16px; background: transparent; border: 2px solid #BB965C; border-radius: 8px; color: #681B33; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                                        <span style="color: #681B33; white-space: nowrap; text-align: center; overflow: hidden; text-overflow: ellipsis;">OMITIR POR AHORA</span>
+                                    </button>
+                                </div>
+                                <div id="passkeyStatus" style="margin-top: 20px; padding: 12px; border-radius: 6px; display: none; text-align: center; font-size: 0.9rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <!-- Formulario de cambio de contraseña -->
+                    <div class="subenun">
+                        <p class="subtit">Crea una nueva contraseña. </p>
+                        <span></span>
+                    </div>
+                    <label class="titForm ma-g"><em>*Esta debe ser de al menos 8 caracteres. debe contener una letra
+                            mayúscula, una letra minúscula, un número y un caracter especial.</em></label>
+                    <form id="pswForm" method="POST" action="psw" class="row">
+                        <div class="col-12 ma-g">
+                            <label class="titForm verde_t"><img src="assets/img/CONTRASENA.svg">CONTRASEÑA</label>
+                            <input type="password" name="pass" class="form-control form-login oro_t">
+                        </div>
+                        <div class="col-12 ma-g">
+                            <label class="titForm verde_t"><img src="assets/img/CONTRASENA.svg">CONFIRMAR CONTRASEÑA</label>
+                            <input type="password" name="passConf" class="form-control form-login oro_t">
+                        </div>
+                        <div class="col-12 t-c">
+                            <button type="button" class="btnGral verde_t form-control" style="width: unset; display: unset;"
+                                disabled>
+                                <p>GUARDAR</p>
+                                <div class="btnIcon">
+                                    <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg"></div>
+                                    <span class="s-verde"></span>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                <% } %>
+            </div>
+        </div>
+
+    <%- include('partials/footerNoMx'); %>
+<style>
+    /* Estilos para los botones de passkey */
+    #registerPasskeyBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(159, 31, 65, 0.4) !important;
+        background: linear-gradient(135deg, #681B33 0%, #9F1F41 100%) !important;
+    }
+    
+    #registerPasskeyBtn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(159, 31, 65, 0.3) !important;
+    }
+    
+    #registerPasskeyBtn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+    
+    #skipPasskeyBtn:hover {
+        background: #f5f5f5 !important;
+        border-color: #9F1F41 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(187, 150, 92, 0.3);
+    }
+    
+    #skipPasskeyBtn:active {
+        transform: translateY(0);
+    }
+    
+    .passkey-option-box {
+        animation: fadeInUp 0.5s ease-out;
+        box-sizing: border-box;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Responsive para móviles */
+    @media (max-width: 768px) {
+        .passkey-option-box {
+            width: 95% !important;
+            padding: 20px 15px !important;
+            margin: 20px auto !important;
+        }
+        
+        .passkey-option-box > div:first-child {
+            flex-direction: column !important;
+            text-align: center !important;
+            gap: 15px !important;
+        }
+        
+        .passkey-option-box > div:first-child > div:last-child {
+            width: 100% !important;
+        }
+        
+        .passkey-option-box > div:first-child > div:last-child h3 {
+            font-size: 1.2rem !important;
+        }
+        
+        .passkey-option-box > div:last-child {
+            flex-direction: column !important;
+            gap: 10px !important;
+        }
+        
+        .passkey-option-box > div:last-child button {
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .passkey-option-box {
+            padding: 15px 12px !important;
+        }
+        
+        .passkey-option-box > div:first-child > div:first-child {
+            width: 50px !important;
+            height: 50px !important;
+        }
+        
+        .passkey-option-box > div:first-child > div:first-child svg {
+            width: 28px !important;
+            height: 28px !important;
+        }
+    }
+</style>
+<script>
+    <% if (typeof passwordChanged !== 'undefined' && passwordChanged) { %>
+        // Lógica para registro de passkey
+        const registerPasskeyBtn = document.getElementById('registerPasskeyBtn');
+        const skipPasskeyBtn = document.getElementById('skipPasskeyBtn');
+        const passkeyStatus = document.getElementById('passkeyStatus');
+
+        // Verificar si WebAuthn está disponible
+        if (!window.PublicKeyCredential) {
+            passkeyStatus.innerHTML = '<p style="color: #9F1F41; background: #ffebee; padding: 10px; border-radius: 6px; border: 1px solid #9F1F41;">Tu navegador no soporta autenticación biométrica. Por favor, usa un navegador más reciente.</p>';
+            passkeyStatus.style.display = 'block';
+            registerPasskeyBtn.disabled = true;
+        }
+
+        // Función para registrar passkey
+        async function registerPasskey() {
+            try {
+                registerPasskeyBtn.disabled = true;
+                passkeyStatus.innerHTML = '<p style="color: #681B33; background: #f0f0f0; padding: 10px; border-radius: 6px;">Iniciando registro de Llave de acceso...</p>';
+                passkeyStatus.style.display = 'block';
+
+                // Paso 1: Obtener opciones de registro
+                const startResponse = await fetch('/api/passkeys/register/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include'
+                });
+
+                if (!startResponse.ok) {
+                    throw new Error('Error al iniciar registro');
+                }
+
+                const { success, options } = await startResponse.json();
+                if (!success) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
+                // Convertir challenge de base64url a ArrayBuffer
+                // El challenge viene como string base64url, necesitamos convertirlo a ArrayBuffer
+                const challengeBase64 = options.challenge.replace(/-/g, '+').replace(/_/g, '/');
+                const challengeBytes = Uint8Array.from(atob(challengeBase64), c => c.charCodeAt(0));
+                options.challenge = challengeBytes.buffer;
+
+                // Convertir user.id de base64url a ArrayBuffer
+                if (options.user && options.user.id) {
+                    const userIdBase64 = options.user.id.replace(/-/g, '+').replace(/_/g, '/');
+                    const userIdBytes = Uint8Array.from(atob(userIdBase64), c => c.charCodeAt(0));
+                    options.user.id = userIdBytes.buffer;
+                }
+
+                passkeyStatus.innerHTML = '<p style="color: #681B33; background: #f0f0f0; padding: 10px; border-radius: 6px;">Por favor, sigue las instrucciones de tu dispositivo...</p>';
+
+                // Paso 2: Crear credencial usando WebAuthn API
+                let credential;
+                try {
+                    credential = await navigator.credentials.create({
+                        publicKey: options
+                    });
+                } catch (createError) {
+                    // Si el usuario cancela, no mostrar error
+                    if (createError.name === 'NotAllowedError' || 
+                        createError.name === 'AbortError' ||
+                        createError.message.includes('not allowed') ||
+                        createError.message.includes('timeout') ||
+                        createError.message.includes('cancelled')) {
+                        passkeyStatus.innerHTML = '';
+                        passkeyStatus.style.display = 'none';
+                        registerPasskeyBtn.disabled = false;
+                        return; // Salir silenciosamente sin mostrar error
+                    }
+                    // Para otros errores, lanzar la excepción para que se maneje abajo
+                    throw createError;
+                }
+
+                // Convertir respuesta a base64url
+                const response = {
+                    id: credential.id,
+                    rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId)))
+                        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+                    type: credential.type,
+                    response: {
+                        attestationObject: btoa(String.fromCharCode(...new Uint8Array(credential.response.attestationObject)))
+                            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+                        clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(credential.response.clientDataJSON)))
+                            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+                    }
+                };
+
+                passkeyStatus.innerHTML = '<p style="color: #681B33; background: #f0f0f0; padding: 10px; border-radius: 6px;">Completando registro...</p>';
+
+                // Función para detectar el nombre del dispositivo
+                function getDeviceName() {
+                    const ua = navigator.userAgent;
+                    const platform = navigator.platform || '';
+                    const vendor = navigator.vendor || '';
+                    
+                    // Detectar macOS
+                    if (platform.includes('Mac') || ua.includes('Mac OS X')) {
+                        if (ua.includes('iPhone') || ua.includes('iPad')) {
+                            return ua.includes('iPhone') ? 'iPhone' : 'iPad';
+                        }
+                        // Detectar tipo de Mac
+                        if (ua.includes('Macintosh')) {
+                            // Intentar detectar modelo específico si es posible
+                            if (ua.includes('Intel')) {
+                                return 'Mac (Intel)';
+                            } else if (ua.includes('Apple')) {
+                                return 'Mac (Apple Silicon)';
+                            }
+                            return 'Mac';
+                        }
+                        return 'Mac';
+                    }
+                    
+                    // Detectar Windows
+                    if (platform.includes('Win') || ua.includes('Windows')) {
+                        if (ua.includes('Windows NT 10.0')) return 'Windows 10/11';
+                        if (ua.includes('Windows NT 6.3')) return 'Windows 8.1';
+                        if (ua.includes('Windows NT 6.2')) return 'Windows 8';
+                        if (ua.includes('Windows NT 6.1')) return 'Windows 7';
+                        return 'Windows';
+                    }
+                    
+                    // Detectar Linux
+                    if (platform.includes('Linux') || ua.includes('Linux')) {
+                        if (ua.includes('Ubuntu')) return 'Ubuntu';
+                        if (ua.includes('Fedora')) return 'Fedora';
+                        if (ua.includes('Debian')) return 'Debian';
+                        return 'Linux';
+                    }
+                    
+                    // Detectar Android
+                    if (ua.includes('Android')) {
+                        const androidVersion = ua.match(/Android (\d+(\.\d+)?)/);
+                        if (androidVersion) {
+                            return `Android ${androidVersion[1]}`;
+                        }
+                        return 'Android';
+                    }
+                    
+                    // Detectar iOS
+                    if (ua.includes('iPhone') || ua.includes('iPad') || ua.includes('iPod')) {
+                        const iosVersion = ua.match(/OS (\d+)_(\d+)/);
+                        if (iosVersion) {
+                            return `iOS ${iosVersion[1]}.${iosVersion[2]}`;
+                        }
+                        if (ua.includes('iPhone')) return 'iPhone';
+                        if (ua.includes('iPad')) return 'iPad';
+                        return 'iOS';
+                    }
+                    
+                    // Detectar Chrome OS
+                    if (ua.includes('CrOS')) {
+                        return 'Chrome OS';
+                    }
+                    
+                    // Usar platform como fallback
+                    if (navigator.userAgentData?.platform) {
+                        return navigator.userAgentData.platform;
+                    }
+                    
+                    if (platform) {
+                        return platform;
+                    }
+                    
+                    return 'Dispositivo desconocido';
+                }
+
+                // Paso 3: Enviar credencial al servidor
+                const finishResponse = await fetch('/api/passkeys/register/finish', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        credential: response,
+                        deviceName: getDeviceName()
+                    })
+                });
+
+                const finishResult = await finishResponse.json();
+
+                if (finishResult.success) {
+                    passkeyStatus.innerHTML = '<p style="color: #681B33; background: #e8f5e9; padding: 10px; border-radius: 6px; border: 1px solid #9F1F41; font-weight: 600;">✓ Llave de acceso registrada exitosamente</p>';
+                    setTimeout(() => {
+                        // Redirigir a /admin si es localhost
+                        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                        window.location.href = isLocalhost ? '/admin' : '/';
+                    }, 2000);
+                } else {
+                    throw new Error(finishResult.message || 'Error al registrar Llave de acceso');
+                }
+            } catch (error) {
+                // Si el usuario cancela o hay un error de permisos, no mostrar error
+                if (error.name === 'NotAllowedError' || 
+                    error.name === 'AbortError' ||
+                    error.name === 'InvalidStateError' ||
+                    error.message.includes('not allowed') ||
+                    error.message.includes('timeout') ||
+                    error.message.includes('cancelled') ||
+                    error.message.includes('The operation either timed out or was not allowed')) {
+                    passkeyStatus.innerHTML = '';
+                    passkeyStatus.style.display = 'none';
+                    registerPasskeyBtn.disabled = false;
+                    return; // Salir silenciosamente
+                }
+                
+                // Solo mostrar error para errores reales (no cancelaciones)
+                console.error('Error al registrar passkey:', error);
+                passkeyStatus.innerHTML = '<p style="color: #9F1F41; background: #ffebee; padding: 10px; border-radius: 6px; border: 1px solid #9F1F41;">Error: ' + (error.message || 'No se pudo registrar la Llave de acceso') + '</p>';
+                registerPasskeyBtn.disabled = false;
+            }
+        }
+
+        // Función para omitir registro
+        function skipPasskey() {
+            // Redirigir a /admin si es localhost
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            window.location.href = isLocalhost ? '/admin' : '/';
+        }
+
+        registerPasskeyBtn.addEventListener('click', registerPasskey);
+        skipPasskeyBtn.addEventListener('click', skipPasskey);
+    <% } else { %>
+        // Lógica para cambio de contraseña
+        let ver_pass_icon = $('#ver_pass_icon');
+        let pass_input = $('#PrimerAcceso_contrasena')[0];
+        if (ver_pass_icon.length && pass_input) {
+            ver_pass_icon.on( 'mousedown',()=>{
+                pass_input.type = 'text';
+                ver_pass_icon.removeClass('fa fa-eye-slash').addClass('fa fa-eye');
+            });
+            ver_pass_icon.on( 'mouseup',()=>{
+                pass_input.type = 'password';
+                ver_pass_icon.removeClass('fa fa-eye').addClass('fa fa-eye-slash');
+            });
+            ver_pass_icon.on( 'mouseout',()=>{
+                pass_input.type = 'password';
+                ver_pass_icon.removeClass('fa fa-eye').addClass('fa fa-eye-slash');
+            });
+        }
+        
+        let ver_pass2_icon = $('#ver_pass2_icon');
+        let pass_input2 = $('#PrimerAcceso_contrasena_Confirmar')[0];
+        if (ver_pass2_icon.length && pass_input2) {
+            ver_pass2_icon.on( 'mousedown',()=>{
+                pass_input2.type = 'text';
+                ver_pass2_icon.removeClass('fa fa-eye-slash').addClass('fa fa-eye');
+            });
+            ver_pass2_icon.on( 'mouseup',()=>{
+                pass_input2.type = 'password';
+                ver_pass2_icon.removeClass('fa fa-eye').addClass('fa fa-eye-slash');
+            });
+            ver_pass2_icon.on( 'mouseout',()=>{
+                pass_input2.type = 'password';
+                ver_pass2_icon.removeClass('fa fa-eye').addClass('fa fa-eye-slash');
+            });
+        }
+
+        let pass = $('#pswForm input[name="pass"]');
+        let passConf = $('#pswForm input[name="passConf"]');
+        let passButton = $('#pswForm button');
+        
+        if (pass.length && passConf.length && passButton.length) {
+            pass.on('keyup', () => {
+                validarPassws();
+            });
+            passConf.on('keyup', () => {
+                validarPassws();
+            });
+            passButton.on('click',e=>{
+                e.preventDefault();
+                cambiarContraseña();
+            });
+        }
+
+        function validarPassws() {
+            if (
+                pass.val() == ''
+                || !contrasenaValida(pass.val())
+            ) {
+                pass.removeClass('is-valid');
+                pass.addClass('is-invalid');
+
+                passConf.removeClass('is-invalid');
+                passConf.removeClass('is-valid');
+
+                passButton.attr('disabled', '');
+            } else {
+                pass.removeClass('is-invalid');
+                pass.addClass('is-valid');
+                if (
+                    passConf.val() == ''
+                    || passConf.val() != pass.val()
+                ) {
+                    passConf.removeClass('is-valid');
+                    passConf.addClass('is-invalid');
+                    passButton.attr('disabled', '');
+                } else {
+                    passConf.removeClass('is-invalid');
+                    passConf.addClass('is-valid');
+                    if (passConf.val() === pass.val()) {
+                        passButton.removeAttr('disabled');
+                    }
+                }
+            }
+        }
+        
+        function contrasenaValida(pass){
+            const longitud=8;
+            const mayusculas=/[A-ZÑ]+/;
+            const minusculas=/[a-zñ]+/;
+            const numero=/\d+/;
+            const caracteresEspeciales=/[|°¬!"#$%&/()='?\\¿¡@´¨+*~{[^}\]`<>,;.:\-_]+/;
+            
+            return (
+                pass.length >=longitud
+                && mayusculas.test(pass)
+                && minusculas.test(pass)
+                && numero.test(pass)
+                && caracteresEspeciales.test(pass)
+            );
+        }
+        
+        function cambiarContraseña(){
+            let PA_c_Conf=$('#pswForm input[name="passConf"]').val();
+            if(
+                PA_c_Conf==''
+                || $('#pswForm input[name="pass"]').val()==''
+                || PA_c_Conf!=$('#pswForm input[name="pass"]').val()
+                || !contrasenaValida(pass.val())
+            ){
+                $.alert({
+                    title: 'Advertencia',
+                    content: '<strong>Error en la contraseña</strong>',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: "blue",
+                    buttons: {
+                        Aceptar: {
+                            text: 'Aceptar',
+                            btnClass: 'btn-success',
+                            action: function () {
+                            }
+                        }
+                    }
+                });
+            } else {
+                $('#pswForm')[0].submit();
+            }
+        }
+    <% } %>
+</script>

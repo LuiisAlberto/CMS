@@ -1,0 +1,208 @@
+<div class="overlay" id="overlay"></div>
+
+<nav class="menu">
+    <div class="logo">
+        <% const __rawMenuLogo = (typeof dataapp !== 'undefined' && dataapp && dataapp.app_logo && String(dataapp.app_logo).trim() !== '') ? String(dataapp.app_logo).trim() : ''; %>
+        <% const __rawFavicon = (typeof dataapp !== 'undefined' && dataapp && dataapp.app_favicon && String(dataapp.app_favicon).trim() !== '') ? String(dataapp.app_favicon).trim() : ''; %>
+        <% const _logoFallback = (typeof assetsPrefix !== 'undefined' && assetsPrefix) ? (assetsPrefix + 'img/Logo_morena.png') : '/assets/img/Logo_morena.png'; %>
+        <% const __menuLogo = __rawMenuLogo
+            ? (/^https?:\/\//i.test(__rawMenuLogo) ? __rawMenuLogo : `https://cdn.morena.app/${__rawMenuLogo.replace(/^\/+/, '')}`)
+            : (__rawFavicon ? (__rawFavicon.startsWith('http') ? __rawFavicon : `https://cdn.morena.app/${__rawFavicon.replace(/^\/+/, '')}`) : _logoFallback); %>
+        <a href="index.html" aria-label="Ir a la página principal de la instancia">
+            <img src="<%= __menuLogo %>" alt="logo" />
+        </a>
+    </div>
+
+    <div class="menu-toggle" id="menu-toggle">
+        <i class="fas fa-bars toggle"></i>
+    </div>
+
+    <ul class="menu-list" id="menu-list">
+        <% if (typeof menuHTML !== 'undefined' && menuHTML) { %>
+            <%- menuHTML %>
+        <% } else { %>
+            <!-- Menú vacío si no hay datos -->
+        <% } %>
+    </ul>
+</nav>
+
+
+<script>
+function inicializarMenu(){
+    var menuBreakpoint = 965;
+
+    $('#menu-toggle').off('click.menuToggle').on('click.menuToggle', function(){
+        $('#menu-list').slideToggle(300);
+        if ($(window).width() <= menuBreakpoint) {
+            $('#overlay').fadeIn(); 
+        }
+    });
+
+    // Solo reaccionar al cruzar el breakpoint móvil/desktop. Si no, cada resize
+    // (barra del navegador al hacer scroll en móvil, etc.) ejecutaba .hide() y
+    // hacía desaparecer los ítems del menú aunque siguieras en vista móvil.
+    var lastViewDesktop = $(window).width() > menuBreakpoint;
+    $(window).off('resize.menuResize').on('resize.menuResize', function() {
+        var nowDesktop = $(window).width() > menuBreakpoint;
+        if (nowDesktop === lastViewDesktop) return;
+        lastViewDesktop = nowDesktop;
+        if (nowDesktop) {
+            $('#menu-list').show().css('display', 'flex');
+            $('.submenu-container').hide().removeClass('active');
+            $('.chevron').removeClass('rotate');
+            $('#overlay').fadeOut();
+        } else {
+            $('#menu-list').hide();
+        }
+    });
+
+    function closeOtherSubmenus(current) {
+        $('.submenu-container').not(current).slideUp(300).removeClass('active align-right').css('max-width', '');
+        $('.submenu-toggle .chevron').not($(current).prev().find('.chevron')).removeClass('rotate');
+        $('#overlay').fadeOut(); 
+    }
+
+    function closeAllSubLevels() {
+        $('.submenu-column.level-3, .submenu-column.level-4').hide().removeClass('active');
+        $('.submenu-container').removeClass('active');
+        $('.chevron').removeClass('rotate');
+    }
+
+    $(document).off('click.menuSub').on('click.menuSub', '.submenu-toggle, .imgMenu, .imgMenu *', function(e){
+        var $act = $(e.target).closest('a');
+        if (!$act.length) return;
+        if (!$act.length) return;
+        const isMainToggle = $act.hasClass('submenu-toggle');
+        if (!isMainToggle && $act.find('.chevron').length === 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        
+        let submenu, chevron;
+        
+        if (isMainToggle) {
+            // Es un toggle principal (nivel 1)
+            let target = $act.data('target');
+            submenu = $('#' + target);
+            chevron = $act.find('.chevron');
+            
+            if (submenu.hasClass('active')) {
+                submenu.slideUp(300).removeClass('active align-right').css('max-width', '');
+                chevron.removeClass('rotate');
+                $('#overlay').fadeOut();
+                submenu.find('.submenu-column.level-2, .submenu-column.level-3, .submenu-column.level-4').removeClass('submenu-column-open').hide();
+            } else {
+                closeOtherSubmenus(submenu);
+                submenu.removeClass('align-right').css('max-width', '');
+                submenu.find('.submenu-column.level-2, .submenu-column.level-3, .submenu-column.level-4').removeClass('submenu-column-open').hide();
+                var $li = submenu.closest('li');
+                if ($li.length) {
+                    var margin = 24;
+                    var winW = $(window).width();
+                    var liLeft = $li.offset().left;
+                    var liRight = liLeft + $li.outerWidth();
+                    var maxWLeft = winW - liLeft - margin;
+                    var maxWRight = liRight - margin;
+                    var dropdownMax = 2000;
+                    if (maxWLeft >= maxWRight) {
+                        submenu.removeClass('align-right');
+                        submenu.css('max-width', Math.max(300, Math.min(dropdownMax, maxWLeft)) + 'px');
+                    } else {
+                        submenu.addClass('align-right');
+                        submenu.css('max-width', Math.max(300, Math.min(dropdownMax, maxWRight)) + 'px');
+                    }
+                }
+                submenu.slideDown(300).addClass('active');
+                chevron.addClass('rotate');
+                $('#overlay').fadeIn();
+                submenu.find('.submenu-column.level-3, .submenu-column.level-4').removeClass('submenu-column-open').hide();
+                submenu.find('.submenu-column.level-2').addClass('submenu-column-open').show();
+            }
+        } else {
+            // Es un enlace de submenú (nivel 2, 3, 4) — abrir/cerrar columna del siguiente nivel
+            var $container = $act.closest('.submenu-container');
+            const target = $act.data('target');
+            if (!target) return;
+            var $nextLevelColumn = $('#' + target);
+            if ($nextLevelColumn.length === 0) return;
+            var classAttr = $nextLevelColumn.attr('class') || '';
+            var levelMatch = classAttr.match(/level-(\d+)/);
+            if (!levelMatch) return;
+            var nextLevel = parseInt(levelMatch[1], 10);
+
+            if ($nextLevelColumn.hasClass('submenu-column-open')) {
+                $nextLevelColumn.slideUp(300).removeClass('active submenu-column-open');
+                $act.find('.chevron').removeClass('rotate');
+                $nextLevelColumn.nextAll('.submenu-column').hide().removeClass('active submenu-column-open');
+                $nextLevelColumn.find('.chevron').removeClass('rotate');
+            } else {
+                $container.find('.submenu-column.level-' + nextLevel).not($nextLevelColumn).removeClass('submenu-column-open').hide().removeClass('active');
+                $container.find('.submenu-column').each(function() {
+                    var $col = $(this);
+                    var lm = ($col.attr('class') || '').match(/level-(\d+)/);
+                    if (lm && parseInt(lm[1], 10) > nextLevel) {
+                        $col.removeClass('submenu-column-open').hide().removeClass('active');
+                        $col.find('.chevron').removeClass('rotate');
+                    }
+                });
+                $nextLevelColumn.addClass('submenu-column-open active').css('display', 'flex').show();
+                $nextLevelColumn.slideDown(300);
+                $act.find('.chevron').addClass('rotate');
+            }
+        }
+    });
+
+    // Cerrar menú al hacer click en overlay
+    $('#overlay').off('click.menuOverlay').on('click.menuOverlay', function(){
+        $('.submenu-container').slideUp(300).removeClass('active align-right').css('max-width', '');
+        $('.chevron').removeClass('rotate');
+        $(this).fadeOut();
+        closeAllSubLevels();
+        // En escritorio #menu-list debe seguir visible; si se hace slideUp aquí, los ítems
+        // desaparecen y no hay .menu-toggle para reabrir (intermitente si el clic cae en overlay).
+        if ($(window).width() <= menuBreakpoint) {
+            $('#menu-list').slideUp(300);
+        }
+    });
+
+    // Cerrar submenús al hacer click fuera
+    $(document).off('click.menuOutside').on('click.menuOutside', function(e) {
+        if (!$(e.target).closest('.menu, .submenu-container').length) {
+            closeAllSubLevels();
+            if ($(window).width() <= menuBreakpoint) {
+                $('#menu-list').slideUp(300);
+                $('#overlay').fadeOut();
+            }
+        }
+    });
+}
+
+/**
+ * Maneja el scroll para mostrar/ocultar el logo del menú
+ * returns {void}
+ */
+$(document).ready(function () {
+    $(window).scroll(function () {
+        var scrollTop = $(this).scrollTop();
+        var triggerPoint = 100;
+
+        if (scrollTop > triggerPoint) {
+            $(".container-logo-slide .logo-morena").stop().animate({ opacity: 0 }, 400, function () {
+                $(this).css("visibility", "hidden");
+            }); 
+
+            $(".logo img").css("visibility", "visible").stop().animate({ opacity: 1 }, 400); 
+        } else {
+            $(".container-logo-slide .logo-morena").css("visibility", "visible").stop().animate({ opacity: 1 }, 400);
+
+            // Mantener el logo del menú visible en la carga superior
+            $(".logo img").css("visibility", "visible").stop().animate({ opacity: 1 }, 500);
+        }
+    });
+
+    // Evitar que el logo se oculte al cargar (se mostrará siempre)
+    $(".logo img").css({ opacity: 1, visibility: "visible" });
+
+    // Inicializar el menú (ya está pre-renderizado, solo necesitamos la funcionalidad)
+    inicializarMenu();
+});
+</script>

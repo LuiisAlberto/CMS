@@ -1,0 +1,297 @@
+<button class="btnCollapseMovil"><i class="fas fa-angle-double-right"></i></button>
+<% /* Iconos desde BD suelen venir como "assets/...": bajo rutas /admin/* hay que forzar raíz del sitio. */ %>
+<% var absAssetUrl = function (u) {
+  if (u == null || u === '') return '';
+  var s = String(u);
+  if (/^https?:\/\//i.test(s) || s.startsWith('/')) return s;
+  return '/' + s.replace(/^\//, '');
+}; %>
+<div id="menuIzq">
+    <style>
+        .instancia-badge{
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 11px;
+            line-height: 1.1;
+            padding: 2px 8px;
+            border-radius: 999px;
+            color: #52181E;
+            background: rgba(82, 24, 30, 0.08);
+            border: 1px solid rgba(82, 24, 30, 0.18);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 992px) {
+            .instancia-badge{
+                margin-left: 6px;
+                font-size: 10px;
+                padding: 1px 6px;
+            }
+        }
+    </style>
+    <div class="headMenu">
+        <div>
+            <div class="logoSeccion">
+                <img src="/assets/img/Logo_morena.png" class="img-logo">
+                <button class="btnCollapse"><i class="fas fa-angle-double-left"></i></button>
+            </div>
+            <div class="l-div">
+                <label class="borde-izq aztecGold_bg"><span class="aztecGold_bg"></span></label>
+                <label class="borde-der solid_bg"><span></span></label>
+            </div>
+        </div>
+        <div class="usuario row">
+            <div class="imgIzq"><img src="/assets/img/MENU_USER.svg"></div>
+            <div class="datDer">
+                <p>
+                    <%=nombre%>
+                </p>
+                <label>
+                    <%=type_user%>
+                </label>
+            </div>
+        </div>
+    </div>
+    <!-- <div>
+        <input class="form-control input_busqueda" id="myInput" type="text" placeholder="Filtra en el menú">
+    </div> -->
+    <div class="bodyMenu">
+        <p>Menú</p>
+        <% var _modulosMenu = (typeof modulos !== 'undefined' && modulos != null) ? modulos : {}; %>
+        <div class="boxA">
+            <ul id="menuGral" class="acorh">
+                <li id="tr1">
+                    <a href="/admin" class="mList menu-nivel-raiz" data-tr="tr1"><img src="/assets/img/menu/INICIO.svg" class="iPr">
+                        <span>Inicio</span></a>
+                </li>
+                <% if (typeof can_hosting !== 'undefined' && can_hosting) { %>
+                <li id="tr-hosting">
+                    <a href="/hosting" class="mList menu-nivel-raiz" data-tr="tr-hosting"><img src="/assets/img/server-solid-full.svg" class="iPr" alt="">
+                        <span>Hosting</span></a>
+                </li>
+                <% } %>
+
+                <%
+                let appi=1;
+                Object.values(_modulosMenu).forEach( app => {
+                    // Para que el menú recuerde la instancia correcta siempre, agregamos el token a la URL.
+                    // Si la ruta ya trae query, concatenamos con '&' en lugar de '?'.
+                    const tokenQuery = (app && app.appcypher) ? ('i=' + app.appcypher) : '';
+                    function tokenSuffix(url){
+                        if (!tokenQuery) return '';
+                        const hasQuery = (url && String(url).includes('?'));
+                        // Evitar duplicar `i=` si la ruta ya lo trae.
+                        const hasI = (url && /([?&])i=/.test(String(url)));
+                        if (hasI) return '';
+                        return (hasQuery ? '&' : '?') + tokenQuery;
+                    }
+
+                    let isAppSelected = (typeof idappSeleccionada !== 'undefined' && idappSeleccionada != null)
+                        ? parseInt(app.id, 10) === parseInt(idappSeleccionada, 10)
+                        : appi === 1;
+                %>
+                    <li class="">
+                        <%
+                        if(!app.hasOwnProperty('archivo')) {
+                            // Siempre mostrar la instancia (app) como nivel principal y dentro los módulos/submódulos
+                            if(true) {
+                        %>
+                            <div class="accordion" id="accordion_<%=appi%>">
+                                <div class="accordion-item">
+                                    <div class="sep_menu mn_app accordion-header" id="accordion_header_<%=appi%>">
+                                        <div data-bs-toggle="collapse" data-bs-target="#menuGral_<%=appi%>" aria-expanded="<%= isAppSelected ? 'true' : 'false' %>" aria-controls="menuGral_<%=appi%>">
+                                            <img src="/assets/img/FOLDER.svg" class="iPr decor_submodule" alt="icon">
+                                            <span><%=app.app_name%></span>
+                                        </div>
+                                    </div>
+                                    <div id="menuGral_<%=appi%>" class="accordion-collapse collapse <%= isAppSelected ? 'show' : '' %>" aria-labelledby="accordion_header_<%=appi%>" data-bs-parent="#accordion_<%=appi%>">
+                                        <div class="accordion-body">
+                                            <%
+                                            }
+                                                let modi=1;
+                                            Object.values(app.modulos).forEach( modulo => {
+                                            if(!modulo.hasOwnProperty('archivo')) {
+                                            %>
+                                                <ul class="acorh_2">
+                                                    <li>
+                                                        <%
+                                                        if(app.mod_count>1) {
+                                                        %>
+                                                        <div class="accordion" id="accordion_level_2_<%=appi%>_<%=modi%>">
+                                                            <div class="accordion-item">
+                                                                <div class="sep_menu mn_mod accordion-header" id="accordion_header_mod_<%=appi%>_<%=modi%>">
+                                                                    <%
+                                                                        let hasActiveSubmod = false;
+                                                                        if (typeof rutaActual !== 'undefined' && rutaActual) {
+                                                                            const submods = Object.values(modulo.submodulos || {});
+                                                                            hasActiveSubmod = submods.some(submodulo => {
+                                                                                if (!submodulo || !submodulo.archivo) return false;
+                                                                                const arN = String(submodulo.archivo||'').trim().toLowerCase().replace(/^\//,'');
+                                                                                if (arN === 'users-instancia' && typeof usersInstanciaMenuAppId !== 'undefined' && usersInstanciaMenuAppId != null
+                                                                                    && parseInt(usersInstanciaMenuAppId, 10) !== parseInt(app.id, 10)) return false;
+                                                                                let ruta = (submodulo.archivo || '').split('?')[0] || '';
+                                                                                if (ruta && ruta.charAt(0) !== '/') ruta = '/' + ruta;
+                                                                                return ruta && (rutaActual === ruta || rutaActual.startsWith(ruta + '/'));
+                                                                            });
+                                                                        }
+                                                                        const isModuleSelected = isAppSelected && hasActiveSubmod;
+                                                                    %>
+                                                                    <div data-bs-toggle="collapse" data-bs-target="#menuGral_mod_<%=appi%>_<%=modi%>" aria-expanded="<%= isModuleSelected ? 'true' : 'false' %>" aria-controls="menuGral_mod_<%=appi%>_<%=modi%>">
+                                                                        <!--<%=app.micon%>-->
+                                                                        <img src="/assets/img/FOLDER.svg" class="iPr">
+                                                                        <span>
+                                                                            <%=modulo.mod_legend%>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div id="menuGral_mod_<%=appi%>_<%=modi%>" class="accordion-collapse collapse <%= isModuleSelected ? 'show' : '' %>" aria-labelledby="accordion_header_mod_<%=appi%>_<%=modi%>" data-bs-parent="#accordion_level_2_<%=appi%>_<%=modi%>">
+                                                                    <div class="accordion-body">
+                                                                        <%
+                                                                        }
+                                                                        %>
+                                                                        <ul class="acorh_3">
+                                                                            <% Object.values(modulo.submodulos).forEach( submodulo => {
+                                                                                const arN = String(submodulo.archivo||'').trim().toLowerCase().replace(/^\//,'');
+                                                                                const ocultarDupUsersInst = arN === 'users-instancia' && typeof usersInstanciaMenuAppId !== 'undefined' && usersInstanciaMenuAppId != null
+                                                                                    && parseInt(usersInstanciaMenuAppId, 10) !== parseInt(app.id, 10);
+                                                                                if (ocultarDupUsersInst) return;
+                                                                            %>
+                                                                            <li>
+                                                                                <a href="<%= (submodulo.archivo && submodulo.archivo.charAt(0) !== '/' ? '/' : '') + (submodulo.archivo || '') %><%= tokenSuffix(submodulo.archivo) %>" class="mList" data-tr="tr">
+                                                                                    <img src="<%= absAssetUrl(submodulo.smicon) %>" class="iPr">
+                                                                                    <span><%=submodulo.legend%></span>
+                                                                                </a>
+                                                                            </li>
+                                                                            <%})%>
+                                                                        </ul>
+                                                                        <%
+                                                                        if(app.mod_count>1) {
+                                                                        %>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <%
+                                                        }
+                                                        %>
+                                                    </li>
+                                                </ul>
+                                            <%
+
+                                            } else { %>
+
+                                            <a href="<%= (modulo.archivo && modulo.archivo.charAt(0) !== '/' ? '/' : '') + (modulo.archivo || '') %><%= tokenSuffix(modulo.archivo) %>" class="mList" data-tr="tr">
+                                                <img src="<%= absAssetUrl(modulo.smicon) %>" class="iPr" alt="icon" />
+                                                <span>
+                                                    <%=modulo.legend%>
+                                                </span>
+                                            </a>
+
+                                            <%}
+                                                modi++;
+                                            })
+                                            if(true) {
+                                            %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <%
+                            }
+                        } else {
+                        %>
+                            <div class="accordion" id="accordion_<%=appi%>">
+                                <div class="accordion-item">
+                                    <div class="sep_menu mn_app accordion-header" id="accordion_header_<%=appi%>">
+                                        <div data-bs-toggle="collapse" data-bs-target="#menuGral_<%=appi%>" aria-expanded="<%= isAppSelected ? 'true' : 'false' %>" aria-controls="menuGral_<%=appi%>">
+                                            <img src="/assets/img/FOLDER.svg" class="iPr" alt="icon">
+                                            <span><%=app.app_name%></span>
+                                        </div>
+                                    </div>
+                                    <div id="menuGral_<%=appi%>" class="accordion-collapse collapse <%= isAppSelected ? 'show' : '' %>" aria-labelledby="accordion_header_<%=appi%>" data-bs-parent="#accordion_<%=appi%>">
+                                        <div class="accordion-body">
+                                            <a href="<%= (app.archivo && app.archivo.charAt(0) !== '/' ? '/' : '') + (app.archivo || '') %><%= tokenSuffix(app.archivo) %>" class="mList" data-tr="tr">
+                                                <img src="<%= absAssetUrl(app.smicon) %>" class="iPr" alt="icon">
+                                                <span><%=app.legend%></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <%
+                        }
+                        %>
+                    </li>
+                <% appi++;  })%>
+            </ul>
+        </div>
+    </div>
+    <div class="footMenu">
+        <button class="btnClose" data-hover="CERRAR SESIÓN" onclick="location.href = '/logout'"><i
+                    class="fas fa-power-off"></i></button>
+    </div>
+</div>
+
+<script>
+(function () {
+    /** Mismo criterio que @media (max-width: 576px) en estilos_template.css */
+    var mqMobile = window.matchMedia('(max-width: 576px)');
+
+    function templateDerEl() {
+        return document.getElementById('templateDer');
+    }
+
+    /**
+     * Sincroniza lateral + ancho del contenido con el viewport.
+     * jQuery .hide() deja display:none inline y tapa el CSS: hay que limpiarlo al volver a escritorio.
+     */
+    function syncMenuLayout() {
+        var mobile = mqMobile.matches;
+        var $menu = $('#menuIzq');
+        var $btnMov = $('.btnCollapseMovil');
+        var td = templateDerEl();
+        if (mobile) {
+            $btnMov.show();
+            $menu.hide();
+            if (td) td.style.setProperty('width', '100%');
+        } else {
+            $btnMov.hide();
+            $menu.css('display', '');
+            if (td) td.style.setProperty('width', 'calc(100% - 260px)');
+        }
+    }
+
+    function bindMenuToggles() {
+        $('.btnCollapse').off('click.menuCMS').on('click.menuCMS', function (e) {
+            e.preventDefault();
+            $('#menuIzq').hide();
+            $('.btnCollapseMovil').show();
+            var td = templateDerEl();
+            if (td) td.style.setProperty('width', '100%');
+        });
+        $('.btnCollapseMovil').off('click.menuCMS').on('click.menuCMS', function (e) {
+            e.preventDefault();
+            $('#menuIzq').show();
+            $('.btnCollapseMovil').hide();
+            var td = templateDerEl();
+            if (td) td.style.setProperty('width', 'calc(100% - 260px)');
+        });
+    }
+
+    $(function () {
+        syncMenuLayout();
+        bindMenuToggles();
+        $(window).on('resize.menuCMS orientationchange.menuCMS', function () {
+            syncMenuLayout();
+        });
+        if (typeof mqMobile.addEventListener === 'function') {
+            mqMobile.addEventListener('change', syncMenuLayout);
+        } else if (typeof mqMobile.addListener === 'function') {
+            mqMobile.addListener(syncMenuLayout);
+        }
+    });
+})();
+</script>

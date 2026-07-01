@@ -1,0 +1,198 @@
+<%- include('partials/header'); %>
+
+<div class="contenedor-general-anios">
+    <div class="anios-nav">
+        <button class="nav-arrow prev-arrow" disabled><i class="fa-solid fa-arrow-left"></i></button>
+        <div class="anios-wrapper">
+            <div class="anios">
+                <div class="anio-selector active" data-anio="2013">2013</div>
+                <div class="anio-selector" data-anio="2014">2014</div>
+                <div class="anio-selector" data-anio="2015">2015</div>
+                <div class="anio-selector" data-anio="2016">2016</div>
+                <div class="anio-selector" data-anio="2017">2017</div>
+                <div class="anio-selector" data-anio="2018">2018</div>
+                <div class="anio-selector" data-anio="2019">2019</div>
+                <div class="anio-selector" data-anio="2020">2020</div>
+                <div class="anio-selector" data-anio="2021">2021</div>
+                <div class="anio-selector" data-anio="2022">2022</div>
+                <div class="anio-selector" data-anio="2023">2023</div>
+                <div class="anio-selector" data-anio="2024">2024</div>
+                <div class="anio-selector" data-anio="2025">2025</div>
+            </div>
+        </div>
+        <button class="nav-arrow next-arrow"><i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+
+    <div class="contenedor-anios">
+        <div class="anio-content active" id="2013">
+            <div class="contFecha"><p>2013</p><hr class="lineReg"></div>
+            <div class="contCardsRegeneracion">
+                <!-- Card-->
+                <div class="cardReg guindaUno">
+                    <div class="cont">
+                        <div class="contIzquierdo">
+                            <div class="contUno">
+                                <a href="#"><button class="btnCircle"><img src="assets/img/arrow-right-solid.svg" alt="Ver más"></button></a>
+                            </div>
+                            <div class="contDos"><p class="date">2013</p></div>
+                        </div>
+                        <div class="contDerecho">
+                            <img src="assets/img/portada-regUno.jpg" alt="Proyecto 2013">
+                        </div>
+                    </div>
+                    <div class="footerReg">
+                        <h4>Regeneración</h4>
+                        <h1>Enero - Febrero</h1>
+                    </div>
+                </div>
+                <div class="cardReg guindaUno">
+                    <div class="cont">
+                        <div class="contIzquierdo">
+                            <div class="contUno">
+                                <a href="#"><button class="btnCircle"><img src="assets/img/arrow-right-solid.svg" alt="Ver más"></button></a>
+                            </div>
+                            <div class="contDos"><p class="date">2013</p></div>
+                        </div>
+                        <div class="contDerecho">
+                            <img src="assets/img/portada-regUno.jpg" alt="Proyecto 2013">
+                        </div>
+                        </div>
+                    <div class="footerReg">
+                        <h4>Regeneración</h4>
+                        <h1>Enero - Febrero</h1>
+                    </div>
+                </div>
+                <div class="cardReg guindaUno">
+                    <div class="cont">
+                        <div class="contIzquierdo">
+                            <div class="contUno">
+                                <a href="#"><button class="btnCircle"><img src="assets/img/arrow-right-solid.svg" alt="Ver más"></button></a>
+                            </div>
+                            <div class="contDos"><p class="date">2013</p></div>
+                        </div>
+                    <div class="contDerecho">
+                        <img src="assets/img/portada-regUno.jpg" alt="Proyecto 2013">
+                    </div>
+                    </div>
+                    <div class="footerReg">
+                        <h4>Regeneración</h4>
+                        <h1>Enero - Febrero</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="anio-content" id="2014">
+            <div class="contFecha"><p>2014</p><hr class="lineReg"></div>
+            <div class="contCardsRegeneracion">
+                <div class="cardReg guindaUno">
+                    <div class="cont">
+                        <div class="contIzquierdo">
+                            <div class="contUno">
+                                <a href="#"><button class="btnCircle"><img src="assets/img/arrow-right-solid.svg" alt="Ver más"></button></a>
+                            </div>
+                            <div class="contDos"><p class="date">2014</p></div>
+                        </div>
+                        <div class="contDerecho">
+                            <img src="assets/img/portada-regUno.jpg" alt="Proyecto 2013">
+                        </div>
+                    </div>
+                    <div class="footerReg">
+                        <h4>Regeneración</h4>
+                        <h1>Enero - Febrero</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footerNoMx'); %>
+
+<script>
+    //TABS REGENERACION
+        $(document).ready(function() {
+            const $anios = $('.anio-selector');
+            const $contenedor = $('.contenedor-anios');
+            const $anioContents = $('.anio-content');
+            const $prevArrow = $('.prev-arrow');
+            const $nextArrow = $('.next-arrow');
+            const $aniosWrapper = $('.anios-wrapper');
+            const $aniosContainer = $('.anios');
+
+            let currentPosition = 0;
+            const visibleAnios = 3;
+            const totalAnios = $anios.length;
+
+            updateAniosVisibility();
+            updateContenidoVisible();
+            updateArrows();
+
+            function updateAniosVisibility() {
+                $anios.hide().removeClass('active');
+                for (let i = currentPosition; i < currentPosition + visibleAnios && i < totalAnios; i++) {
+                $anios.eq(i).show();
+                }
+                if ($anios.filter('.active').length === 0 && $anios.filter(':visible').length > 0) {
+                $anios.filter(':visible').first().addClass('active');
+                }
+            }
+
+            function updateContenidoVisible() {
+                $anioContents.removeClass('active visible-content');
+                for (let i = currentPosition; i < currentPosition + visibleAnios && i < totalAnios; i++) {
+                const anioId = $anios.eq(i).data('anio');
+                $(`#${anioId}`).addClass('visible-content');
+                }
+                const firstVisibleId = $anios.filter(':visible').first().data('anio');
+                $(`#${firstVisibleId}`).addClass('active');
+
+                $('html, body').animate({
+                scrollTop: $contenedor.offset().top - 100
+                }, 300);
+            }
+
+            function updateArrows() {
+                $prevArrow.prop('disabled', currentPosition === 0);
+                $nextArrow.prop('disabled', currentPosition >= totalAnios - visibleAnios);
+            }
+
+            $prevArrow.on('click', function() {
+                if (currentPosition > 0) {
+                currentPosition--;
+                updateAniosVisibility();
+                updateContenidoVisible();
+                updateArrows();
+                }
+            });
+
+            $nextArrow.on('click', function() {
+                if (currentPosition < totalAnios - visibleAnios) {
+                currentPosition++;
+                updateAniosVisibility();
+                updateContenidoVisible();
+                updateArrows();
+                }
+            });
+
+            $anios.on('click', function() {
+                const anioId = $(this).data('anio');
+                $anios.removeClass('active');
+                $(this).addClass('active');
+                $anioContents.removeClass('active');
+                $(`#${anioId}`).addClass('active');
+
+                $('html, body').animate({
+                scrollTop: $(`#${anioId}`).offset().top - 100
+                }, 500);
+            });
+
+            function adjustWrapperWidth() {
+                const anioWidth = $anios.outerWidth(true);
+                $aniosWrapper.width(anioWidth * visibleAnios);
+            }
+
+            adjustWrapperWidth();
+            $(window).on('resize', adjustWrapperWidth);
+        });
+</script>

@@ -1,0 +1,486 @@
+<%- include('partials/header'); %>
+
+    <main id="contPrerregistro">
+        <div class="login-container-modern">
+            <div class="login-wrapper">
+                <!-- Panel Izquierdo - Branding -->
+                <div class="login-left-panel">
+                    <div class="login-branding">
+                        <img src="/assets/img/ilustracion-cms.png" alt="Ilustración CMS" class="login-illustration">
+                    </div>
+                </div>
+
+                <!-- Panel Derecho - Formulario -->
+                <div class="login-right-panel">
+                    <div class="login-form-header">
+                        <div class="login-form-header-top">
+                            <img src="/assets/img/Logo_morena.png" alt="Logo Morena" class="login-logo">
+                        </div>
+                        <h2 class="login-form-title">Sistema de Administración de Contenido Institucional</h2>
+                        <p class="login-form-subtitle">Ingresa con tus credenciales institucionales</p>
+                        <div class="login-form-divider"></div>
+                    </div>
+
+                    <form id="login_form" method="POST" action="/login" class="login-form">
+                        <div class="login-input-group">
+                            <label for="user" class="login-label">CORREO INSTITUCIONAL</label>
+                            <div class="login-input-wrapper">
+                                <input type="text" id="user" name="user" class="login-input" 
+                                       placeholder="usuario@morena.si" autocomplete="username" required>
+                            </div>
+                        </div>
+
+                        <!-- Botón Siguiente (se muestra inicialmente) -->
+                        <button type="button" id="nextBtn" style="width: 100%; padding: 14px 28px; margin-top: 20px; background: linear-gradient(135deg, #9F1F41 0%, #681B33 100%); border: 2px solid #681B33; border-radius: 8px; color: white; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(159, 31, 65, 0.3); display: flex; align-items: center; justify-content: center;">
+                            <span>Siguiente</span>
+                        </button>
+
+                        <!-- Opción de passkey (se muestra dinámicamente cuando hay passkey) -->
+                        <div id="passkeyOption" style="display: none; margin-bottom: 20px; padding: 20px; background: #f9f9f9; border-radius: 8px; border: 2px solid #BB965C;">
+                            <div style="text-align: center;">
+                                <p style="color: #681B33; font-weight: 500; margin: 0 0 8px 0; font-size: 0.95rem;">Hemos detectado que tienes una Passkey configurada.</p>
+                                <p style="color: #681B33; font-weight: 500; margin: 0 0 20px 0; font-size: 0.95rem;">Usa tu huella, Face ID o Touch ID para iniciar sesión.</p>
+                                <button type="button" id="loginWithPasskeyBtn" style="padding: 14px 28px; background: linear-gradient(135deg, #9F1F41 0%, #681B33 100%); border: 2px solid #681B33; border-radius: 8px; color: white; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(159, 31, 65, 0.3); display: inline-flex; align-items: center; justify-content: center; width: 100%; max-width: 400px;">
+                                    <i class="fas fa-key" style="margin-right: 10px; font-size: 1rem;"></i>Usar Passkey (Huella/Face ID)
+                                </button>
+                                <div style="margin-top: 15px;">
+                                    <label id="usePasswordLabel" style="color: #681B33; font-size: 0.85rem; cursor: pointer; text-decoration: underline; display: inline-flex; align-items: center; gap: 5px;">
+                                        <input type="checkbox" id="usePasswordCheckbox" style="margin-right: 5px; cursor: pointer;">
+                                        Quiero ingresar mi contraseña manual
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="passkeyLoginStatus" style="margin-top: 15px; display: none; padding: 10px; border-radius: 6px; text-align: center; font-size: 0.85rem;"></div>
+                        </div>
+
+                        <!-- Campo de contraseña (se muestra cuando NO hay passkey) -->
+                        <div id="passwordGroup" class="login-input-group" style="display: none;">
+                            <label for="pass" class="login-label">CONTRASEÑA</label>
+                            <div class="login-input-wrapper">
+                                <input type="password" id="pass" name="pass" class="login-input" 
+                                       placeholder="Ingresa tu contraseña" autocomplete="current-password">
+                                <button type="button" class="login-toggle-password" aria-label="Mostrar contraseña">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <% if(captchaMostrar){ %>
+                        <div id="recaptcha_log" class="login-captcha g-recaptcha" data-sitekey="<%=captchaSitekey%>" style="display: none;"></div>
+                        <% } %>
+
+                        <!-- Botón de submit (se muestra cuando NO hay passkey) -->
+                        <button type="submit" id="loginSubmitBtn" class="login-submit-btn" style="display: none;">
+                            <img src="/assets/img/boton_ingresar_morena.png" alt="Ingresar" class="login-submit-btn-img">
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            function isValidEmail(value) {
+                const email = String(value || '').trim();
+                // Validación simple y robusta para formato usuario@dominio.tld
+                return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+            }
+
+            // Toggle para mostrar/ocultar contraseña
+            $('.login-toggle-password').on('click', function() {
+                const input = $(this).siblings('input');
+                const icon = $(this).find('i');
+                
+                if (input.attr('type') === 'password') {
+                    input.attr('type', 'text');
+                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                    $(this).attr('aria-label', 'Ocultar contraseña');
+                } else {
+                    input.attr('type', 'password');
+                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                    $(this).attr('aria-label', 'Mostrar contraseña');
+                }
+            });
+
+            // Función para verificar y mostrar opciones de autenticación
+            async function checkAndShowAuthOptions() {
+                const username = $('#user').val().trim();
+                
+                if (!username) {
+                    $.confirm({
+                        title: 'Atención',
+                        content: '<strong>Por favor, ingresa tu correo electrónico</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: "blue",
+                        buttons: {
+                            ok: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-success',
+                                action: function () {
+                                    $('#user').focus();
+                                }
+                            }
+                        }
+                    });
+                    return;
+                }
+
+                if (!isValidEmail(username)) {
+                    $.confirm({
+                        title: 'Atención',
+                        content: '<strong>Ingresa un correo institucional válido (ejemplo: usuario@morena.si)</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: "blue",
+                        buttons: {
+                            ok: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-success',
+                                action: function () {
+                                    $('#user').focus();
+                                }
+                            }
+                        }
+                    });
+                    return;
+                }
+
+                // Deshabilitar botón siguiente mientras se verifica
+                $('#nextBtn').prop('disabled', true).css({
+                    'opacity': '0.7',
+                    'cursor': 'not-allowed'
+                });
+
+                try {
+                    const response = await fetch('/api/passkeys/check', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username: username })
+                    });
+                    const result = await response.json();
+                    
+                    // Ocultar botón siguiente
+                    $('#nextBtn').slideUp(300);
+                    
+                    if (result.success && result.hasPasskeys) {
+                        // Si tiene passkey, mostrar opción de passkey y reCAPTCHA, ocultar contraseña
+                        $('#passkeyOption').slideDown(300);
+                        $('#passwordGroup').slideUp(300);
+                        $('#loginSubmitBtn').slideUp(300);
+                        <% if(captchaMostrar){ %>
+                        $('#recaptcha_log').slideDown(300);
+                        <% } %>
+                        // Remover required del campo de contraseña y desmarcar checkbox
+                        $('#pass').removeAttr('required');
+                        $('#usePasswordCheckbox').prop('checked', false);
+                    } else {
+                        // Si NO tiene passkey, mostrar contraseña y botón de submit, ocultar passkey
+                        $('#passkeyOption').slideUp(300);
+                        $('#passwordGroup').slideDown(300);
+                        $('#loginSubmitBtn').slideDown(300);
+                        <% if(captchaMostrar){ %>
+                        $('#recaptcha_log').slideDown(300);
+                        <% } %>
+                        // Agregar required al campo de contraseña
+                        $('#pass').attr('required', 'required');
+                        // Enfocar el campo de contraseña
+                        setTimeout(() => $('#pass').focus(), 350);
+                    }
+                } catch (error) {
+                    console.error('Error al verificar passkeys:', error);
+                    // En caso de error, mostrar opción de contraseña por defecto
+                    $('#nextBtn').slideUp(300);
+                    $('#passkeyOption').slideUp(300);
+                    $('#passwordGroup').slideDown(300);
+                    $('#loginSubmitBtn').slideDown(300);
+                    <% if(captchaMostrar){ %>
+                    $('#recaptcha_log').slideDown(300);
+                    <% } %>
+                    $('#pass').attr('required', 'required');
+                    $('#usePasswordCheckbox').prop('checked', false);
+                    setTimeout(() => $('#pass').focus(), 350);
+                } finally {
+                    $('#nextBtn').prop('disabled', false).css({
+                        'opacity': '1',
+                        'cursor': 'pointer'
+                    });
+                }
+            }
+
+            // Botón siguiente
+            $('#nextBtn').on('click', checkAndShowAuthOptions);
+
+            // Permitir Enter en el campo de correo para activar "Siguiente"
+            $('#user').on('keypress', function(e) {
+                if (e.which === 13) { // Enter
+                    e.preventDefault();
+                    checkAndShowAuthOptions();
+                }
+            });
+
+            // Limpiar campos cuando se borra el correo
+            $('#user').on('input', function() {
+                const username = $(this).val().trim();
+                if (!username || !isValidEmail(username)) {
+                    // Si el campo está vacío, ocultar todos los campos adicionales y mostrar botón siguiente
+                    $('#passkeyOption').slideUp(300);
+                    $('#passwordGroup').slideUp(300);
+                    $('#loginSubmitBtn').slideUp(300);
+                    $('#nextBtn').slideDown(300);
+                    <% if(captchaMostrar){ %>
+                    $('#recaptcha_log').slideUp(300);
+                    <% } %>
+                    $('#pass').val('').removeAttr('required');
+                    $('#passkeyLoginStatus').html('').hide();
+                    $('#usePasswordCheckbox').prop('checked', false);
+                }
+            });
+
+            // Función para iniciar sesión con passkey
+            async function loginWithPasskey() {
+                const username = $('#user').val().trim();
+                if (!username) {
+                    $('#passkeyLoginStatus').html('<p style="color: #9F1F41; background: #ffebee; padding: 8px; border-radius: 6px;">Por favor, ingresa tu correo primero</p>').show();
+                    return;
+                }
+                if (!isValidEmail(username)) {
+                    $('#passkeyLoginStatus').html('<p style="color: #9F1F41; background: #ffebee; padding: 8px; border-radius: 6px;">Ingresa un correo institucional válido</p>').show();
+                    return;
+                }
+
+                try {
+                    $('#loginWithPasskeyBtn').prop('disabled', true).css('opacity', '0.7');
+                    $('#passkeyLoginStatus').html('<p style="color: #681B33; background: #f0f0f0; padding: 8px; border-radius: 6px;">Iniciando autenticación...</p>').show();
+
+                    // Paso 1: Obtener opciones de autenticación
+                    const startResponse = await fetch('/api/passkeys/authenticate/start', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username: username })
+                    });
+
+                    if (!startResponse.ok) {
+                        throw new Error('Error al iniciar autenticación');
+                    }
+
+                    const { success, options } = await startResponse.json();
+                    if (!success) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+
+                    // Convertir challenge de base64url a ArrayBuffer
+                    const challengeBase64 = options.challenge.replace(/-/g, '+').replace(/_/g, '/');
+                    const challengeBytes = Uint8Array.from(atob(challengeBase64), c => c.charCodeAt(0));
+                    options.challenge = challengeBytes.buffer;
+
+                    // Convertir allowCredentials
+                    if (options.allowCredentials) {
+                        options.allowCredentials = options.allowCredentials.map(cred => ({
+                            ...cred,
+                            id: Uint8Array.from(atob(cred.id.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)).buffer
+                        }));
+                    }
+
+                    $('#passkeyLoginStatus').html('<p style="color: #681B33; background: #f0f0f0; padding: 8px; border-radius: 6px;">Por favor, sigue las instrucciones de tu dispositivo...</p>');
+
+                    // Paso 2: Autenticar usando WebAuthn API
+                    let credential;
+                    try {
+                        credential = await navigator.credentials.get({
+                            publicKey: options
+                        });
+                    } catch (getError) {
+                        // Si el usuario cancela, no mostrar error
+                        if (getError.name === 'NotAllowedError' || 
+                            getError.name === 'AbortError' ||
+                            getError.message.includes('not allowed') ||
+                            getError.message.includes('timeout') ||
+                            getError.message.includes('cancelled') ||
+                            getError.message.includes('The operation either timed out or was not allowed')) {
+                            $('#passkeyLoginStatus').html('').hide();
+                            $('#loginWithPasskeyBtn').prop('disabled', false).css('opacity', '1');
+                            return; // Salir silenciosamente sin mostrar error
+                        }
+                        // Para otros errores, lanzar la excepción para que se maneje abajo
+                        throw getError;
+                    }
+
+                    // Convertir respuesta a base64url
+                    const response = {
+                        id: credential.id,
+                        rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId)))
+                            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+                        type: credential.type,
+                        response: {
+                            authenticatorData: btoa(String.fromCharCode(...new Uint8Array(credential.response.authenticatorData)))
+                                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+                            clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(credential.response.clientDataJSON)))
+                                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+                            signature: btoa(String.fromCharCode(...new Uint8Array(credential.response.signature)))
+                                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+                            userHandle: credential.response.userHandle ? btoa(String.fromCharCode(...new Uint8Array(credential.response.userHandle)))
+                                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '') : null,
+                        }
+                    };
+
+                    $('#passkeyLoginStatus').html('<p style="color: #681B33; background: #f0f0f0; padding: 8px; border-radius: 6px;">Completando autenticación...</p>');
+
+                    // Paso 3: Enviar credencial al servidor
+                    const finishResponse = await fetch('/api/passkeys/authenticate/finish', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            credential: response
+                        })
+                    });
+
+                    const finishResult = await finishResponse.json();
+
+                    if (finishResult.success) {
+                        $('#passkeyLoginStatus').html('<p style="color: #681B33; background: #e8f5e9; padding: 8px; border-radius: 6px; border: 1px solid #9F1F41; font-weight: 600;">✓ Autenticación exitosa</p>');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        throw new Error(finishResult.message || 'Error al autenticar con passkey');
+                    }
+                } catch (error) {
+                    // Si el usuario cancela o hay un error de permisos, no mostrar error
+                    if (error.name === 'NotAllowedError' || 
+                        error.name === 'AbortError' ||
+                        error.name === 'InvalidStateError' ||
+                        error.message.includes('not allowed') ||
+                        error.message.includes('timeout') ||
+                        error.message.includes('cancelled') ||
+                        error.message.includes('The operation either timed out or was not allowed')) {
+                        $('#passkeyLoginStatus').html('').hide();
+                        $('#loginWithPasskeyBtn').prop('disabled', false).css('opacity', '1');
+                        return; // Salir silenciosamente
+                    }
+                    
+                    // Solo mostrar error para errores reales (no cancelaciones)
+                    console.error('Error al autenticar con passkey:', error);
+                    $('#passkeyLoginStatus').html('<p style="color: #9F1F41; background: #ffebee; padding: 8px; border-radius: 6px; border: 1px solid #9F1F41;">Error: ' + (error.message || 'No se pudo autenticar con passkey') + '</p>');
+                    $('#loginWithPasskeyBtn').prop('disabled', false).css('opacity', '1');
+                }
+            }
+
+            $('#loginWithPasskeyBtn').on('click', loginWithPasskey);
+
+            // Manejar el checkbox para mostrar/ocultar campo de contraseña cuando hay passkey
+            $('#usePasswordCheckbox').on('change', function() {
+                if ($(this).is(':checked')) {
+                    // Si marca el checkbox, ocultar opción de passkey y mostrar contraseña
+                    $('#passkeyOption').slideUp(300);
+                    $('#passwordGroup').slideDown(300);
+                    $('#loginSubmitBtn').slideDown(300);
+                    <% if(captchaMostrar){ %>
+                    $('#recaptcha_log').slideDown(300);
+                    <% } %>
+                    $('#pass').attr('required', 'required');
+                    setTimeout(() => $('#pass').focus(), 350);
+                } else {
+                    // Si desmarca, volver a mostrar opción de passkey y reCAPTCHA, ocultar contraseña
+                    $('#passkeyOption').slideDown(300);
+                    $('#passwordGroup').slideUp(300);
+                    $('#loginSubmitBtn').slideUp(300);
+                    <% if(captchaMostrar){ %>
+                    $('#recaptcha_log').slideDown(300);
+                    <% } %>
+                    $('#pass').removeAttr('required').val('');
+                }
+            });
+        });
+
+        $('#login_form').on('submit',(e)=>{
+            e.preventDefault();
+            
+            // Solo permitir submit si NO se está usando passkey (o si el checkbox está marcado) y el botón siguiente está oculto
+            // (el login con passkey se maneja en la función loginWithPasskey)
+            if (($('#passkeyOption').is(':visible') && !$('#usePasswordCheckbox').is(':checked')) || $('#nextBtn').is(':visible')) {
+                return false;
+            }
+            
+            // Validar que el campo de contraseña tenga valor
+            if (!$('#pass').val().trim()) {
+                $.confirm({
+                    title: 'Atención',
+                    content: '<strong>Por favor, ingresa tu contraseña</strong>',
+                    theme: 'modern',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    type: "blue",
+                    buttons: {
+                        logoutUser: {
+                            text: 'Aceptar',
+                            btnClass: 'btn-success',
+                            action: function () {
+                                $('#pass').focus();
+                            }
+                        }
+                    }
+                });
+                return false;
+            }
+            
+            $.ajax({
+                url: "/login",
+                data: $('#login_form').serialize(),
+                type: 'POST',
+                beforeSend: function (objeto) {
+                    $("#lockscreen").fadeIn();
+                    $('#loginSubmitBtn').prop('disabled', true).css('opacity', '0.7');
+                },
+                success: function (data) {
+                    $("#lockscreen").fadeOut();
+                    $('#loginSubmitBtn').prop('disabled', false).css('opacity', '1');
+
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        $.confirm({
+                            title: 'Atención',
+                            content: '<strong>' + data.msg + '</strong>',
+                            theme: 'modern',
+                            icon: 'fa-solid fa-triangle-exclamation',
+                            type: "blue",
+                            buttons: {
+                                logoutUser: {
+                                    text: 'Aceptar',
+                                    btnClass: 'btn-success',
+                                    action: function () {
+                                        $('#pass').val('').focus();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                },
+                error: function (request, status, error) {
+                    $("#lockscreen").hide();
+                    $('#loginSubmitBtn').prop('disabled', false).css('opacity', '1');
+                    $.confirm({
+                        title: 'Atención',
+                        content: '<strong>Intente mas tarde</strong>',
+                        theme: 'modern',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        type: "blue",
+                        buttons: {
+                            logoutUser: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-success'
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>

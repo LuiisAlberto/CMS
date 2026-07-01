@@ -1,0 +1,68 @@
+<% const _apFlip = (typeof assetsPrefix !== 'undefined' && assetsPrefix) ? assetsPrefix : '/assets/'; %>
+<div class="container">
+    <div class="flipbox-container">
+
+        <% if (Array.isArray(objcomp.wb_comp_flip) && objcomp.wb_comp_flip.length> 0) { %>
+            <% objcomp.wb_comp_flip.forEach((item, index)=> { %>
+                <% const _flipAccent = item.color_acento && /^#[0-9A-Fa-f]{6}$/.test(String(item.color_acento).trim()) ? String(item.color_acento).trim() : ''; %>
+                <div class="flipbox"<% if (_flipAccent) { %> style="--flip-accent: <%= _flipAccent %>;"<% } %>>
+                    <div class="flipbox-card card card_flipbox_frente">
+                        <% if (item.fk_id_file && item.fk_id_file[0]) {
+                            const f = item.fk_id_file[0];
+                            const fp = f.file_path || '';
+                            const sp = f.storage_path || '';
+                            let flipImgSrc = fp.startsWith('/assets/')
+                              ? fp
+                              : (sp + fp);
+                            if (flipImgSrc && !/^https?:\/\//i.test(flipImgSrc) && !flipImgSrc.startsWith('/assets/')) {
+                                flipImgSrc = 'https://cdn.morena.app/' + String(flipImgSrc).replace(/^\/+/, '');
+                            }
+                        %>
+                            <img src="<%= encodeURI(flipImgSrc) %>"
+                                class="card-img-top-frente" alt="card-img-top">
+                            <% } else { %>
+                                <img src="<%= _apFlip %>img/default_morena.png" class="card-img-top-frente"
+                                    alt="<%= item.titulo %>">
+                                <% } %>
+
+                                    <div class="cintillo-rojo-frente">
+                                        <h5 class="card-title-flipbox">
+                                            <%= item.titulo %>
+                                        </h5>
+                                        <span class="fondo-cintillo-frente"></span>
+                                    </div>
+                    </div>
+                    <div class="flipbox-card card card_flipbox_reverso">
+                        <div class="container-text-flipbox">
+                            <p class="cardflipbox-text">
+                                <%= item.texto %>
+                            </p>
+                        </div>
+                        <!-- límite de texto¿? si eligen poner boton, si no, el texto puede tener un límite más extenso -->
+                        <div class="cintillo-rojo-reverso">
+                            <div class="btn-card-flipbox-reverso">
+                                <a href="<%= item.url_link %>" target="_blank">
+                                    Ver
+                                </a>
+                            </div>
+                            <span class="fondo-cintillo-reverso"></span>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+                    <% } else { %>
+                        <p>No hay tarjetas disponibles.</p>
+                        <% } %>
+
+    </div>
+</div>
+
+
+
+<script>
+
+    /******  Componente flipCard  ******/
+    function flipCard(card) {
+        card.style.transform = card.style.transform === "rotateY(180deg)" ? "rotateY(0deg)" : "rotateY(180deg)";
+    }
+</script>

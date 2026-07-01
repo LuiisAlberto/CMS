@@ -1,0 +1,50 @@
+<div class="regeneration-button-container mt-2 mb-4">
+    <a
+        href="<%= 'regeneracion.html' + ((typeof objcomp !== 'undefined' && objcomp.regeneracionListToken) ? ('?i=' + objcomp.regeneracionListToken) : '') %>"
+        class="btn btnGral guinda_t"
+        type="button">
+        <p>VER TODOS LOS PERIODICOS</p>
+        <div class="btnIcon">
+            <div class="boxIcon guinda">
+                <img src="assets/img/recursos_componentes/eye-solid.svg" alt="">
+            </div>
+            <span class="s-guinda"></span>
+        </div>
+    </a>
+</div>
+
+<section class="regeneration-cards contRegeneracion">
+    <% if (Array.isArray(objDocsRegeneracion) && objDocsRegeneracion.length > 0) { %>
+        <% objDocsRegeneracion.forEach((currentDoc, index) => { %>
+            <div class="card-regenacion">
+                <% if (currentDoc && currentDoc.imagen_card && currentDoc.imagen_card.thumb_url) { %>
+                    <img src="<%= currentDoc.imagen_card.thumb_url %>"
+                         alt="<%= currentDoc.nombre_doc %>">
+                <% } else { %>
+                    <img alt="Imagen no disponible">
+                <% } %>
+
+                <% if (currentDoc) { %>
+                    <div class="card-content">
+                        <p><%= currentDoc.nombre_doc %></p> 
+                        <a  class="btnPrinc btnPrinc_Regeneracion"
+                            href="https://cdn.morena.app/<%= currentDoc.file_path %>" target="_blank"
+                        >
+                            <div class="corner corner-regen"></div>
+                            <span>Descarga aquí</span>
+                            <div class="s-block s-block_Regeneracion">
+                                <i class="fa-solid fa-arrow-down"></i>
+                            </div>
+                        </a>
+                    </div>
+                <% } else { %>
+                    <div class="card-content">
+                        <p>Documento no disponible</p>
+                    </div>
+                <% } %>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <p>No hay tarjetas de Regeneración disponibles.</p>
+    <% } %>
+</section>

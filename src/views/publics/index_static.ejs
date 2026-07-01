@@ -1,0 +1,61 @@
+<%- include('partials/header'); %>
+
+<div id="contPub" class="container">
+    <%
+    let i=0;
+    for (const seccion of datapagina.secciones || []) {
+        const secId = seccion.id_wb_pag_seccion != null ? seccion.id_wb_pag_seccion : (seccion.dataValues && seccion.dataValues.id_wb_pag_seccion);
+        const secCols = seccion.wb_num_col != null ? seccion.wb_num_col : (seccion.dataValues && seccion.dataValues.wb_num_col);
+    %>
+    <div class="row pub_seccion" id="seccion_<%=secId%>" data-origen="saved" data-sec="<%=secId%>" data-orden="<%=i%>">
+        <%
+        let c=0;
+        let cols=parseInt(secCols) || 1;
+        let colvalue=12/cols;
+        for (const columna of seccion.columnas || []) {
+            const colId = columna.id_wb_pag_columna != null ? columna.id_wb_pag_columna : (columna.dataValues && columna.dataValues.id_wb_pag_columna);
+            const colOrd = columna.orden_visible != null ? columna.orden_visible : (columna.dataValues && columna.dataValues.orden_visible);
+        %>
+        <div class="col-md-<%=colvalue%> pub_columna" id="columna_<%=colId%>" data-origen="saved" data-idcol="<%=colId%>" data-orden="<%=colOrd%>">
+            <%
+            let cp=0;
+            for (const componente of columna.componentes || []) {
+                let validcomp=i+'-'+c+'-'+cp;
+                const compId = componente.id_wb_pag_componente != null ? componente.id_wb_pag_componente : (componente.dataValues && componente.dataValues.id_wb_pag_componente);
+                const compOrd = componente.orden_visible != null ? componente.orden_visible : (componente.dataValues && componente.dataValues.orden_visible);
+                const compCypher = componente.idcypher != null ? componente.idcypher : (componente.dataValues && componente.dataValues.idcypher);
+                // Inyectar componente pre-renderizado si existe
+                if (typeof componentesRenderizados !== 'undefined' && compId != null && componentesRenderizados[compId]) {
+            %>
+            <div class="pub_componente" id="comp_<%=validcomp%>" data-comp="<%=compCypher%>" data-sec="<%=secId%>" data-col="<%=colId%>" data-orden="<%=compOrd%>">
+                <%- componentesRenderizados[compId] %>
+            </div>
+            <%
+                } else {
+            %>
+            <div class="pub_componente" id="comp_<%=validcomp%>" data-comp="<%=compCypher%>" data-sec="<%=secId%>" data-col="<%=colId%>" data-orden="<%=compOrd%>"></div>
+            <%
+                }
+                cp++;
+            }
+            %>
+        </div>
+        <%
+        c++;
+        }
+        %>
+    </div>
+    <%
+    i++;
+    }
+    %>
+</div>
+
+<% if (typeof footerHTML !== 'undefined' && footerHTML) { %>
+<%- footerHTML %>
+<% } else { %>
+<footer class="footerMorena" id="footer-container"><div class="contFooter row"></div></footer>
+<% } %>
+</main>
+</body>
+</html>

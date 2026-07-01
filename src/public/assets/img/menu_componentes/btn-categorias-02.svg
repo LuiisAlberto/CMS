@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 62 62.5">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+      }
+
+      .cls-2 {
+        letter-spacing: 0em;
+      }
+
+      .cls-3 {
+        fill: #1a1a1a;
+        font-family: Montserrat-Light, Montserrat;
+        font-size: 8px;
+        font-weight: 300;
+      }
+
+      .cls-4 {
+        fill: #b98d68;
+      }
+
+      .cls-5 {
+        fill: #fafeff;
+        filter: url(#drop-shadow-1);
+        stroke: #333;
+        stroke-miterlimit: 10;
+        stroke-width: .25px;
+      }
+
+      .cls-6 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-7 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-8 {
+        letter-spacing: 0em;
+      }
+    </style>
+    <filter id="drop-shadow-1" x="-3.75" y="1.75" width="53" height="54" filterUnits="userSpaceOnUse">
+      <feOffset dx="-2" dy="3"/>
+      <feGaussianBlur result="blur" stdDeviation="4"/>
+      <feFlood flood-color="#514c4c" flood-opacity=".2"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <rect class="cls-1" x="-.75" y="-1.25" width="64" height="65.7" rx="8" ry="8"/>
+  <text class="cls-3" transform="translate(6.58 53.75)"><tspan class="cls-8" x="0" y="0">C</tspan><tspan x="5.66" y="0">a</tspan><tspan class="cls-7" x="10.32" y="0">r</tspan><tspan class="cls-2" x="13.36" y="0">d Flipb</tspan><tspan class="cls-6" x="40.84" y="0">o</tspan><tspan x="45.65" y="0">x</tspan></text>
+  <rect class="cls-4" x="30.25" y="12.75" width="18" height="27" rx="2" ry="2"/>
+  <rect class="cls-5" x="15.8" y="13.16" width="18.25" height="25.15" rx="2" ry="2" transform="translate(-10.61 21.16) rotate(-38.57)"/>
+</svg>

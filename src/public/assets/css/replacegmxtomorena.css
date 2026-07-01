@@ -1,0 +1,252 @@
+@charset "UTF-8";
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUSjIg1_i6t8kCHKm459WdhyyTh89ZNpQ.woff2) format('woff2');
+    unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUSjIg1_i6t8kCHKm459WlhyyTh89Y.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: icogobmx;
+    src: url(https://framework-gb.cdn.gob.mx/assets/styles/fonts/icogobmx.eot?xc1rry);
+    src: url(https://framework-gb.cdn.gob.mx/assets/styles/fonts/icogobmx.eot?#iefixxc1rry) format("embedded-opentype"), url(https://framework-gb.cdn.gob.mx/assets/styles/fonts/icogobmx.woff?xc1rry) format("woff"), url(https://framework-gb.cdn.gob.mx/assets/styles/fonts/icogobmx.ttf?xc1rry) format("truetype"), url(https://framework-gb.cdn.gob.mx/assets/styles/fonts/icogobmx.svg?xc1rry#icogobmx) format("svg");
+    font-weight: 400;
+    font-style: normal
+}
+
+.morena .glyphicon-search:before {
+    content: "\e003"
+}
+
+.morena {
+    display: block;
+    margin: 0px;
+    padding: 0px;
+    background-color: #fff;
+    font-family: 'Montserrat';
+    font-size: 18px;
+    line-height: 1.428571429;
+    color: #404041;
+    font-weight: 300;
+    word-wrap: break-word;
+    position: relative;
+    z-index: 1000;
+}
+
+.morena .navbar{
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.bg-morena{--bs-bg-opacity:1;background-color: rgb(125, 17, 43) !important}
+.navbar-morena .navbar-brand{color:#fff}
+.navbar-morena .navbar-brand:focus,.navbar-morena .navbar-brand:hover{color:#fff}
+.navbar-morena .navbar-nav .nav-link{color:rgba(255,255,255,1)}
+.navbar-morena .navbar-nav .nav-link:focus,.navbar-morena .navbar-nav .nav-link:hover{color:rgba(255,255,255,1);background-color: rgba(255,255,255,0.1);}
+.navbar-morena .navbar-nav .nav-link.disabled{color:rgba(255,255,255,.25)}
+.navbar-morena .navbar-nav .nav-link.active,.navbar-morena .navbar-nav .show>.nav-link{color:#fff}
+.navbar-morena .navbar-toggler{color:rgba(255,255,255,.55);border-color:rgba(255,255,255,.1)}
+.navbar-morena .navbar-toggler-icon{
+    background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e")
+}
+.navbar-morena .navbar-text{color:rgba(255,255,255,.55)}
+.navbar-morena .navbar-text a,.navbar-morena .navbar-text a:focus,.navbar-morena .navbar-text a:hover{color:#fff}
+
+
+
+.morena .main-footer {
+    font-family: "Montserrat";
+    background-color: #13322B;
+    min-height: 56px;
+    color: #FFF;
+    padding: 0px 0 0px;
+    text-align: left;
+    font-weight: 300;
+    font-size: 16px;
+}
+
+.morena .main-footer .list-info {
+    line-height: inherit;
+    color: white;
+    background-size: cover;
+    background-position: bottom;
+    padding: 30px 10px 10px;
+}
+
+.morena .breadcrumb a,
+.morena .btn,
+.morena .dropdown-menu>li>a,
+.morena .main-footer .list-info a.link-email,
+.morena .main-footer .list-info a:hover,
+.morena .navbar-brand,
+.morena .navbar-inverse .navbar-nav>li>a {
+    text-decoration: none
+}
+
+
+.morena .main-footer .list-info form label {
+    font-weight: 300;
+    margin-bottom: 15px;
+    line-height: 110%;
+    color: black;
+}
+
+.morena .main-footer .list-info form .form-group-icon {
+    max-width: none;
+    font-size: 14px
+}
+
+.morena .main-footer .list-info form .form-control {
+    font-size: 14px
+}
+
+.morena .main-footer .list-info h5 {
+    font-weight: 300;
+    margin-bottom: 20px
+}
+
+.morena .main-footer .list-info a {
+    color: #FFF;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.morena .main-footer .list-info a.link-email {
+    color: #fff;
+    font-size: 14px
+}
+
+.morena .main-footer .list-info p {
+    margin-bottom: 15px
+}
+
+.morena .main-footer .list-info ul {
+    margin: 0 0 60px;
+    padding: 0
+}
+
+.morena .main-footer .list-info ul li {
+    list-style-type: none;
+    margin: 0 0 2px;
+    padding: 0;
+    line-height: 110%
+}
+
+.morena .main-footer .row>div {
+    margin-bottom: 15px
+}
+
+.morena .main-footer p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 136%;
+    height: auto;
+    position: static
+}
+
+.morena .gobmx-footer {
+    margin-top: 15px
+}
+
+.morena .message-subscribe {
+    margin-top: 20px;
+    font-size: 14px
+}
+
+@media (min-width:768px) {
+    .morena .main-footer {
+        text-align: left
+    }
+    .morena .main-footer .list-info form .form-group-icon {
+        max-width: 300px
+    }
+    .morena .main-footer .row>div {
+        margin-bottom: 0
+    }
+}
+
+.list-inline,
+.list-unstyled {
+    padding-left: 0;
+    list-style: none
+}
+
+.footer-pleca {
+    background-color: #12322B;
+    background-image: url(https://framework-gb.cdn.gob.mx/landing/img/pleca.svg);
+    background-repeat: repeat-x;
+}
+.morena [class*=" icon-"],
+.morena [class^=icon-] {
+    font-family: icogobmx;
+    speak: none;
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale
+}
+.morena .icon-search:before {
+    content: "\e606"
+}
+
+
+.morena .social-icon {
+    background-image: url(https://framework-gb.cdn.gob.mx/assets/images/icons_full.png);
+    display: block;
+    text-indent: -9999px;
+    margin-right: 5px
+}
+
+.morena .social-icon.facebook {
+    width: 14px;
+    height: 20px;
+    background-position: 0 0
+}
+
+.morena .social-icon.twitter {
+    width: 24px;
+    height: 20px;
+    background-position: -34px 0
+}
+
+.morena .social-icon.instagram {
+    width: 22px;
+    height: 20px;
+    background-position: -12px 0
+}
+
+.morena .social-icon.youtube {
+    width: 22px;
+    height: 20px;
+    background-position: -60px 0
+}
+
+.morena .social-icon.flickr {
+    width: 22px;
+    height: 20px;
+    background-position: -141px 0
+}
+
+.morena .social-icon.feed {
+    width: 20px;
+    height: 20px;
+    background-position: -120px 0
+}
+
+.morena .social-icon:hover {
+    opacity: .5
+}

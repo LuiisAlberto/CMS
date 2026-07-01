@@ -1,0 +1,116 @@
+#PRODUCCION true en produccion
+PRODUCCION=true
+
+APP_PORT=3042
+APP_SSL_CRT=api.devlocal.net.crt
+APP_SSL_KEY=api.devlocal.net.key
+
+# GOOGLE SEARCH CONSOLE
+GSC_KEY_PATH=certs/cen-sf-qa-dev-6fcbaf00be0b.json
+GSC_SITE_URL=sc-domain:morena.org
+
+APP_TITLE=cms_web_morena
+APP_COOKIE_NAME=cms_web_morena
+#APP_BASE_URL=morena.org
+APP_BASE_URL=localhost:3042
+#APP_BASE_URL_ADMIN=admin.morena.org
+APP_BASE_URL_ADMIN=localhost:3042/admin
+#APP_BASE_URL_ADMIN=localhost:3042/admin
+
+#USO DE DIRECTORIO ACTIVO
+ACTIVE_DIRECTORY=false
+
+#RENAPO DISPONIBLE
+RENAPO_ACTIVE=false
+
+#CORREO DISPONIBLE
+MAIL_ACTIVE=true
+
+#DEFINIR EL ID DEL GRUPO
+GRUPO_APLICACIONES=1
+
+# Sysapp que representa al propio CMS (cat_roles_sysapp / rel_user_sysapp_roles; fusiona con sys_perm en getPermisos)
+CMS_SYSAPP=76
+
+#CONFIGURACION DE TELEGRAM
+BOT_TOKEN=
+BOT_GROUP_ID=
+
+#Variables de Captcha
+CAPTCHA_MOSTRAR=false
+CAPTCHA_SITEKEY= 6LdCi3YsAAAAAKfoFR8saL4qhjUgOGq0W9nJCco1
+CAPTCHA_SECRET=6LdCi3YsAAAAAF2rSpPzusOPUsc_ztM03BKO64Xu
+
+
+REN_CERT=entrust_l1k.cer
+REN_URL=https://webs.curp.gob.mx/WebServicesConsulta/services/ConsultaPorCurpServices?wsdl
+REN_USER=WS460090188
+REN_PASS=jK9aZ483
+REN_TTR=5
+REN_CVEE=04001000000000
+REN_IP=23.102.173.228
+REN_TMOUT=3000
+
+COOKIE_EXPIRES=10
+
+SESSION_KEY=4.Ye5N3qw>A1Imq1<Z2%m8x
+
+# POSTGRES
+PGDB_HOST="localhost"
+PGDB_PORT="5432"
+PGDB_NAME="cms"
+PGDB_NAME_MAIN="sys_morena_cms"
+PGDB_USER="mnataly.melo"
+PGDB_PASSWORD="83505"
+
+# MySQL
+MYSQL_DB_NAME=wp_backup
+MYSQL_DB_USER=root
+MYSQL_DB_PASSWORD=83505
+MYSQL_DB_HOST=localhost
+MYSQL_DB_PORT=3306
+
+# BLOB STORAGE
+BLOB_CONNECTION=
+BLOB_CONTAINER=
+
+#Configuracion de Email - SendGrid
+MAILER_USER=sendgrid
+MAIL_APIKEY_SENDGRID=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
+MAIL_ORIGIN=notificaciones@morena.si
+MAIL_TEST_ADDRESS=usuario.stock@yopmail.com
+MAIL_TEST=true
+
+#Configuracion de Email - SMTP (no se usa si SendGrid está configurado)
+#MAILER_HOST=
+#MAILER_PORT=
+#MAILER_PASS=
+#MAILER_FROM_NAME=
+#MAILER_FROM_ADRESS=
+
+#Configuracion de Email - Infraestructura
+INFRA_MAIL=nataliemelo98@gmail.com
+
+#Ruta de salida para HTML estático
+# Local
+DATA_OUTPUT_PATH=/Users/mnataly.melo/Documents/GitHub/cms-web-morena/app
+# Desarrollo
+#DATA_OUTPUT_PATH=/var/www/html/paginas
+# Producción
+#DATA_OUTPUT_PATH=/data
+
+
+#APIKEY de SMS masivos
+SMSMASIVOS_APIKEY=
+
+SECRET=TLTs951
+
+PUBLIC_BUCKET_NAME=cs-sf-cendgti-public-01
+PUBLIC_BUCKET_KEY=finanzas-morena-2024-6329b0b3f504.json
+PUBLIC_STORAGE_ACTIVE=2
+
+BUCKET_NAME="cs-sf-cendgti-01"
+BUCKET_KEY="finanzas-morena-2024-6217d0e39318.json"
+STORAGE_ACTIVE=1
+
+END_POINT_RENAPO=''

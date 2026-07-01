@@ -1,0 +1,437 @@
+<%- include('partials/header'); %>
+<%- include('partials/menu'); %>
+
+<style>
+  :root {
+    --hosting-guinda: #8b1538;
+    --hosting-guinda-oscuro: #52181E;
+    --hosting-oro: #bc955b;
+  }
+
+  .hosting-wrapper {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+
+  .hosting-table {
+    font-size: 0.85rem;
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .hosting-table td,
+  .hosting-table th {
+    vertical-align: middle;
+  }
+
+  .badge-estatus {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+  }
+
+  .hosting-actions {
+    white-space: nowrap;
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .hosting-btn {
+    border-radius: 999px;
+    font-size: 0.78rem;
+    padding: 0.25rem 0.75rem;
+    border-width: 1px;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .hosting-btn i {
+    font-size: 0.8rem;
+  }
+  .hosting-btn-approve {
+    border-color: var(--hosting-guinda);
+    color: var(--hosting-guinda);
+  }
+  .hosting-btn-approve:hover:not(:disabled) {
+    background: var(--hosting-guinda);
+    color: #fff;
+  }
+  .hosting-btn-reject {
+    border-color: #c0392b;
+    color: #c0392b;
+  }
+  .hosting-btn-reject:hover:not(:disabled) {
+    background: #c0392b;
+    color: #fff;
+  }
+  .hosting-btn-baja {
+    border-color: var(--hosting-oro);
+    color: var(--hosting-oro);
+  }
+  .hosting-btn-baja:hover:not(:disabled) {
+    background: var(--hosting-oro);
+    color: #fff;
+  }
+  .hosting-btn:disabled,
+  .hosting-btn[disabled] {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  /* Estilos DataTables similares a Administrador de Usuarios */
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_paginate {
+    display: inline-block;
+    padding: 5px 10px;
+    color: #7E2D43;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .dataTables_wrapper .dataTables_filter {
+    display: inline-block;
+    padding: 5px 10px;
+    color: #7E2D43;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .dataTables_wrapper .dataTables_filter label {
+    width: 100%;
+  }
+  .dataTables_wrapper .dataTables_filter input {
+    padding: .375rem .75rem;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1.5px solid #cccaca;
+    background: #f0f0f0;
+    margin-top: 0;
+    border-radius: 8px;
+    display: inline-block;
+  }
+
+  /* Modal aprobar / rechazar dominio: estilo institucional */
+  #modalAprobar .modal-content,
+  #modalRechazar .modal-content {
+    border-radius: 18px;
+    border: none;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  }
+  #modalAprobar .modal-header,
+  #modalRechazar .modal-header {
+    border: none;
+    padding: 1rem 1.25rem 0.5rem;
+  }
+  #modalAprobar .modal-title,
+  #modalRechazar .modal-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--hosting-guinda-oscuro);
+  }
+  #modalAprobar .modal-body,
+  #modalRechazar .modal-body {
+    padding: 0.5rem 1.25rem 1rem;
+    font-size: 0.9rem;
+    color: #444;
+  }
+  #modalAprobar .form-label,
+  #modalRechazar .form-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #555;
+  }
+  #modalAprobar .form-control,
+  #modalRechazar .form-control {
+    border-radius: 10px;
+    border: 1.5px solid #cccaca;
+    background: #f7f7f7;
+    font-size: 0.9rem;
+  }
+  #modalAprobar .form-control:focus,
+  #modalRechazar .form-control:focus {
+    border-color: var(--hosting-guinda);
+    box-shadow: 0 0 0 0.15rem rgba(139, 21, 56, 0.18);
+    background: #fff;
+  }
+  #modalAprobar .modal-footer,
+  #modalRechazar .modal-footer {
+    border: none;
+    padding: 0.75rem 1.25rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+
+<div id="templateDer">
+    <div class="limit-home">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-12 t-c">
+                <h5 class="tit-seccion guinda_t">Administración de <b>Dominios</b></h5>
+                <div class="l-div">
+                    <label class="borde-izq oroMorena"><span class="diagonal gris_t"></span></label>
+                    <label class="borde-der solid_bg"><span></span></label>
+                </div>
+            </div>
+            <div class="subenun ma-t2">
+                <p class="subtit">Administre las solicitudes de dominio de las instancias: confirmación, rechazo y proceso de baja.</p>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="hosting-wrapper tablefont">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                <div>
+                    <h6 class="mb-0" style="font-size:0.9rem; color:#555;">Solicitudes de dominio</h6>
+                    <small class="text-muted">Revise, apruebe, rechace o procese la baja de dominios.</small>
+                </div>
+            </div>
+            <div class="table-responsive">
+            <table class="table hosting-table" id="Tabla_Hosting">
+                <thead class="table-head verde">
+                    <tr>
+                        <th>Instancia</th>
+                        <th>Dominio solicitado</th>
+                        <th>Solicitante</th>
+                        <th>Fecha solicitud</th>
+                        <th>Estatus</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% const EST = { 0: 'Pendiente', 1: 'Solicitado', 2: 'Con dominio', 3: 'Rechazado', 4: 'Baja solicitada', 5: 'Baja procesada' }; %>
+                    <% const BADGE = { 0: 'secondary', 1: 'warning', 2: 'success', 3: 'danger', 4: 'info', 5: 'dark' }; %>
+                    <% if (listado && listado.length > 0) { %>
+                        <% for (const r of listado) {
+                            const solicitante = [r.solicitante_nombre, r.primer_apellido, r.segundo_apellido].filter(Boolean).join(' ');
+                            const fechaSolicitud = r.f_solicitud ? new Date(r.f_solicitud).toLocaleString('es-MX') : '';
+                            // "Instancia eliminada (cancelada)" solo aplica cuando la instancia ya no está vigente
+                            // pero el hosting NO está en el flujo esperado de "Baja procesada" (5).
+                            const instanciaEliminada = (r.instancia_vigente === false || r.instancia_vigente == null) && Number(r.fk_id_estatus_hosting) !== 5;
+                        %>
+                        <tr data-id="<%= r.id_hosting %>">
+                            <td><strong><%- r.sysapp_name %></strong><br><small class="text-muted"><%- r.app_legend %></small></td>
+                            <td><%- r.dominio_solicitado %><% if (r.dominio_asignado) { %><br><small class="text-success">Asignado: <%= r.dominio_asignado %></small><% } %></td>
+                            <td><%- solicitante %><br><small><%= r.solicitante_email %></small></td>
+                            <td><%= fechaSolicitud %></td>
+                            <td>
+                                <% if (instanciaEliminada) { %>
+                                    <span class="badge bg-secondary badge-estatus">Instancia eliminada (cancelada)</span>
+                                <% } else { %>
+                                    <span class="badge bg-<%= BADGE[r.fk_id_estatus_hosting] || 'secondary' %> badge-estatus"><%= EST[r.fk_id_estatus_hosting] || r.estatus_clave %></span>
+                                <% } %>
+                            </td>
+                            <td class="hosting-actions">
+                                <button
+                                    class="hosting-btn hosting-btn-approve btn-aprobar"
+                                    data-id="<%= r.id_hosting %>"
+                                    data-instancia="<%= r.sysapp_name %>"
+                                    data-dominio="<%= r.dominio_solicitado %>"
+                                    <%= (instanciaEliminada || r.fk_id_estatus_hosting !== 1) ? 'disabled' : '' %>
+                                    title="Confirmar dominio">
+                                    <i class="fa-solid fa-check"></i><span>Confirmar</span>
+                                </button>
+                                <button
+                                    class="hosting-btn hosting-btn-reject btn-rechazar"
+                                    data-id="<%= r.id_hosting %>"
+                                    <%= (instanciaEliminada || r.fk_id_estatus_hosting !== 1) ? 'disabled' : '' %>
+                                    title="Rechazar solicitud">
+                                    <i class="fa-solid fa-xmark"></i><span>Rechazar</span>
+                                </button>
+                                <button
+                                    class="hosting-btn hosting-btn-baja btn-procesar-baja"
+                                    data-id="<%= r.id_hosting %>"
+                                    <%= (instanciaEliminada || r.fk_id_estatus_hosting !== 4) ? 'disabled' : '' %>
+                                    title="Procesar baja de dominio">
+                                    <i class="fa-solid fa-arrow-down-long"></i><span>Procesar baja</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <% } %>
+                    <% } %>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmar dominio -->
+<div class="modal fade" id="modalAprobar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title">Confirmar dominio</h5>
+                    <p class="mb-0 small text-muted">Confirma el dominio final que quedará asignado a la instancia.</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2 small">
+                    Instancia: <strong id="modalAprobarInstancia"></strong>
+                </p>
+                <div class="mb-3">
+                    <label class="form-label">Dominio asignado *</label>
+                    <input type="text" class="form-control" id="modalDominioAsignado" placeholder="ejemplo.morena.mx">
+                    <input type="hidden" id="modalAprobarId" value="">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btnGral guinda_t" data-bs-dismiss="modal">
+                    <p>CANCELAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon guinda"><img src="assets/img/TIMES.svg" alt=""></div>
+                        <span class="s-guinda"></span>
+                    </div>
+                </button>
+                <button type="button" class="btnGral verde_t" id="btnConfirmarAprobar">
+                    <p>CONFIRMAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon verde"><img src="assets/img/GUARDAR.svg" alt=""></div>
+                        <span class="s-verde"></span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Rechazar -->
+<div class="modal fade" id="modalRechazar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title">Rechazar solicitud de dominio</h5>
+                    <p class="mb-0 small text-muted">Indica brevemente el motivo del rechazo para notificar al solicitante.</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Comentarios (opcional)</label>
+                    <textarea class="form-control" id="modalRechazarComentarios" rows="3" placeholder="Ej. El dominio no cumple con las políticas de nomenclatura..."></textarea>
+                </div>
+                <input type="hidden" id="modalRechazarId" value="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btnGral guinda_t" data-bs-dismiss="modal">
+                    <p>CANCELAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon guinda"><img src="assets/img/TIMES.svg" alt=""></div>
+                        <span class="s-guinda"></span>
+                    </div>
+                </button>
+                <button type="button" class="btnGral guinda_t" id="btnConfirmarRechazar">
+                    <p>RECHAZAR</p>
+                    <div class="btnIcon">
+                        <div class="boxIcon guinda"><img src="assets/img/GUARDAR.svg" alt=""></div>
+                        <span class="s-guinda"></span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footerNoMx'); %>
+
+<script>
+$(function () {
+    // --- Acciones de aprobar / rechazar / procesar baja ---
+    $(document).on('click', '.btn-aprobar', function () {
+        const id = $(this).data('id');
+        const instancia = $(this).data('instancia');
+        const dominio = $(this).data('dominio');
+        $('#modalAprobarId').val(id);
+        $('#modalAprobarInstancia').text(instancia);
+        $('#modalDominioAsignado').val(dominio);
+        new bootstrap.Modal(document.getElementById('modalAprobar')).show();
+    });
+
+    $('#btnConfirmarAprobar').on('click', function () {
+        const id = $('#modalAprobarId').val();
+        const dominio = $('#modalDominioAsignado').val().trim();
+        if (!dominio) {
+            alert('Indique el dominio asignado');
+            return;
+        }
+        $('#lockscreen').show();
+        $.post('/hosting/confirmar', { id_hosting: id, dominio_asignado: dominio })
+            .done(function (data) {
+                $('#lockscreen').hide();
+                bootstrap.Modal.getInstance(document.getElementById('modalAprobar')).hide();
+                if (data.success) location.reload();
+                else alert(data.message || 'Error');
+            })
+            .fail(function (xhr) {
+                $('#lockscreen').hide();
+                alert((xhr.responseJSON && xhr.responseJSON.message) || 'Error al confirmar');
+            });
+    });
+
+    $(document).on('click', '.btn-rechazar', function () {
+        $('#modalRechazarId').val($(this).data('id'));
+        $('#modalRechazarComentarios').val('');
+        new bootstrap.Modal(document.getElementById('modalRechazar')).show();
+    });
+
+    $('#btnConfirmarRechazar').on('click', function () {
+        const id = $('#modalRechazarId').val();
+        const comentarios = $('#modalRechazarComentarios').val();
+        $('#lockscreen').show();
+        $.post('/hosting/rechazar', { id_hosting: id, comentarios: comentarios })
+            .done(function (data) {
+                $('#lockscreen').hide();
+                bootstrap.Modal.getInstance(document.getElementById('modalRechazar')).hide();
+                if (data.success) location.reload();
+                else alert(data.message || 'Error');
+            })
+            .fail(function (xhr) {
+                $('#lockscreen').hide();
+                alert((xhr.responseJSON && xhr.responseJSON.message) || 'Error');
+            });
+    });
+
+    $(document).on('click', '.btn-procesar-baja', function () {
+        if (!confirm('¿Procesar la baja de este dominio?')) return;
+        const id = $(this).data('id');
+        $('#lockscreen').show();
+        $.post('/hosting/procesar-baja', { id_hosting: id })
+            .done(function (data) {
+                $('#lockscreen').hide();
+                if (data.success) location.reload();
+                else alert(data.message || 'Error');
+            })
+            .fail(function () {
+                $('#lockscreen').hide();
+            });
+    });
+
+    // DataTable para Hosting (misma línea visual que Administrador de Usuarios)
+    const hostingDataTableOptions = {
+        language: {
+            info:       'Registro _START_ al  _END_ de _TOTAL_ solicitudes (Página _PAGE_ de _PAGES_)',
+            paginate: {
+                first:      'Primero',
+                last:       'Último',
+                next:       'Siguiente',
+                previous:   'Anterior'
+            },
+            lengthMenu: 'Ver _MENU_ registros por página',
+            search:     'Filtrar por instancia, dominio o solicitante:',
+            zeroRecords:'No existe registro'
+        },
+        pageLength: 10,
+        order: [[3, 'desc']]
+    };
+
+    $('#Tabla_Hosting').dataTable(hostingDataTableOptions);
+});
+</script>

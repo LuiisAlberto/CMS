@@ -1,0 +1,829 @@
+<% if (type_carrousel===1) { %>
+    <div id="carouselNacional_<%= idComp %>" class="carousel carousel-dark slide" data-bs-ride="carousel" data-bs-interval="false">
+        <div class="carousel-indicators">
+            <% slidecontent.forEach((_, index)=> { %>
+                <button type="button" data-bs-target="#carouselNacional_<%= idComp %>" data-bs-slide-to="<%= index %>"
+                    class="<%= index === 0 ? 'active' : '' %>" aria-current="<%= index === 0 ? 'true' : 'false' %>"
+                    aria-label="Slide <%= index + 1 %>">
+                </button>
+            <% }) %>
+        </div>
+        <!-- Contenedor de Slides -->
+        <div class="carousel-inner cs-inner">
+            <% slidecontent.forEach((slide, index)=> { %>
+                <% const slideVariant = index % 3; %>
+                <div class="carousel-item carrusel-nacional <%= index === 0 ? 'active' : '' %>">
+                    <!-- Slide 1 -->
+                    <% if (slideVariant===0) { %>
+                        <div class="containerLeftSlide">
+                            <div class="container-logo-slide">
+                                <img class="logo-morena" src="/assets/img/recursos_componentes/LOGO-MORENA.png"
+                                    alt="logo-morena">
+                            </div>
+                            <div class="container-titulo-slide">
+                                <p class="titulo-slide">
+                                    <%= slide.titulo %>
+                                </p>
+                            </div>
+                            <div class="container-text-slide">
+                                <p class="text-slide">
+                                    <%= slide.texto %>
+                                </p>
+                            </div>
+                            <div class="container-btn-slide">
+                                <button class="btnPrincBlack">
+                                    <div class="corner"></div>
+                                    <span>
+                                        <%= slide.btn_text%>
+                                    </span>
+                                    <div class="s-block">
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="containerRightSlide containerdiv <%= slide.fk_id_file && slide.fk_id_file.length === 1 ? 'single-image-container' : '' %>">
+                            <% if (slide.fk_id_file && slide.fk_id_file.length> 0) { %>
+                                <% slide.fk_id_file.forEach((file, imgIndex)=> { %>
+                                    <div class="container-img-<%= imgIndex + 1 %> containerdiv"
+                                        data-index_s1="<%= imgIndex + 1 %>">
+                                        <img class="img-<%= imgIndex + 1 %>"
+                                            src="<%= file.storage_path + file.file_path %>"
+                                            alt="img-<%= imgIndex + 1 %>">
+                                    </div>
+                                <% }) %>
+                                <% } else { %>
+                                    <div class="container-img-1 containerdiv" data-index_s1="1">
+                                        <img class="img-1" src="/assets/img/default_morena.png" alt="img-default">
+                                    </div>
+                            <% } %>
+                        </div>
+                    <% } %>
+                    <!-- Slide 2 -->
+                    <% if (slideVariant===1) { %>
+                        <div class="containerLeftSlide">
+                            <div class="container-imgleft-slide2 <%= slide.fk_id_file && slide.fk_id_file.length === 1 ? 'single-image-container' : '' %>">
+                                <% if (slide.fk_id_file && slide.fk_id_file.length> 0) { %>
+                                    <img class="imgleft-slide2"
+                                        src="<%= slide.fk_id_file[0].storage_path + slide.fk_id_file[0].file_path %>" alt="imgleft-slide2">
+                                <% } else { %>
+                                    <img class="imgleft-slide2" src="/assets/img/default_morena.png" alt="img-default">
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="containerRightSlide responsive p-top">
+                            <div class="container-tituloslide2">
+                                <p class="titulo-slide2">
+                                    <%= slide.titulo %>
+                                </p>
+                            </div>
+                            <div class="container-text-slide2">
+                                <p class="text-slide2">
+                                    <%= slide.texto %>
+                                </p>
+                            </div>
+                            <div class="container-btn-slide2">
+                                <button class="btnPrincBlack">
+                                    <div class="corner"></div>
+                                    <span>
+                                        <%= slide.btn_text%>
+                                    </span>
+                                    <div class="s-block">
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    <% } %>
+                    <!-- Slide 3 -->
+                    <% if (slideVariant===2) { %>
+                        <div class="containerLeftSlide <%= slide.fk_id_file && slide.fk_id_file.length === 1 ? 'single-image-container' : '' %>">
+                            <% if (slide.fk_id_file && slide.fk_id_file.length> 0) { %>
+                                <% slide.fk_id_file.forEach((file, imgIndex)=> { %>
+                                    <div id="container<%= imgIndex + 1 %>-s3"
+                                        class="container-img-<%= imgIndex + 1 %>-s3 containerdiv"
+                                        data-index_s3="<%= imgIndex + 1 %>">
+                                        <img class="img-<%= imgIndex + 1 %>-s3"
+                                            src="<%= file.storage_path + file.file_path %>"
+                                            alt="img-<%= imgIndex + 1 %>-s3">
+                                    </div>
+                                <% }) %>
+                                <% } else { %>
+                                    <div id="container1-s3" class="container-img-1-s3 containerdiv" data-index_s3="1">
+                                        <img class="img-1-s3" src="/assets/img/default_morena.png" alt="img-default">
+                                    </div>
+                            <% } %>
+                        </div>
+                        <div class="containerRightSlide responsive p-top">
+                            <div class="container-tituloslide2">
+                                <p class="titulo-slide2">
+                                    <%= slide.titulo %>
+                                </p>
+                            </div>
+                            <div class="container-text-slide2">
+                                <p class="text-slide2">
+                                    <%= slide.texto %>
+                                </p>
+                            </div>
+                            <div class="container-btn-slide2">
+                                <div class="btn btn-slide2">
+                                    <button class="btnPrincBlack">
+                                        <div class="corner"></div>
+                                        <span>
+                                            <%= slide.btn_text%>
+                                        </span>
+                                        <div class="s-block">
+                                            <i class="fa-solid fa-arrow-right"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            <% }) %>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselNacional_<%= idComp %>" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselNacional_<%= idComp %>" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+<% } else if (type_carrousel===2) { %>
+    <div id="carouselEstatal_<%= idComp %>" class="carousel carousel-dark slide" data-bs-ride="carousel" data-bs-interval="false"<% if (typeof carouselEstatalBgUri !== 'undefined' && carouselEstatalBgUri) { %> style="background-image: url('<%= carouselEstatalBgUri %>'); background-size: cover; background-position: center;"<% } %>>
+        <% if (typeof carouselEstatalOverlayRgba !== 'undefined' && carouselEstatalOverlayRgba) { %>
+        <div class="carousel-estatal-accent-overlay" style="background-color: <%= carouselEstatalOverlayRgba %>;" aria-hidden="true"></div>
+        <% } %>
+        <div class="carousel-indicators">
+            <% slidecontent.forEach((_, index)=> { %>
+                <button 
+                    type="button" 
+                    data-bs-target="#carouselEstatal_<%= idComp %>" 
+                    data-bs-slide-to="<%= index %>"
+                    class="<%= index === 0 ? 'active' : '' %>" 
+                    aria-current="<%= index === 0 ? 'true' : 'false' %>"
+                    aria-label="Slide <%= index + 1 %>">
+                </button>
+            <% }) %>
+        </div>
+
+        <div class="carousel-inner cs-inner">
+            <% slidecontent.forEach((slideEst, index)=> { %>
+                <!-- SOLUCIÓN TEMPORAL MEJORADA -->
+                <% // Determinar type_slide: primero del backend, si no por índice let
+                    currentTypeSlide=slideEst.type_slide; let typeSource='backend' ; if (!currentTypeSlide ||
+                    currentTypeSlide==='-' || currentTypeSlide==='NO DEFINIDO' ) { currentTypeSlide=(index % 3) + 1;
+                    typeSource='calculado por índice' ; } %>
+
+                <div class="carousel-item carrusel-estatal <%= index === 0 ? 'active' : '' %>">
+                    <!-- LADO IZQUIERDO - USANDO currentTypeSlide -->
+                    <div class="containerLeftSlide">
+                        <% if (currentTypeSlide===1) { %>
+                            <!-- TIPO 1: TEXTO a la izquierda -->
+                            <div class="container-titulo-slide">
+                                <p class="titulo-slide-estatal">
+                                    <%= slideEst.titulo %>
+                                </p>
+                            </div>
+                            <div class="container-text-slide">
+                                <p class="text-slide-estatal">
+                                    <%= slideEst.texto %>
+                                </p>
+                            </div>
+                            <div class="container-btn-slide">
+                                <div class="btn btn-slide">
+                                    <% if (slideEst.url_link && slideEst.url_link !=='#' ) { %>
+                                        <a class="text-color-a" href="<%= slideEst.url_link %>">
+                                    <% } %>
+                                            <button class="btnPrincBlack">
+                                                <div class="corner"></div>
+                                                <span>
+                                                    <%= slideEst.btn_text || 'Siguiente' %>
+                                                </span>
+                                                <div class="s-block">
+                                                    <i class="fa-solid fa-arrow-right"></i>
+                                                </div>
+                                            </button>
+                                            <% if (slideEst.url_link && slideEst.url_link !=='#' ) { %>
+                                        </a>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% } else if (currentTypeSlide===2) { %>
+                            <!-- TIPO 2: IMAGEN a la izquierda -->
+                            <div class="container-imgleft-slide2 <%= slideEst.fk_id_file && slideEst.fk_id_file.length === 1 ? 'single-image-container' : '' %>">
+                                <% if (slideEst.fk_id_file && slideEst.fk_id_file.length> 0) { %>
+                                    <img class="imgleft-slide2"
+                                        src="<%= slideEst.fk_id_file[0].storage_path + slideEst.fk_id_file[0].file_path %>"
+                                        alt="<%= slideEst.titulo || 'Imagen' %>">
+                                <% } else { %>
+                                    <img class="imgleft-slide2" src="/assets/img/default_morena.png" alt="default-img">
+                                <% } %>
+                            </div>
+                        <% } else if (currentTypeSlide===3) { %>
+                            <!-- TIPO 3: IMÁGENES a la izquierda -->
+                            <div class="containerLeftSlide <%= slideEst.fk_id_file && slideEst.fk_id_file.length === 1 ? 'single-image-container' : '' %>">
+                                <% if (slideEst.fk_id_file && slideEst.fk_id_file.length> 0) { %>
+                                    <% slideEst.fk_id_file.forEach((file, imgIndex)=> { %>
+                                        <div class="container-img-<%= imgIndex + 1 %>-s3 containerdiv">
+                                            <img class="img-<%= imgIndex + 1 %>-s3" src="<%= file.storage_path + file.file_path %>" alt="<%= slideEst.titulo || 'Imagen' %>">
+                                        </div>
+                                    <% }) %>
+                                <% } else { %>
+                                    <div class="container-img-1-s3 containerdiv">
+                                        <img class="img-1-s3" src="/assets/img/default_morena.png" alt="default-img">
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <!-- LADO DERECHO - USANDO currentTypeSlide -->
+                    <div class="containerRightSlide <%= currentTypeSlide !== 1 ? 'responsive p-top' : '' %> <%= currentTypeSlide === 1 && slideEst.fk_id_file && slideEst.fk_id_file.length === 1 ? 'single-image-container' : '' %>">
+                        <% if (currentTypeSlide===1) { %>
+                            <!-- TIPO 1: IMÁGENES a la derecha -->
+                            <% if (slideEst.fk_id_file && slideEst.fk_id_file.length> 0) { %>
+                                <% slideEst.fk_id_file.forEach((file, imgIndex)=> { %>
+                                    <div class="container-img-<%= imgIndex + 1 %> containerdiv">
+                                        <img class="img-<%= imgIndex + 1 %>"
+                                            src="<%= file.storage_path + file.file_path %>"
+                                            alt="<%= slideEst.titulo || 'Imagen' %>">
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <div class="container-img-1 containerdiv">
+                                    <img class="img-1" src="/assets/img/default_morena.png" alt="default-img">
+                                </div>
+                            <% } %>
+                        <% } else if (currentTypeSlide===2 || currentTypeSlide===3) { %>
+                            <!-- TIPO 2 y 3: TEXTO a la derecha -->
+                            <div class="container-tituloslide2">
+                                <p class="titulo-slide2-estatal">
+                                    <%= slideEst.titulo %>
+                                </p>
+                            </div>
+                            <div class="container-text-slide2">
+                                <p class="text-slide2-estatal">
+                                    <%= slideEst.texto %>
+                                </p>
+                            </div>
+                            <div class="container-btn-slide2">
+                                <div class="btn btn-slide2">
+                                    <% if (slideEst.url_link && slideEst.url_link !=='#'
+                                        ) { %>
+                                        <a class="text-color-a"
+                                            href="<%= slideEst.url_link %>">
+                                            <% } %>
+                                                <button class="btnPrincBlack">
+                                                    <div class="corner"></div>
+                                                    <span>
+                                                        <%= slideEst.btn_text
+                                                            || 'Continuar' %>
+                                                    </span>
+                                                    <div class="s-block">
+                                                        <i
+                                                            class="fa-solid fa-arrow-right"></i>
+                                                    </div>
+                                                </button>
+                                                <% if (slideEst.url_link &&
+                                                    slideEst.url_link !=='#' ) { %>
+                                        </a>
+                                        <% } %>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+
+        <!-- Controles -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselEstatal_<%= idComp %>" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselEstatal_<%= idComp %>" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+<% } else if (type_carrousel===3) { %>
+    <div id="carouselAguila_w_<%= idComp %>" class="carousel carousel-dark slide" data-bs-ride="carousel" data-bs-interval="false">
+        <div class="carousel-indicators">
+            <% slidecontent.forEach((_, index)=> { %>
+                <button type="button" data-bs-target="#carouselAguila_w_<%= idComp %>" data-bs-slide-to="<%= index %>"
+                    class="<%= index === 0 ? 'active' : '' %>"
+                    aria-current="<%= index === 0 ? 'true' : 'false' %>" aria-label="Slide <%= index + 1 %>">
+                </button>
+            <% }) %>
+        </div>
+        <!-- Contenedor de Slides -->
+        <div class="carousel-inner cs-inner">
+            <% slidecontent.forEach((slide, index)=> { %>
+                <% const slideVariant = index % 3; %>
+                <div class="carousel-item  <%= index === 0 ? 'active' : '' %>">
+                    <!-- Slide 1 -->
+                    <% if (slideVariant===0) { %>
+                        <div class="containerLeftSlide">
+                            <div class="container-logo-slide">
+                                <% if (slide.fk_id_file && slide.fk_id_file.length> 0) { %>
+                                    <img class="logo-morena" src="<%= slide.fk_id_file[0].storage_path + slide.fk_id_file[0].file_path %>" alt="logo-morena">
+                                    <% } else { %>
+                                    <img class="logo-morena" src="/assets/img/recursos_componentes/LOGO-MORENA.png" alt="logo-morena">
+                                <% } %>
+                            </div>
+                            <div class="container-titulo-slide">
+                                <p class="titulo-slide">
+                                    <%= slide.titulo %>
+                                </p>
+                            </div>
+                            <div class="container-text-slide">
+                                <p class="text-slide">
+                                    <%= slide.texto %>
+                                </p>
+                            </div>
+                            <div class="container-btn-slide">
+                                <button class="btnPrincBlack">
+                                    <div class="corner"></div>
+                                    <span>
+                                        <%= slide.btn_text%>
+                                    </span>
+                                    <div class="s-block">
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="containerRightSlide containerdiv <%= slide.fk_id_file && slide.fk_id_file.length === 1 ? 'single-image-container' : '' %>">
+                            <% if (slide.fk_id_file && slide.fk_id_file.length> 0) { %>
+                                <% slide.fk_id_file.forEach((file, imgIndex)=> { %>
+                                    <div class="container-img-<%= imgIndex + 1 %> containerdiv"
+                                        data-index_s1="<%= imgIndex + 1 %>">
+                                        <img class="img-<%= imgIndex + 1 %>"
+                                            src="<%= file.storage_path + file.file_path %>"
+                                            alt="img-<%= imgIndex + 1 %>">
+                                    </div>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <div class="container-img-1 containerdiv" data-index_s1="1">
+                                                <img class="img-1" src="/assets/img/default_morena.png"
+                                                    alt="img-default">
+                                            </div>
+                                            <% } %>
+                        </div>
+                        <% } %>
+                            <!-- Slide 2 -->
+                            <% if (slideVariant===1) { %>
+                                <div class="containerLeftSlid">
+                                    <div class="container-imgleft-slide2">
+                                        <% if (slide.fk_id_file && slide.fk_id_file.length> 0) { %>
+                                            <img class="imgleft-slide2"
+                                                src="<%= slide.fk_id_file[0].storage_path + slide.fk_id_file[0].file_path %>"
+                                                alt="imgleft-slide2">
+                                            <% } else { %>
+                                                <img class="imgleft-slide2" src="/assets/img/default_morena.png"
+                                                    alt="img-default">
+                                                <% } %>
+                                    </div>
+                                </div>
+                                <div class="containerRightSlide responsive p-top">
+                                    <div class="container-tituloslide2">
+                                        <p class="titulo-slide2">
+                                            <%= slide.titulo %>
+                                        </p>
+                                    </div>
+                                    <div class="container-text-slide2">
+                                        <p class="text-slide2">
+                                            <%= slide.texto %>
+                                        </p>
+                                    </div>
+                                    <div class="container-btn-slide2">
+                                        <div class="btn btn-slide2">
+                                            <button class="btnPrincBlack">
+                                                <div class="corner"></div>
+                                                <span>
+                                                    <%= slide.btn_text%>
+                                                </span>
+                                                <div class="s-block">
+                                                    <i class="fa-solid fa-arrow-right"></i>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% } %>
+                                    <!-- Slide 3 -->
+                                    <% if (slideVariant===2) { %>
+                                        <div class="containerLeftSlide">
+                                            <% if (slide.fk_id_file && slide.fk_id_file.length> 0) { %>
+                                                <% slide.fk_id_file.forEach((file, imgIndex)=> { %>
+                                                    <div id="container<%= imgIndex + 1 %>-s3"
+                                                        class="container-img-<%= imgIndex === 0 ? 'uno' : (imgIndex === 1 ? 'dos' : 'tres') %>-s3 containerdiv"
+                                                        data-index_s3="<%= imgIndex + 1 %>">
+                                                        <img class="img-<%= imgIndex === 0 ? 'uno' : (imgIndex === 1 ? 'dos' : 'tres') %>-s3"
+                                                            src="<%= file.storage_path + file.file_path %>"
+                                                            alt="img-<%= imgIndex + 1 %>">
+                                                    </div>
+                                                    <% }) %>
+                                                        <% } else { %>
+                                                            <div id="container1-s3"
+                                                                class="container-img-uno-s3 containerdiv"
+                                                                data-index_s3="1">
+                                                                <img class="img-uno-s3"
+                                                                    src="/assets/img/default_morena.png"
+                                                                    alt="img-default">
+                                                            </div>
+                                                            <% } %>
+                                        </div>
+                                        <div class="containerRightSlide responsive p-top">
+                                            <div class="container-tituloslide2">
+                                                <p class="titulo-slide2">
+                                                    <%= slide.titulo %>
+                                                </p>
+                                            </div>
+                                            <div class="container-text-slide2">
+                                                <p class="text-slide2">
+                                                    <%= slide.texto %>
+                                                </p>
+                                            </div>
+                                            <div class="container-btn-slide2">
+                                                <div class="btn btn-slide2">
+                                                    <button class="btnPrincBlack">
+                                                        <div class="corner"></div>
+                                                        <span>
+                                                            <%= slide.btn_text%>
+                                                        </span>
+                                                        <div class="s-block">
+                                                            <i class="fa-solid fa-arrow-right"></i>
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% } %>
+                </div>
+                <% }) %>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselAguila_w_<%= idComp %>"
+            data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselAguila_w_<%= idComp %>"
+            data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+<% } else if (type_carrousel===4) { %>
+    <div id="carouselAguila_red_<%= idComp %>" class="carousel carousel-dark slide" data-bs-ride="carousel"
+        data-bs-interval="false">
+        <div class="carousel-indicators">
+            <% slidecontent.forEach((_, index)=> { %>
+                <button type="button" data-bs-target="#carouselAguila_red_<%= idComp %>" data-bs-slide-to="<%= index %>"
+                    class="<%= index === 0 ? 'active' : '' %>"
+                    aria-current="<%= index === 0 ? 'true' : 'false' %>"
+                    aria-label="Slide <%= index + 1 %>">
+                </button>
+                <% }) %>
+        </div>
+        <!-- Contenedor de Slides -->
+        <div class="carousel-inner cs-inner">
+            <% slidecontent.forEach((slideEst, index)=> { %>
+                <% const slideVariant = index % 3; %>
+                <div class="carousel-item carrusel-estatal <%= index === 0 ? 'active' : '' %>">
+                    <!-- Slide 1 -->
+                    <% if (slideVariant===0) { %>
+                        <div class="containerLeftSlide">
+                            <div class="container-logo-slide">
+                                <img class="logo-morena-estatal"
+                                    src="/assets/img/recursos_componentes/MORELOS-8 3.png"
+                                    alt="logo-morena">
+                            </div>
+                            <div class="container-titulo-slide">
+                                <p class="titulo-slide-estatal">
+                                    <%= slideEst.titulo %>
+                                </p>
+                            </div>
+                            <div class="container-text-slide">
+                                <p class="text-slide-estatal">
+                                    <%= slideEst.texto %>
+                                </p>
+                            </div>
+                            <div class="container-btn-slide">
+                                <div class="btn btn-slide">
+                                    <a class="text-color-a" href="<%= slideEst.url_link || '#' %>">
+                                        <button class="btnPrincBlack">
+                                            <div class="corner"></div>
+                                            <span>Siguiente</span>
+                                            <div class="s-block">
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </div>
+                                        </button>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="containerRightSlide containerdiv">
+                            <% if (slideEst.fk_id_file && slideEst.fk_id_file.length> 0) { %>
+                                <% slideEst.fk_id_file.forEach((file, imgIndex)=> { %>
+                                    <div class="container-img-<%= imgIndex === 0 ? 'uno' : (imgIndex === 1 ? 'dos' : (imgIndex === 2 ? 'tres' : 'cuatro')) %> containerdiv"
+                                        data-index_s1="<%= imgIndex + 1 %>">
+                                        <img class="img-<%= imgIndex === 0 ? 'uno' : (imgIndex === 1 ? 'dos' : (imgIndex === 2 ? 'tres' : 'cuatro')) %>"
+                                            src="<%= file.storage_path + file.file_path %>"
+                                            alt="img-<%= imgIndex + 1 %>">
+                                    </div>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <div class="container-img-uno containerdiv" data-index_s1="1">
+                                                <img class="img-uno" src="/assets/img/default_morena.png"
+                                                    alt="img-default">
+                                            </div>
+                                            <% } %>
+                        </div>
+                        <% } %>
+                            <!-- Slide 2 -->
+                            <% if (slideVariant===1) { %>
+                                <div class="containerLeftSlide">
+                                    <div class="container-imgleft-slide2">
+                                        <% if (slideEst.fk_id_file && slideEst.fk_id_file.length> 0) { %>
+                                            <img class="imgleft-slide2"
+                                                src="<%= slideEst.fk_id_file[0].storage_path + slideEst.fk_id_file[0].file_path %>"
+                                                alt="imgleft-slide2">
+                                            <% } else { %>
+                                                <img class="imgleft-slide2"
+                                                    src="/assets/img/default_morena.png" alt="img-default">
+                                                <% } %>
+                                    </div>
+                                </div>
+                                <div class="containerRightSlide responsive p-top">
+                                    <div class="container-tituloslide2">
+                                        <p class="titulo-slide2-estatal">
+                                            <%= slideEst.titulo %>
+                                        </p>
+                                    </div>
+                                    <div class="container-text-slide2">
+                                        <p class="text-slide2-estatal">
+                                            <%= slideEst.texto %>
+                                        </p>
+                                    </div>
+                                    <div class="container-btn-slide2">
+                                        <div class="btn btn-slide2">
+                                            <button class="btnPrincBlack">
+                                                <div class="corner"></div>
+                                                <span>Continuar</span>
+                                                <div class="s-block">
+                                                    <i class="fa-solid fa-arrow-right"></i>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% } %>
+                                    <!-- Slide 3 -->
+                                    <% if (slideVariant===2) { %>
+                                        <div class="containerLeftSlide">
+                                            <% if (slideEst.fk_id_file && slideEst.fk_id_file.length> 0) {
+                                                %>
+                                                <% slideEst.fk_id_file.forEach((file, imgIndex)=> { %>
+                                                    <div id="container<%= imgIndex + 1 %>-s3"
+                                                        class="container-img-<%= imgIndex === 0 ? 'uno' : (imgIndex === 1 ? 'dos' : 'tres') %>-s3 containerdiv"
+                                                        data-index_s3="<%= imgIndex + 1 %>">
+                                                        <img class="img-<%= imgIndex === 0 ? 'uno' : (imgIndex === 1 ? 'dos' : 'tres') %>-s3"
+                                                            src="<%= file.storage_path + file.file_path %>"
+                                                            alt="img-<%= imgIndex + 1 %>">
+                                                    </div>
+                                                    <% }) %>
+                                                        <% } else { %>
+                                                            <div id="container1-s3"
+                                                                class="container-img-uno-s3 containerdiv"
+                                                                data-index_s3="1">
+                                                                <img class="img-uno-s3"
+                                                                    src="/assets/img/default_morena.png"
+                                                                    alt="img-default">
+                                                            </div>
+                                                            <% } %>
+                                        </div>
+                                        <div class="containerRightSlide responsive p-top">
+                                            <div class="container-tituloslide2">
+                                                <p class="titulo-slide2-estatal">
+                                                    <%= slideEst.titulo %>
+                                                </p>
+                                            </div>
+                                            <div class="container-text-slide2">
+                                                <p class="text-slide2-estatal">
+                                                    <%= slideEst.texto %>
+                                                </p>
+                                            </div>
+                                            <div class="container-btn-slide2">
+                                                <div class="btn btn-slide2">
+                                                    <button class="btnPrincBlack">
+                                                        <div class="corner"></div>
+                                                        <span>Continuar</span>
+                                                        <div class="s-block">
+                                                            <i class="fa-solid fa-arrow-right"></i>
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% } %>
+                </div>
+                <% }) %>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselAguila_red_<%= idComp %>"
+            data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselAguila_red_<%= idComp %>"
+            data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+<% } %>
+
+<script>
+    (function () {
+        function initCarouselById(id) {
+            var el = document.getElementById(id);
+
+            if (!el) {
+                return;
+            }
+            if (el.dataset.carouselBound === '1') {
+                return;
+            }
+            el.dataset.carouselBound = '1';
+
+            var items = el.querySelectorAll('.carousel-item');
+            var prevBtn = el.querySelector('.carousel-control-prev');
+            var nextBtn = el.querySelector('.carousel-control-next');
+            var indicators = el.querySelectorAll('.carousel-indicators [data-bs-target="#' + id + '"]');
+
+            if (!items.length) {
+                return;
+            }
+
+            var bootstrapInstance = null;
+            // 1) Si hay Bootstrap 5
+            if (window.bootstrap && bootstrap.Carousel) {
+                bootstrapInstance = bootstrap.Carousel.getOrCreateInstance(el);
+                // Pausar el carrusel automáticamente
+                bootstrapInstance.pause();
+                // Desactivar el intervalo automático
+                el.setAttribute('data-bs-interval', 'false');
+            }
+
+            // 2) Si hay jQuery + plugin .carousel (Bootstrap 4)
+            if (window.jQuery && jQuery.fn && jQuery.fn.carousel) {
+                jQuery(el).carousel({
+                    interval: false  // Pausar animación automática
+                });
+                jQuery(el).carousel('pause');  // Pausar el carrusel
+            }
+
+            var current = Array.prototype.findIndex.call(items, function (item) {
+                return item.classList.contains('active');
+            });
+
+            if (current < 0) {
+                current = 0;
+                items[0].classList.add('active');
+
+            }
+
+            function setActive(newIndex) {
+                current = (newIndex + items.length) % items.length;
+                items.forEach(function(item, idx) {
+                    item.classList.toggle('active', idx === current);
+                });
+                indicators.forEach(function(indicator, idx) {
+                    indicator.classList.toggle('active', idx === current);
+                    indicator.setAttribute('aria-current', idx === current ? 'true' : 'false');
+                });
+            }
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (bootstrapInstance) {
+                        bootstrapInstance.prev();
+                    } else {
+                        setActive(current - 1);
+                    }
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (bootstrapInstance) {
+                        bootstrapInstance.next();
+                    } else {
+                        setActive(current + 1);
+                    }
+                });
+            }
+
+            indicators.forEach(function (indicator, idx) {
+                indicator.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (bootstrapInstance) {
+                        bootstrapInstance.to(idx);
+                    } else {
+                        setActive(idx);
+                    }
+                });
+            });
+
+            if (bootstrapInstance) {
+                el.addEventListener('slid.bs.carousel', function() {
+                    current = Array.prototype.findIndex.call(items, function (item) {
+                        return item.classList.contains('active');
+                    });
+                    if (current < 0) current = 0;
+                    indicators.forEach(function(indicator, idx) {
+                        indicator.classList.toggle('active', idx === current);
+                        indicator.setAttribute('aria-current', idx === current ? 'true' : 'false');
+                    });
+                });
+            }
+        }
+
+        function startInit() {
+<% if (type_carrousel === 1) { %>
+                initCarouselById('carouselNacional_<%= idComp %>');
+<% } else if (type_carrousel === 2) { %>
+                initCarouselById('carouselEstatal_<%= idComp %>');
+<% } else if (type_carrousel === 3) { %>
+                initCarouselById('carouselAguila_w_<%= idComp %>');
+<% } else if (type_carrousel === 4) { %>
+                initCarouselById('carouselAguila_red_<%= idComp %>');
+<% } %>
+}
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () {
+                startInit();
+            });
+        } else {
+            startInit();
+        }
+
+        window.addEventListener('load', function () {
+            startInit();
+        });
+    })();
+
+    // Detectar textos largos (> 89 caracteres) y aplicar clase text-long
+    (function () {
+        function checkTextLength() {
+            // Verificar si estamos en pantalla <= 586px
+            if (window.innerWidth > 586) {
+                return;
+            }
+
+            // Buscar todos los slides del carrusel nacional actual
+            var carouselItems = document.querySelectorAll('#carouselNacional_<%= idComp %> .carousel-item');
+
+            carouselItems.forEach(function (item) {
+                // Buscar el texto en el slide
+                var textElement = item.querySelector('.text-slide, .text-slide2, .text-slide-estatal, .text-slide2-estatal');
+
+                if (textElement) {
+                    var textContent = textElement.textContent || textElement.innerText || '';
+                    var textLength = textContent.trim().length;
+
+                    // Si el texto tiene más de 89 caracteres, agregar clase text-long
+                    if (textLength > 89) {
+                        item.classList.add('text-long');
+                    } else {
+                        item.classList.remove('text-long');
+                    }
+                }
+            });
+        }
+
+        // Ejecutar al cargar y al cambiar el tamaño de la ventana
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () {
+                checkTextLength();
+            });
+        } else {
+            checkTextLength();
+        }
+
+        window.addEventListener('load', function () {
+            checkTextLength();
+        });
+
+        window.addEventListener('resize', function () {
+            checkTextLength();
+        });
+    })();
+</script>

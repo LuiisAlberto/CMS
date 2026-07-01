@@ -1,0 +1,40 @@
+<% const _apPersonas = (typeof assetsPrefix !== 'undefined' && assetsPrefix) ? assetsPrefix : '/assets/'; %>
+<div class="contPersonas container">
+    <% if (Array.isArray(objcomp.wb_comp_personas) && objcomp.wb_comp_personas.length > 0) { %>
+        <% objcomp.wb_comp_personas.forEach((item, index) => { %>
+            <% const _pAccent = item.color_acento && /^#[0-9A-Fa-f]{6}$/.test(String(item.color_acento).trim()) ? String(item.color_acento).trim() : ''; %>
+            <div class="boxPersonas"<% if (_pAccent) { %> style="--personas-accent: <%= _pAccent %>;"<% } %>>
+                <div class="imageContainer">
+                    <% if (item.fk_id_file && item.fk_id_file[0]) {
+                        const f = item.fk_id_file[0];
+                        const fp = f.file_path || '';
+                        const sp = f.storage_path || '';
+                        let personasImgSrc = fp.startsWith('/assets/')
+                          ? fp
+                          : (sp + fp);
+                        if (personasImgSrc && !/^https?:\/\//i.test(personasImgSrc) && !personasImgSrc.startsWith('/assets/')) {
+                            personasImgSrc = 'https://cdn.morena.app/' + String(personasImgSrc).replace(/^\/+/, '');
+                        }
+                    %>
+                        <img 
+                            src="<%= encodeURI(personasImgSrc) %>" 
+                            alt="<%= item.titulo %>">
+                    <% } else { %>
+                        <img 
+                            src="<%= _apPersonas %>img/default_morena.png"
+                            alt="<%= item.titulo %>">
+                    <% } %>
+                </div>
+                <div class="personasTitle">
+                    <p><%= item.titulo %></p>
+                    <p class="personasPuesto">
+                        <i><%= item.texto.split('\n')[0].trim() %></i>
+                    </p>
+                    <span class="cornerPersonas"></span>
+                </div>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <p>No hay información de personas disponible....</p>
+    <% } %>
+</div>

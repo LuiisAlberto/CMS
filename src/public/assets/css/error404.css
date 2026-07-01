@@ -1,0 +1,80 @@
+/* Botón Regresar - estilo limpio e institucional */
+#error404 .containMessage .btnPrinc,
+.error404 .containMessage .btnPrinc {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 14px 28px !important;
+    min-width: 160px;
+    margin: 24px auto 0 !important;
+    background: linear-gradient(135deg, #8e2c2d 0%, #6b2021 100%) !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(142, 44, 45, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+#error404 .containMessage .btnPrinc:hover,
+.error404 .containMessage .btnPrinc:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(142, 44, 45, 0.4);
+}
+#error404 .containMessage .btnPrinc .corner,
+.error404 .containMessage .btnPrinc .corner {
+    display: none;
+}
+#error404 .containMessage .btnPrinc .s-block,
+.error404 .containMessage .btnPrinc .s-block {
+    position: relative !important;
+    width: auto !important;
+    min-height: auto !important;
+    background: transparent !important;
+    margin-left: 0.25rem;
+}
+#error404 .containMessage .btnPrinc .s-block i,
+.error404 .containMessage .btnPrinc .s-block i {
+    color: #fff !important;
+}
+
+.error404 {
+    background-image: url('../img/fondo-error404.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.containMessage {
+    width: 50%;
+    margin: auto;
+    text-align: center;
+}
+.containMessage img{
+    width: 100%;
+}
+.containMessage h3{
+    color: #8d2c2d;
+    font-size: 30px;
+    font-weight: 700;
+} 
+
+.containMessage button {
+    margin: 20px auto 0;
+    display: flex;
+
+}
+
+@media (max-width: 768px) {
+    .error404 {
+        background-image: url('../img/fondo-error-responsive.png');
+        background-size: cover;
+        background-repeat: no-repeat;
+        height: 100vh;
+    } 
+}

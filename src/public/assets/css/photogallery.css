@@ -1,0 +1,417 @@
+/* Estructura fija para las miniaturas */
+.custom-thumbnails {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 10px;
+    position: relative;
+}
+
+/* Todos los contenedores de miniaturas permanecen en su posición */
+.thumbnail {
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    border-radius: 5px;
+    position: relative;
+}
+
+/* Tamaños fijos para miniaturas pequeñas */
+.thumbnail-small {
+    width: 120px;
+    height: 130px;
+}
+
+/* Tamaño fijo para el contenedor central grande */
+.thumbnail-large {
+    width: 450px;
+    height: 450px;
+    z-index: 99;
+}
+
+/* Imágenes dentro de los contenedores */
+.thumbnail-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+    transition: transform 0.2s ease;
+    display: block;
+}
+
+.thumbnail-small .thumbnail-img:hover {
+    transform: scale(1.1);
+}
+
+/* Estilo para imagen activa en el contenedor grande */
+.thumbnail-large .thumbnail-img.active {
+    border: 3px solid #8e2c2d;
+    box-sizing: border-box;
+}
+
+/* Ocultar captions no activos */
+.titCaption {
+    display: none;
+}
+
+.titCaption.active {
+    display: block;
+}
+
+#PhotoGallery {
+    /* Estilos del contenedor principal de la galería */
+}
+.custom-gallery {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 95%;
+    max-width: 1200px;
+    position: relative;
+    margin: auto;
+}
+.custom-main-image {
+    width: 100%;
+    margin-bottom: 10px;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.custom-thumbnails {
+    display: flex;
+    justify-content: center; 
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: 10px;
+    position: relative;
+} 
+
+/* Miniaturas pequeñas - siempre en el mismo tamaño */
+.thumbnail-small {
+    width: 120px !important;             
+    height: 130px !important;             
+    overflow: hidden;          
+    border-radius: 5px;
+    margin: 0;
+    display: flex;
+    flex-shrink: 0;
+} 
+
+/* Contenedor grande central - siempre fijo */
+.thumbnail-large.large-thumbnail {
+    width: 43% !important;            
+    height: 450px !important;   
+    z-index: 99;
+    flex-shrink: 0;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+@media (max-width: 767px) {
+    .thumbnail-large.large-thumbnail {
+        width: 97% !important;
+    }
+}
+
+.thumbnail-img {
+    width: 100%;               
+    height: 100%;             
+    object-fit: cover;       
+    transition: transform 0.3s ease;
+    border-radius: 15px;
+    display: block;
+}
+
+.thumbnail-small .thumbnail-img:hover {
+    transform: scale(1.1);    
+}
+
+/* Imagen activa en contenedor grande */
+.thumbnail-large .thumbnail-img.active {
+    border: 3px solid #8e2c2d;
+    box-sizing: border-box;
+}
+
+/*flechas de adelante y atras*/
+/* Estilos para las flechas */
+.custom-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    width: 60px;
+    height: 60px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    transition: transform 0.3s ease;
+}
+.custom-left {
+    left: -20px;
+    background-image: url('../img/arrow-gallery-left.png');
+}
+.custom-right {
+    right: -20px;
+    background-image: url('../img/arrow-gallery-right.png');
+}
+.custom-arrow:hover {
+    transform: translateY(-50%) scale(1.1); 
+}
+
+/* Titul principal */
+/* .titGaleria{
+    position: absolute;
+    top: 10%;
+    left: 68%;
+} */
+.titPrincipal {
+    background: #8e2c2d;
+    color: #fff;
+    font-weight: 600;
+    padding: 15px;
+    max-width: 600px;
+    font-size: 19px;
+    position: relative; 
+    min-height: 51px;
+    display: inline-block;
+    width: fit-content;
+    /* Asegurar que el contenedor permita que el triángulo se vea */
+    box-sizing: border-box;
+    vertical-align: top;
+}
+.titPrincipal p {
+    margin: 0;
+}
+.parrCaption{
+    margin-left: 25px;
+    margin-top: 10px;
+}
+/* Corner - Triángulo alineado perfectamente */
+.titPrincipal {
+    overflow: visible; /* Permitir que el triángulo se vea fuera del contenedor */
+}
+
+.titPrincipal .corner {
+    position: absolute;
+    top: 0;
+    right: -40px;
+    width: 0;
+    height: 0;
+    border-top: 51px solid transparent; /* Altura inicial basada en min-height */
+    border-left: 40px solid #8e2c2d;
+    border-bottom: 0 solid transparent;
+    z-index: 1;
+    transition: border-top-width 0.3s ease;
+    /* Asegurar alineación perfecta */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* Asegurar que el triángulo esté perfectamente alineado verticalmente */
+    transform: translateY(0);
+    vertical-align: top;
+}
+
+/* Para pantallas grandes */
+@media (min-width: 1080px) {
+    /* .titGaleria {
+        position: relative;
+        top: 20%;
+        left: 0;
+        max-width: 600px; 
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    } */
+    .titGaleria{
+        position: absolute;
+        top: 10%;
+        left: 68%;
+    }
+}
+
+
+
+@media (max-width: 1120px) {
+    .titGaleria {
+        position: absolute;
+        top: 10%;
+        left: 58%;
+      }
+}
+
+@media (max-width: 1100px) {
+    .thumbnail-right-3 {
+        display: none !important;
+    }
+}
+  
+@media (max-width: 1070px) {
+    .thumbnail-right-3 {
+        display: none !important;
+    }
+
+    .titGaleria {
+        order: -1; /* Coloca .titGaleria al inicio */
+        width: 100%; 
+        position: static;
+        margin-bottom: 10px; 
+        margin-top: 20px;
+    }
+    
+    /* Ajustar triángulo en pantallas medianas */
+    .titPrincipal .corner {
+        right: -35px;
+        border-left-width: 35px;
+    }
+}
+@media (max-width: 1200px){
+    .thumbnail-right-3 {
+        display: none !important;
+    }
+}
+
+
+@media (max-width: 892px) {
+    .thumbnail-right-3,
+    .thumbnail-right-2 {
+        display: none !important;
+    }
+    .thumbnail-right-1 {
+        display: none !important;
+    }
+    .custom-left {
+        left: -51px;
+    }   
+    .custom-right {
+        right: -38px;
+    }   
+}
+@media (max-width: 768px) {
+    .custom-thumbnails .thumbnail img {
+        transition: border 0.3s ease; 
+    }
+    
+    /* Ajustar triángulo en móviles */
+    .titPrincipal {
+        padding: 12px;
+        font-size: 17px;
+    }
+    
+    .titPrincipal .corner {
+        right: -30px;
+        border-left-width: 30px;
+    }
+
+    /* Ajustes adicionales para pantallas muy pequeñas */
+    @media (max-width: 480px) {
+        .titPrincipal {
+            padding: 10px;
+            font-size: 16px;
+        }
+        
+        .titPrincipal .corner {
+            right: -25px;
+            border-left-width: 25px;
+        }
+    }
+
+    .custom-gallery {
+        display: flex;
+        flex-direction: column; 
+        align-items: center; 
+    }
+
+    .custom-main-image {
+        order: 0; 
+    }
+
+    .custom-thumbnails {
+        display: flex; 
+        flex-wrap: nowrap; 
+        width: 100%; 
+        justify-content: center; 
+    }
+
+    .thumbnail-small {
+        width: 25% !important; 
+        height: auto !important;
+        min-height: 100px;
+    }
+
+    .thumbnail-large {
+        width: 50% !important;
+        height: auto !important;
+        min-height: 300px;
+    }
+    
+    .thumbnail-right-1,
+    .thumbnail-right-2,
+    .thumbnail-right-3 {
+        display: none !important;
+    }
+    
+    .titPrincipal {
+        width: 80%; 
+    }
+
+    .titPrincipal .corner {
+        right: -30px;
+        border-left-width: 30px;
+        /* La altura se ajustará dinámicamente con JavaScript */
+    }
+
+    .parrCaption {
+        font-size: 16px;
+    }
+}
+
+
+  @media (max-width: 767px) {
+    .custom-arrow {
+        width: 40px;
+        height: 40px;
+    }
+    .titPrincipal {
+        width: 80%; 
+        padding: 12px;
+    }
+    
+    /* Ocultar todas las miniaturas pequeñas */
+    .thumbnail-small {
+        display: none !important;
+    }
+    
+    /* Asegurar que solo la miniatura grande esté visible */
+    .thumbnail-large.large-thumbnail {
+        display: flex !important;
+    }
+
+}
+
+@media (max-width: 576px){
+    .custom-arrow .custom-left{
+        left: -25px !important;
+    }
+}
+@media (max-width: 480px) {
+    .parrCaption {
+        font-size: 14px;
+        margin: 10px;
+    }
+    
+    .titPrincipal {
+        padding: 10px;
+        font-size: 16px;
+    }
+    
+    .titPrincipal .corner {
+        right: -25px;
+        border-left-width: 25px;
+    }
+}

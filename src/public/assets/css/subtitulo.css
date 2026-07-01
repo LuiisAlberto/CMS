@@ -1,0 +1,105 @@
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 1200px;
+    margin: auto;
+    width: 100%;
+    flex-wrap: wrap; /* Permite que el contenido se ajuste a múltiples líneas */
+}
+
+.sectionTitle h2 {
+    font-size: 24px;
+    font-weight: 400;
+    color: #8e2c2d;
+    margin: 0;
+    flex: 1; /* Permite que el h2 crezca y se ajuste */
+    min-width: 200px; /* Ancho mínimo para mantener legibilidad */
+}
+
+.sectionTitle .bold {
+    font-weight: 700;
+}
+
+/* Estilo de las líneas */
+.shortLine {
+    height: 2px;
+    background-color: #8e2c2d;
+    width: 100px; /* Longitud fija para la línea corta */
+}
+
+.longLine {
+    height: 2px;
+    background-color: #8e2c2d;
+    flex-grow: 1; /* Se adapta al espacio restante */
+    min-width: 50px; /* Ancho mínimo para mantener la línea visible */
+}
+
+/* Pantallas muy pequeñas (menos de 480px) */
+@media (max-width: 480px) {
+    .sectionTitle {
+        align-items: flex-start; /* Alinear al inicio cuando hay texto multilínea */
+    }
+    
+    .shortLine {
+        width: 35px;
+        order: 1; /* Mantener la línea corta al inicio */
+      }
+    
+    .sectionTitle h2 { 
+        font-size: 18px;
+        flex-basis: 100%; /* El título ocupa toda la línea */
+        margin-bottom: 10px;
+        order: 2; /* El título va después de la línea corta */
+    }
+    
+    .longLine {
+        flex-basis: 100%; /* La línea larga va después del título */
+        order: 3;
+    }
+  }
+  
+  /* Pantallas pequeñas entre 481px y 767px */
+@media (min-width: 481px) and (max-width: 767px) {
+    .sectionTitle {
+        align-items: flex-start;
+    }
+    
+    .shortLine {
+        order: 1;
+    }
+    
+    .sectionTitle h2 {
+        font-size: 20px;
+        flex-basis: 100%;
+        margin-bottom: 10px;
+        order: 2;
+    }
+    
+    .longLine {
+        flex-basis: 100%;
+        order: 3;
+    }
+  }
+  
+  /* En tabletas y pantallas medianas (768px a 1023px) */
+  @media (min-width: 768px) {
+    .sectionTitle h2 { 
+        font-size: 24px; 
+    }
+  }
+  
+  /* En pantallas grandes (1024px a 1399px) */
+  @media (min-width: 1024px) {
+    .sectionTitle h2 { 
+        font-size: 24px; 
+    }
+  }
+  
+  /* En pantallas extragrandes (1400px en adelante) */
+  @media (min-width: 1400px) {
+    .sectionTitle h2 { 
+        font-size: 32px; 
+    }
+  }
+  

@@ -1,0 +1,27 @@
+<%
+    if (
+        Array.isArray(objcomp.wb_comp_subtitulo) &&
+        objcomp.wb_comp_subtitulo[0] &&
+        objcomp.wb_comp_subtitulo[0].texto &&
+        objcomp.wb_comp_subtitulo[0].vigente
+    ) {
+%>
+<div class="comp_text container" style="margin-top: 3rem; margin-bottom: 22px; padding-bottom: 0;">
+    <div class="sectionTitle">
+        <span class="shortLine"></span>
+        <h2>
+            <% 
+                const texto = objcomp.wb_comp_subtitulo[0].texto;
+                const palabras = texto.split(" ");
+                const primeraPalabra = palabras[0];
+                const resto = palabras.slice(1).join(" ");
+            %>
+            <span class="bold"><%= primeraPalabra %></span>
+            <% if (resto) { %>
+                <%= resto %>
+            <% } %>
+        </h2>
+        <span class="longLine"></span>
+    </div>
+</div>
+<% } %>

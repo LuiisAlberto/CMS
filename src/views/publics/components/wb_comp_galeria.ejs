@@ -1,0 +1,171 @@
+<% /* Generar un ID único para esta instancia de galería */ const galleryId='PhotoGallery-' +
+    Math.random().toString(36).substr(2, 9); %>
+    <div id="<%= galleryId %>" class="mt-5 container">
+        <% if (slidecontent && slidecontent.length> 0) { %>
+            <div class="custom-gallery">
+                <!-- Flechas de navegación -->
+                <button class="custom-arrow custom-left"></button>
+                <button class="custom-arrow custom-right"></button>
+
+                <!-- Thumbnails - Contenedores fijos con imágenes que rotan -->
+                <div class="custom-thumbnails">
+                    <!-- Miniatura izquierda (1 antes) -->
+                    <div class="thumbnail thumbnail-small thumbnail-left-1" data-position="-1">
+                        <img class="thumbnail-img" src="/assets/img/default_morena.png" alt="">
+                    </div>
+
+                    <!-- Contenedor central grande fijo -->
+                    <div class="thumbnail thumbnail-large large-thumbnail" data-position="0">
+                        <img class="thumbnail-img active" src="/assets/img/default_morena.png" alt="">
+                    </div>
+
+                    <!-- Miniaturas derechas (3 después) -->
+                    <div class="thumbnail thumbnail-small thumbnail-right-1" data-position="1">
+                        <img class="thumbnail-img" src="/assets/img/default_morena.png" alt="">
+                    </div>
+                    <div class="thumbnail thumbnail-small thumbnail-right-2" data-position="2">
+                        <img class="thumbnail-img" src="/assets/img/default_morena.png" alt="">
+                    </div>
+                    <div class="thumbnail thumbnail-small thumbnail-right-3" data-position="3">
+                        <img class="thumbnail-img" src="/assets/img/default_morena.png" alt="">
+                    </div>
+                </div>
+
+                <!-- Títulos y descripciones -->
+                <div class="titGaleria">
+                    <% slidecontent.forEach((slide, index)=> { %>
+                        <div class="titCaption <%= index === 0 ? 'active' : '' %>">
+                            <div class="titPrincipal">
+                                <p>
+                                    <%= slide.titulo %>
+                                </p>
+                                <div class="corner"></div>
+                            </div>
+                            <div class="parrCaption">
+                                <p>
+                                    <%= slide.texto %>
+                                </p>
+                            </div>
+                        </div>
+                        <% }); %>
+                </div>
+            </div>
+            <% } else { %>
+                <p>No hay imágenes disponibles en la galería.</p>
+                <% } %>
+    </div>
+
+    <script>
+        (function () {
+            // Encapsular en IIFE para evitar conflictos con múltiples instancias
+            const galleryId = '<%= galleryId %>';
+            let currentIndexGaleria = 0;
+            const totalSlides = <%= slidecontent.length %>;
+            const slideContent = <%- JSON.stringify(slidecontent || []) %>;
+            const $gallery = $('#' + galleryId); // Usar el ID específico de esta galería
+            const thumbnails = $gallery.find('.thumbnail');
+            const thumbnailImages = $gallery.find('.thumbnail-img');
+            const captions = $gallery.find('.titCaption');
+
+            var defaultImg = '/assets/img/default_morena.png';
+            function getImageUrl(index) {
+                if (!Array.isArray(slideContent) || index < 0 || index >= slideContent.length) return defaultImg;
+                var slide = slideContent[index];
+                if (slide && slide.fk_id_file && slide.fk_id_file.length > 0) {
+                    var first = slide.fk_id_file[0];
+                    var storagePath = (first && first.storage_path) ? first.storage_path : '';
+                    var filePath = (first && first.file_path) ? first.file_path : '';
+                    if (storagePath && filePath) {
+                        return (storagePath + filePath);
+                    }
+                }
+                return defaultImg;
+            }
+
+            function updateGallery() {
+                if (totalSlides === 0) return;
+                thumbnails.each(function () {
+                    var position = parseInt($(this).data('position'), 10);
+                    var targetIndex = (currentIndexGaleria + position + totalSlides) % totalSlides;
+                    var img = $(this).find('.thumbnail-img');
+                    var imageUrl = getImageUrl(targetIndex) || defaultImg;
+                    img.attr('src', imageUrl);
+                    img.attr('alt', 'Imagen ' + (targetIndex + 1));
+
+                    // Marcar como activa solo la imagen central
+                    if (position === 0) {
+                        img.addClass('active');
+                    } else {
+                        img.removeClass('active');
+                    }
+                });
+
+                // Actualizar captions
+                captions.removeClass('active');
+                $(captions[currentIndexGaleria]).addClass('active');
+
+                // Ajustar corner después de actualizar
+                setTimeout(ajustarCorner, 200);
+                
+                // Ajustar altura del triángulo dinámicamente
+                ajustarTriangulo();
+            }
+
+            function nextSlide() {
+                currentIndexGaleria = (currentIndexGaleria + 1) % totalSlides;
+                updateGallery();
+            }
+
+            function prevSlide() {
+                currentIndexGaleria = (currentIndexGaleria - 1 + totalSlides) % totalSlides;
+                updateGallery();
+            }
+
+            // Función para ajustar el corner según la altura del título
+            function ajustarCorner() {
+                $gallery.find('.titCaption.active .titPrincipal').each(function () {
+                    const $titPrincipal = $(this);
+                    const altura = $titPrincipal.outerHeight();
+                    const $corner = $titPrincipal.find('.corner');
+
+                    if (altura > 0 && $corner.length) {
+                        // Ajustar el border-top para que coincida exactamente con la altura del recuadro
+                        $corner.css({
+                            'border-top-width': altura + 'px',
+                            'top': '0px' // Asegurar que esté alineado desde arriba
+                        });
+                    }
+                });
+            }
+            
+            // Función para ajustar el triángulo (alias de ajustarCorner para consistencia)
+            function ajustarTriangulo() {
+                ajustarCorner();
+            }
+
+            // Ajustar corner después de que todo se cargue
+            $(document).ready(function () {
+                setTimeout(ajustarCorner, 300);
+                // Inicialización
+                updateGallery();
+            });
+
+            // Ajustar corner cuando cambie el tamaño de la ventana
+            let resizeTimer;
+            $(window).on('resize', function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(ajustarCorner, 100);
+            });
+
+            // Eventos para las flechas
+            $gallery.find('.custom-left').on('click', prevSlide);
+            $gallery.find('.custom-right').on('click', nextSlide);
+
+            // Evento para click en thumbnails (solo las pequeñas)
+            $gallery.find('.thumbnail-small').on('click', function () {
+                const position = parseInt($(this).data('position'));
+                currentIndexGaleria = (currentIndexGaleria + position + totalSlides) % totalSlides;
+                updateGallery();
+            });
+        })();
+    </script>

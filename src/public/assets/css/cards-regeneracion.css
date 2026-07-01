@@ -1,0 +1,356 @@
+/* Contenedor principal de las tarjetas */
+.contRegeneracion {
+  background: transparent; /* Transparente por defecto para que el gradiente se vea */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-sizing: border-box;
+  position: relative; /* Necesario para posicionar el cintillo */
+  width: 100%;
+  overflow: hidden; /* Evita que el contenido se desborde */
+}
+
+/* Cintillo dorado en la mitad del contenedor principal */
+.contRegeneracion::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 14px; /* Aumentado de 4px a 14px (10px más) */
+  background-color: #BC955B; /* Color dorado */
+  z-index: 0; /* Detrás de las cards */
+}
+
+/* Contenedor para el botón - alineado con las cards */
+.regeneration-button-container {
+  max-width: 1000px; /* Reducido de 1100px para coincidir con las cards */
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Alinea el botón a la izquierda */
+}
+
+/* Ajustes del CTA "Ver todos los periodicos" para texto largo */
+/* El .btnGral base usa float + altura fija; con texto en 2 líneas hay que forzar flex
+   y centrar la columna del icono/triángulo para que no quede pegada arriba */
+.regeneration-button-container .btnGral {
+  width: auto;
+  max-width: min(100%, 420px);
+  height: auto;
+  min-height: 42px;
+  display: inline-flex !important;
+  flex-direction: row;
+  align-items: stretch;
+  flex-wrap: nowrap;
+}
+
+.regeneration-button-container .btnGral p {
+  float: none !important;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+  line-height: 1.2;
+  white-space: normal;
+  word-break: break-word;
+  margin: 0;
+  padding: 8px 6px 8px 10px;
+  display: flex;
+  align-items: center; /* texto centrado verticalmente respecto al icono */
+}
+
+.regeneration-button-container .btnGral .btnIcon {
+  float: none !important;
+  top: 0 !important;
+  right: 0 !important;
+  width: 48px;
+  flex-shrink: 0;
+  align-self: stretch;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.regeneration-button-container .btnGral .btnIcon .boxIcon {
+  float: none !important;
+  flex: 1 1 auto;
+  align-self: stretch;
+  min-height: 40px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.regeneration-button-container .btnGral .btnIcon .boxIcon img {
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* Triángulo decorativo: en el CSS base está position:absolute sin top → queda arriba */
+.regeneration-button-container .btnGral .btnIcon span.s-guinda {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+.regeneration-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap; /* Permite que las cards se ajusten a múltiples filas */
+  margin: 0 auto;
+  padding: 40px;
+  background: linear-gradient(to bottom, transparent 0%, transparent 50%, #3d1a1b 50%, #3d1a1b 100%);
+  position: relative; /* Necesario para que las cards estén sobre el cintillo */
+  width: 100%;
+  min-height: 500px; /* Altura mínima para asegurar que el contenedor sea visible */
+}
+
+.card-regenacion {
+  flex: 0 0 calc(33.333% - 14px); /* 3 cards por fila con gap considerado */
+  max-width: calc(33.333% - 14px);
+  transition: transform 0.3s ease;
+  text-align: center;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1; /* Asegura que las cards estén sobre el cintillo */
+}
+
+.card-regenacion:hover {
+  transform: translateY(-10px);
+}
+
+.card-regenacion img {
+  width: 64%;
+  height: 370px;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Botón regeneración: blanco + sección guinda con diagonal y flecha hacia abajo */
+.btnPrinc_Regeneracion {
+  background-color: #fff !important;
+  color: #681b33 !important;
+  border: 2px solid #fff !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  padding: 0px 0 0px 24px !important;
+  text-decoration: none !important;
+  transition: opacity 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease !important;
+}
+
+.btnPrinc_Regeneracion:hover {
+  opacity: 0.95 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+.btnPrinc_Regeneracion span {
+  color: #681b33 !important;
+  font-weight: 700 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  padding: 0 16px 0 0 !important;
+}
+
+/* Ocultar corner: el corte diagonal se logra con clip-path en .s-block */
+.btnPrinc_Regeneracion .corner-regen {
+  display: none !important;
+}
+
+.s-block_Regeneracion {
+  position: relative !important;
+  flex-shrink: 0 !important;
+  width: 56px !important;
+  min-height: 48px !important;
+  align-self: stretch !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #8e2c2d !important;
+  clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%) !important;
+  z-index: 1 !important;
+}
+
+.s-block_Regeneracion i {
+  color: #fff !important;
+  font-size: 16px !important;
+}
+
+.card-content {
+  padding: 20px;
+  text-align: center;
+}
+
+/* Texto dentro de la tarjeta */
+.card-content p {
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.card-content button {
+  margin: 0 auto; 
+}
+
+/* El botón mantendrá su diseño original, solo se centrará a través del contenedor */
+
+
+/* Media query para mantener el estilo de escritorio desde 1024px hasta 768px */
+@media (max-width: 1024px) and (min-width: 768px) {
+  .regeneration-cards {
+    padding: 30px;
+    max-width: 100%;
+    min-height: 450px; /* Altura mínima para tablets */
+    background: linear-gradient(to bottom, transparent 0%, transparent 50%, #3d1a1b 50%, #3d1a1b 100%); /* Gradiente a la mitad como en escritorio */
+  }
+  
+  .card-regenacion {
+    flex: 0 0 calc(33.333% - 14px);
+    max-width: calc(33.333% - 14px);
+  }
+  
+  .card-regenacion img {
+    width: 81%;
+    height: 302px;
+  }
+  
+  .contRegeneracion {
+    background: transparent; /* Transparente para que el gradiente se vea */
+  }
+  
+  .regeneration-button-container {
+    padding: 0 40px;
+    max-width: 100%;
+  }
+  
+  /* Cintillo dorado visible - mantener como en escritorio */
+  .contRegeneracion::before {
+    height: 13px; /* Aumentado proporcionalmente */
+    display: block; /* Asegurar que esté visible */
+  }
+}
+
+/* Media query para pantallas mayores a 768px (mantener gradiente y cintillo) */
+@media (min-width: 769px) {
+  .contRegeneracion {
+    background: transparent; /* Transparente para que el gradiente se vea */
+  }
+  
+  .regeneration-cards {
+    background: linear-gradient(to bottom, transparent 0%, transparent 50%, #3d1a1b 50%, #3d1a1b 100%); /* Gradiente a la mitad */
+  }
+  
+  .contRegeneracion::before {
+    display: block; /* Cintillo visible */
+  }
+}
+
+/* Media query para cambiar a color sólido y ocultar cintillo a partir de 768px */
+@media (max-width: 768px) {
+  .regeneration-cards {
+    padding: 25px 20px;
+    gap: 15px;
+    max-width: 100%;
+    min-height: 400px; /* Altura mínima para tablets medianas */
+    background: #3d1a1b; /* Color sólido a partir de 768px */
+  }
+  
+  .card-regenacion {
+    flex: 0 0 calc(50% - 10px); /* 2 cards por fila en tablets */
+    max-width: calc(50% - 10px);
+  }
+  
+  .card-regenacion img {
+    width: 70%;
+    height: 340px; /* Reducido ligeramente para tablets */
+  }
+  
+  .regeneration-button-container {
+    padding: 0 20px;
+    justify-content: flex-start; /* Alinea el botón a la izquierda en tablets */
+    max-width: 100%;
+  }
+  
+  .contRegeneracion {
+    background: #3d1a1b; /* Color sólido cuando es menor a 768px */
+  }
+  
+  /* Ocultar cintillo dorado a partir de 768px */
+  .contRegeneracion::before {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .regeneration-cards {
+    padding: 20px 15px;
+    gap: 20px;
+    justify-content: center; /* Asegura que las cards estén centradas */
+    align-items: center; /* Centra verticalmente si es necesario */
+    max-width: 100%;
+    min-height: 300px; /* Altura mínima para móviles */
+    display: flex; /* Asegura que el display flex esté presente */
+    background: #3d1a1b; /* Color sólido en móviles en lugar de gradiente */
+  }
+  
+  .card-regenacion {
+    flex: 0 0 100%; /* 1 card por fila en móviles */
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto; /* Centra la card */
+  }
+  
+  .card-regenacion img {
+    width: 80%;
+    height: 300px; /* Reducido de 350px para móviles */
+    margin: 0 auto; /* Centra la imagen */
+  }
+  
+  .regeneration-button-container {
+    padding: 0 15px;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .regeneration-button-container .btnGral {
+    width: 100%;
+    max-width: 100%;
+    min-height: 48px;
+  }
+
+  .regeneration-button-container .btnGral p {
+    font-size: 13px;
+    text-align: center;
+  }
+  
+  .card-content {
+    padding: 15px;
+  }
+  
+  .card-content p {
+    text-align: center; /* Centra el texto */
+    font-size: 14px; /* Tamaño de fuente más pequeño en móviles */
+  }
+
+  .btnPrinc_Regeneracion {
+    margin: 0 auto; /* Centrado en móviles */
+  }
+  
+  .contRegeneracion {
+    background: #3d1a1b; /* Mantener el color siempre en móviles */
+  }
+  
+  /* Ocultar cintillo dorado en móviles */
+  .contRegeneracion::before {
+    display: none;
+  }
+}

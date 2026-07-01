@@ -1,0 +1,137 @@
+<div class="contRedesSociales">
+        <% if (objcomp.wb_comp_redes && objcomp.wb_comp_redes.length > 0) { %>
+            <% const redes = objcomp.wb_comp_redes[0]; %>
+            <%
+                const normalizeValue = (value) => {
+                    if (value === null || value === undefined) return '';
+                    const text = String(value).trim();
+                    const lowered = text.toLowerCase();
+                    if (!text || lowered === 'null' || lowered === 'undefined' || lowered === 'false') return '';
+                    return text;
+                };
+                const facebookName = normalizeValue(redes.facebook) || 'Facebook';
+                const facebookLink = normalizeValue(redes.facebook_link);
+                const instagramName = normalizeValue(redes.instagram) || 'Instagram';
+                const instagramLink = normalizeValue(redes.instagram_link);
+                const twitterName = normalizeValue(redes.x_twitter) || 'X / Twitter';
+                const twitterLink = normalizeValue(redes.x_twitter_link);
+                const youtubeName = normalizeValue(redes.yt) || 'Youtube';
+                const youtubeLink = normalizeValue(redes.yt_link);
+                const tiktokName = normalizeValue(redes.tiktok) || 'TikTok';
+                const tiktokLink = normalizeValue(redes.tiktok_link);
+                const _redesAccent = redes.color_acento && /^#[0-9A-Fa-f]{6}$/.test(String(redes.color_acento).trim()) ? String(redes.color_acento).trim() : '';
+            %>
+    <div class="icon-container"<% if (_redesAccent) { %> style="--social-icon-bg: <%= _redesAccent %>;"<% } %>>
+
+            <!-- Facebook -->
+            <% if (facebookLink) { %>
+            <div class="cont-icon">
+                <a href="<%= facebookLink %>" target="_blank">
+                    <div class="facebook-icon">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </div>
+                    <div class="contain-name-social">
+                        <div class="link-social">
+                            <p><%= facebookName %></p>
+                            <span class="s-social"></span>
+                        </div>
+                        <div class="redsocial">
+                            <p>Facebook</p>
+                            <span class="s-redsocial"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <% } %>
+
+            <!-- Instagram -->
+            <% if (instagramLink) { %>
+            <div class="cont-icon">
+                <a href="<%= instagramLink %>" target="_blank">
+                    <div class="instagram-icon">
+                        <i class="fa-brands fa-instagram"></i>
+                    </div>
+                    <div class="contain-name-social">
+                        <div class="link-social">
+                            <p><%= instagramName %></p>
+                            <span class="s-social"></span>
+                        </div>
+                        <div class="redsocial">
+                            <p>Instagram</p>
+                            <span class="s-redsocial"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <% } %>
+
+            <!-- Twitter-->
+            <% if (twitterLink) { %>
+            <div class="cont-icon">
+                <a href="<%= twitterLink %>" target="_blank">
+                    <div class="twitter-icon">
+                        <i class="fa-brands fa-twitter"></i>
+                    </div>
+                    <div class="contain-name-social">
+                        <div class="link-social">
+                            <p><%= twitterName %></p>
+                            <span class="s-social"></span>
+                        </div>
+                        <div class="redsocial">
+                            <p>X / Twitter</p>
+                            <span class="s-redsocial"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <% } %>
+
+            <!-- Youtube -->
+            <% if (youtubeLink) { %>
+            <div class="cont-icon">
+                <a href="<%= youtubeLink %>" target="_blank">
+                    <div class="youtube-icon">
+                        <i class="fa-brands fa-youtube"></i>
+                    </div>
+                    <div class="contain-name-social">
+                        <div class="link-social">
+                            <p><%= youtubeName %></p>
+                            <span class="s-social"></span>
+                        </div>
+                        <div class="redsocial">
+                            <p>Youtube</p>
+                            <span class="s-redsocial"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <% } %>
+
+            <!-- TikTok -->
+            <% if (tiktokLink) { %>
+            <div class="cont-icon">
+                <a href="<%= tiktokLink %>" target="_blank">
+                    <div class="twitter-icon">
+                        <i class="fa-brands fa-tiktok"></i>
+                    </div>
+                    <div class="contain-name-social">
+                        <div class="link-social">
+                            <p><%= tiktokName %></p>
+                            <span class="s-social"></span>
+                        </div>
+                        <div class="redsocial">
+                            <p>TikTok</p>
+                            <span class="s-redsocial"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <% } %>
+
+    </div>
+        <% } else { %>
+    <div class="icon-container">
+            <p>No hay redes sociales disponibles.</p>
+    </div>
+        <% } %>
+</div>

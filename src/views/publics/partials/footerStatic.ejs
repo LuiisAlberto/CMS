@@ -1,0 +1,178 @@
+<footer id="footer-container">
+    <div class="info-container" id="footer-info-container">
+        <!-- El footer se cargará dinámicamente aquí -->
+        <div class="text-center">
+            <p>Cargando pie de página...</p>
+        </div>
+    </div>
+
+    <!-- Línea y parte inferior -->
+    <div class="footer-bottom" id="footer-bottom-container">
+        <p class="privacy"><a href="#">Aviso de Privacidad</a></p>
+        <div class="social-icons">
+            <a href="#" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+    </div>
+</footer>
+</main>
+<script>
+    $(document).ready(function () {
+        obtenerFooter();
+    });
+
+    // Función para escapar HTML y prevenir XSS
+    function escapeHtml(text) {
+        if (!text) return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.toString().replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Función para escapar URL
+    function escapeUrl(url) {
+        if (!url) return '#';
+        try {
+            // Validar que sea una URL válida o ruta relativa
+            if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/') || url.startsWith('#')) {
+                return escapeHtml(url);
+            }
+            return '#';
+        } catch(e) {
+            return '#';
+        }
+    }
+
+    async function obtenerFooter(){
+        const pathname = (new URL(window.location.href)).pathname;
+        const host = window.location.host;
+        
+        // Intentar obtener el id_sysapp desde una variable global o meta tag
+        let appId = null;
+        try {
+            const metaAppId = document.querySelector('meta[name="app-id"]');
+            if (metaAppId) {
+                appId = metaAppId.getAttribute('content');
+            }
+            if (!appId && typeof window.appId !== 'undefined') {
+                appId = window.appId;
+            }
+        } catch(e) {
+            // console.log('No se pudo obtener appId desde meta/variable global');
+        }
+        
+        fetch('/footer-data', {
+            method: 'POST',
+            body: JSON.stringify({
+                pathname: pathname,
+                host: host,
+                appId: appId,
+                i: new URLSearchParams(window.location.search).get('i') || null,
+                detalle: new URLSearchParams(window.location.search).get('d') || null,
+                tags: new URLSearchParams(window.location.search).get('v')|| null
+            }),
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if(data.success && data.data){
+                renderizarFooter(data.data);
+            } else {
+                // Si no hay footer configurado, mostrar footer vacío
+                renderizarFooterVacio();
+            }
+        })
+        .catch((error) => {
+            console.error('Error al obtener footer:', error);
+            renderizarFooterVacio();
+        });
+    }
+
+    function renderizarFooter(footerData) {
+        const footerContainer = document.getElementById('footer-info-container');
+        if (!footerContainer) return;
+
+        let html = '';
+
+        // Verificar qué secciones tienen contenido
+        const tieneEnlaces = footerData.enlaces_por_categoria && Object.keys(footerData.enlaces_por_categoria).length > 0;
+        const tieneContacto = (footerData.direccion_contacto && footerData.direccion_contacto.trim() !== '') ||
+                             (footerData.telefono_contacto && footerData.telefono_contacto.trim() !== '') ||
+                             (footerData.email_contacto && footerData.email_contacto.trim() !== '');
+
+        // Renderizar enlaces por categoría (solo si hay enlaces)
+        if (tieneEnlaces) {
+            Object.keys(footerData.enlaces_por_categoria).forEach(categoria => {
+                const enlacesCategoria = footerData.enlaces_por_categoria[categoria];
+                if (enlacesCategoria && enlacesCategoria.length > 0) {
+                    html += '<div class="column">';
+                    if (categoria && categoria.trim() !== '') {
+                        html += `<h3>${escapeHtml(categoria)}</h3>`;
+                    }
+                    html += '<ul>';
+                    enlacesCategoria.forEach(enlace => {
+                        if (enlace.nombre && enlace.nombre.trim() !== '') {
+                            const url = escapeUrl(enlace.url_link);
+                            html += `<li><a href="${url}">${escapeHtml(enlace.nombre)}</a></li>`;
+                        }
+                    });
+                    html += '</ul>';
+                    html += '</div>';
+                }
+            });
+        }
+
+        // Renderizar contacto (solo si hay datos de contacto)
+        if (tieneContacto) {
+            html += '<div class="column">';
+            html += '<h3>Contacto</h3>';
+            
+            if (footerData.direccion_contacto && footerData.direccion_contacto.trim() !== '') {
+                html += `<p><i class="fas fa-location-dot"></i> ${escapeHtml(footerData.direccion_contacto).replace(/\n/g, '<br />')}</p>`;
+            }
+            
+            if (footerData.telefono_contacto && footerData.telefono_contacto.trim() !== '') {
+                html += `<p><i class="fas fa-phone-alt"></i> Teléfono: ${escapeHtml(footerData.telefono_contacto)}</p>`;
+            }
+            
+            if (footerData.email_contacto && footerData.email_contacto.trim() !== '') {
+                html += `<p><i class="fas fa-envelope"></i> Email: <a href="mailto:${escapeHtml(footerData.email_contacto)}">${escapeHtml(footerData.email_contacto)}</a></p>`;
+            }
+            
+            html += '</div>';
+        }
+
+        footerContainer.innerHTML = html;
+
+        // Actualizar copyright si existe
+        const footerBottom = document.getElementById('footer-bottom-container');
+        if (footerBottom && footerData.texto_copyright && footerData.texto_copyright.trim() !== '') {
+            const privacyLink = footerBottom.querySelector('.privacy');
+            if (privacyLink) {
+                privacyLink.innerHTML = `<a href="#">${escapeHtml(footerData.texto_copyright)}</a>`;
+            }
+        }
+    }
+
+    function renderizarFooterVacio() {
+        const footerContainer = document.getElementById('footer-info-container');
+        if (!footerContainer) return;
+
+        // Si no hay datos, mostrar footer vacío
+        footerContainer.innerHTML = '';
+    }
+</script>
+</body>
+</html>

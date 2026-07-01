@@ -1,0 +1,352 @@
+<!-- Componente Cards Noticias -->
+<div class="container-carrusel-news row d-flex justify-content-center">
+    <div class="col-lg-8 col-md-12 col-sm-12">
+        <div class="container-carrusel-left">
+
+            <% if (objPagEntrada && objPagEntrada.length > 0) { %>
+                <div class="row mt-2 mb-4 d-flex justify-content-start noticias-header-row">
+                    <% const allNewsUrl = objPagEntrada[0].allEntriesUrl || 'entradas.html'; %>
+                    <a 
+                        href="<%= allNewsUrl %>"
+                        class="btn btnGral guinda_t btn-noticias-todas"
+                        type="button" >
+                        <p style="margin: 0; white-space: nowrap; font-size: 13px;">VER TODAS LAS NOTICIAS</p>
+                        <div class="btnIcon">
+                            <div class="boxIcon guinda">
+                                <img src="assets/img/recursos_componentes/eye-solid.svg" alt="">
+                            </div>
+                            <span class="s-guinda"></span>
+                        </div>
+                    </a>
+                </div>
+            <% } %>
+
+            <div class="cascade-slider_container" id="cascade-slider">
+                <div class="cascade-slider_slides">
+
+                    <% if (objPagEntrada && objPagEntrada.length > 0) { %>
+                        <% objPagEntrada.forEach((entrada, index) => { %>
+                            <div class="cascade-slider_item">
+                                <!-- imagen de fondo -->
+                                <div class='card_carousel align' style="background-image: url('<%= entrada.image_src || (entrada.file_path ? ('https://cdn.morena.app/' + (String(entrada.file_path).startsWith('/') ? String(entrada.file_path).slice(1) : String(entrada.file_path))) : '/assets/img/default_morena.png') %>');">
+                                    <!-- recuadro rojo de informacion -->
+                                    <div id="div_info_red_<%= index + 1 %>" class='info'>
+                                        <!-- informacion que va dentro del contenedor -->
+                                        <div class='subtitle'><%- entrada.nombre_pagina %></div>
+                                        <div class='content'><%- entrada.contenido_alt %></div>
+                                        <a 
+                                            class='button_news'
+                                            href='<%= entrada.detailUrl || ("detalle?d=" + entrada.pag_tag_cy) %>'>
+                                            Ver más 
+                                            <span class="s-arrow">
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p>No hay entradas disponibles.</p>
+                    <% } %>
+
+                </div>
+                <span 
+                    class="cascade-slider_arrow cascade-slider_arrow-left" 
+                    data-action="prev" 
+                    style="display: none;" 
+                    id="btn_caorusel_prev">
+                    <img
+                        src="https://agenciafagulha.com.br/wp-content/uploads/2019/12/chvron-left.svg" 
+                        type="image/svg+xml">
+                </span>
+                <span 
+                    class="cascade-slider_arrow cascade-slider_arrow-right" 
+                    data-action="next" 
+                    style="display: none;" 
+                    id="btn_caorusel_next">
+                    <img
+                        src="https://agenciafagulha.com.br/wp-content/uploads/2019/12/chvron-right.svg" 
+                        type="image/svg+xml">
+                </span>
+
+            </div>
+            <div class="arrows-responsive">
+                <button id="arrowBack" class="btn-arrows"></button>
+                <button id="arrowNext" class="btn-arrows"></button>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="custom-carousel-container">
+            <input id="txt_current_card" type="hidden" value="1">
+            <button id="arrowUp" class="btn-arrows"></button>
+
+            <% if (objPagEntrada && objPagEntrada.length > 0) { %>
+                <% objPagEntrada.forEach((entrada, index) => { %>
+                    <div id="card_cv_<%= index + 1 %>" class="container-carrusel-item-news">
+                        <div id="card_noticia_<%= index + 1 %>" class="card card-noticias mb-3">
+                            <div class="card-body">
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col-md-12">
+                                        <div class="card-text-noticias-wrap">
+                                            <p class="card-text-noticias">
+                                                <%- entrada.nombre_pagina %>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-end">
+                                    <div class="col-md-12">
+                                        <span class="bk-osc">
+                                            <p class="text-muted">
+                                                <%= new Date(entrada.f_publicacion || entrada.f_reg).toLocaleDateString('es-MX') %>
+                                            </p>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p>No hay títulos disponibles.</p>
+            <% } %>
+            <button id="arrowDown" class="btn-arrows"></button>
+
+        </div>
+    </div>
+    <br>
+</div>
+
+<style>
+    .btn-noticias-todas {
+        min-width: 270px;
+        margin-left: 4rem !important;
+    }
+</style>
+
+<script>
+
+    /******  Componente Cards Noticias  ******/
+    function showVisibleCards(){
+
+        const cardsNews = $('.container-carrusel-item-news');
+
+        const borderColor = $('.card-noticias');
+        const container_red = $('.info');
+        const totalCards = cardsNews.length;
+        const limite_visible_cards = 3;
+
+        let current_card = $("#txt_current_card").val();
+        let cards_visibles = 0;
+
+        borderColor.each(function(){
+            $(this).css({"border": "none"});
+        });
+
+        cardsNews.each(function(){
+            $(this).css('display', 'none');
+        });
+
+        container_red.each(function(){
+            $(this).css('display', 'none');
+        });
+
+        $("#div_info_red_"+ current_card).css('display', 'inline-block');
+        $("#card_noticia_"+ current_card).css({"border": "2px solid red"});
+
+        let visibles=(totalCards-current_card) + 1;
+
+        if (visibles < limite_visible_cards) {
+            let missing = limite_visible_cards-visibles;
+            let from_card=current_card-missing;
+
+            for (let i = from_card; i <= current_card; i++) {
+                $("#card_cv_"+i).css("display", "block");
+            }
+        }
+
+        for (let i = current_card; i <= totalCards; i++) {
+            cards_visibles++;
+            // // console.log(current_card)
+            if(cards_visibles <= limite_visible_cards){
+                $("#card_cv_"+i).css("display", "block");
+            }
+
+            if(current_card == totalCards){
+                $("#arrowDown").css("opacity", ".5");
+            } else {
+                $("#arrowDown").css("opacity", "1");
+            }
+
+            if(current_card == 1 ){
+                $("#arrowUp").css("opacity", ".5");
+            } else {
+                $("#arrowUp").css("opacity", "1");
+            }
+        }
+    }
+
+    $('#arrowDown').on('click',function(){
+        let current_card = parseInt($("#txt_current_card").val(), 10);
+        const totalCards = $('.container-carrusel-item-news').length;
+        if (current_card < totalCards) {
+            $("#txt_current_card").val(current_card + 1);
+            $("#btn_caorusel_next").trigger("click");
+            showVisibleCards();
+        }
+    });
+    $('#arrowUp').on('click',function(){
+        let current_card = $("#txt_current_card").val();
+        if (current_card > 1) {
+            $("#txt_current_card").val(parseInt(current_card) -1);
+            $("#btn_caorusel_prev").trigger("click");
+            showVisibleCards();
+        }
+    });
+    showVisibleCards();
+
+    // Carrusel 3d
+    (function ($) {
+        $.fn.cascadeSlider = function (opt) {
+            var $this = this,
+            itemClass = opt.itemClass || 'cascade-slider_item',
+            arrowClass = opt.arrowClass || 'cascade-slider_arrow',
+            $item = $this.find('.' + itemClass),
+            $arrow = $this.find('.' + arrowClass),
+            itemCount = $item.length, // dinamico: Depende de las cards que existan en el html.
+            onChange = typeof opt.onChange === 'function' ? opt.onChange : function () {}; // callback al cambiar índice
+
+            var defaultIndex = 0;
+
+            changeIndex(defaultIndex);
+
+            $arrow.on('click', function () {
+                var action = $(this).data('action'),
+                    nowIndex = $item.index($this.find('.now'));
+
+                if (action == 'next') {
+                    if (nowIndex == itemCount - 1) {
+                        changeIndex(0);
+                    } else {
+                        changeIndex(nowIndex + 1);
+                    }
+                } else if (action == 'prev') {
+                    if (nowIndex == 0) {
+                        changeIndex(itemCount - 1);
+                    } else {
+                        changeIndex(nowIndex - 1);
+                    }
+                }
+
+                $('.cascade-slider_dot').removeClass('cur');
+                //$('.cascade-slider_dot').next().addClass('cur');
+            });
+
+            // add data attributes
+            for (var i = 0; i < itemCount; i++) {
+                $('.cascade-slider_item').each(function (i) {
+                    $(this).attr('data-slide-number', [i]);
+                });
+            }
+
+                // dots
+                $('.cascade-slider_dot').bind('click', function () {
+                    // add class to current dot on click
+                    $('.cascade-slider_dot').removeClass('cur');
+                    $(this).addClass('cur');
+
+                    var index = $(this).index();
+
+                    $('.cascade-slider_item').removeClass('now prev next');
+                    var slide = $('.cascade-slider_slides').find('[data-slide-number=' + index + ']');
+                    slide.prev().addClass('prev');
+                    slide.addClass('now');
+                    slide.next().addClass('next');
+
+                    if (slide.next().length == 0) {
+                        $('.cascade-slider_item:first-child').addClass('next');
+                    }
+
+                    if (slide.prev().length == 0) {
+                        $('.cascade-slider_item:last-child').addClass('prev');
+                    }
+                });
+
+                function changeIndex(nowIndex) {
+                    // clern all class
+                    $this.find('.now').removeClass('now');
+                    $this.find('.next').removeClass('next');
+                    $this.find('.prev').removeClass('prev');
+                    if (nowIndex == itemCount - 1) {
+                        $item.eq(0).addClass('next');
+                    }
+                    if (nowIndex == 0) {
+                        $item.eq(itemCount - 1).addClass('prev');
+                    }
+
+                    $item.each(function (index) {
+                        if (index == nowIndex) {
+                            $item.eq(index).addClass('now');
+                        }
+                        if (index == nowIndex + 1) {
+                            $item.eq(index).addClass('next');
+                        }
+                        if (index == nowIndex - 1) {
+                            $item.eq(index).addClass('prev');
+                        }
+                    });
+
+                    // Notificar al exterior que cambió el índice
+                    onChange(nowIndex);
+                }
+            };
+        })(jQuery);
+
+    //RESPONSIVO
+    $('#cascade-slider').cascadeSlider({
+        itemClass: 'cascade-slider_item',
+        arrowClass: 'cascade-slider_arrow',
+        onChange: function(nowIndex) {
+            // Sincronizar siempre las cards derechas con el slide actual
+            var current = nowIndex + 1; // slides 0-based, cards 1-based
+            $('#txt_current_card').val(current);
+            showVisibleCards();
+            updateArrowOpacity();
+        }
+    });
+
+    $('#arrowNext').on('click', function() {
+        $('#arrowDown').trigger('click');
+    });
+
+    $('#arrowBack').on('click', function() {
+        $('#arrowUp').trigger('click');
+    });
+    
+    function updateArrowOpacity() {
+    let current_card = parseInt($("#txt_current_card").val(), 10);
+    const totalCards = $('.container-carrusel-item-news').length;
+
+    $("#arrowUp, #arrowBack").css("opacity", current_card === 1 ? ".5" : "1");
+    $("#arrowDown, #arrowNext").css("opacity", current_card === totalCards ? ".5" : "1");
+}
+
+    $('#arrowNext').on('click', function() {
+        $('#arrowDown').trigger('click');
+        updateArrowOpacity();
+    });
+
+    $('#arrowBack').on('click', function() {
+        $('#arrowUp').trigger('click');
+        updateArrowOpacity();
+    });
+
+    $('#arrowUp, #arrowDown').on('click', function() {
+        updateArrowOpacity();
+    });
+
+    updateArrowOpacity();
+
+</script>

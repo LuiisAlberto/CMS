@@ -1,0 +1,342 @@
+/* RESET ESTILOS */
+html, body, div, span, h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, b, u, i, form, label, table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+}
+body {
+    line-height: 1;
+    list-style-type: none;
+    background: #fff;
+}
+a, a:hover{
+	text-decoration: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+*, 
+*:after,
+*:before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+p {
+	margin-top: 0;
+	margin-bottom: 0;
+	line-height: 1.1;
+}
+button {
+	outline: none;
+	border: 0;
+	cursor: pointer;
+}
+main{
+	position: relative;
+	margin-top: -7px;
+}
+.row{
+	margin-right: 0;
+	margin-left: 0;
+}
+
+
+/* ESTILOS GENERALES */
+body{
+	font-family: "Montserrat";
+	color: #191919;
+}
+body::-webkit-scrollbar {
+	width: 12px;
+}
+body::-webkit-scrollbar-thumb {
+	background-color: #666666;
+	border-radius: 20px;
+	border: 3px solid #F2F2F2;
+}
+main.fondo{
+	background: #eeeeec;
+}
+.t-c{
+	text-align: center;
+}
+.t-r{
+	text-align: right;
+}
+.t-l{
+	text-align: left;
+}
+.t-j{
+	text-align: justify;
+}
+.form-control:focus{
+	box-shadow: none;
+}
+.ma{
+	margin: auto;
+}
+.ma-g{
+	margin-bottom: 10px !important;
+}
+.ma-b2{
+	margin-bottom: 20px !important;
+}
+.ma-b3{
+	margin-bottom: 30px !important;
+}
+.ma-t{
+	margin-top: 10px !important;
+}
+.ma-t2{
+	margin-top: 20px !important;
+}
+.ma-t3{
+	margin-top: 30px !important;
+}
+.cnt{
+	position: absolute;
+	transform: translate(-50%, -50%);
+	top: 50%;
+	left: 50%;
+}
+.cnt_login {
+	   top: 55%;
+}
+.pr{
+	position: relative;
+}
+.sp{
+	padding-left: 0;
+	padding-right: 0;
+}
+.pa-10{
+	padding: 10px;
+}
+.ocultar {
+	display: none !important;
+}
+.mostrar {
+	display: block !important;
+}
+#p-trab{
+    width: calc(100% - 260px);
+    float: right;
+    z-index: 30;
+}
+#p-trab div{
+	position: relative;
+	height: 40px;
+}
+.logo-pleca{
+	height: 40px;
+	position: absolute;
+	transform: translate(-50%, -50%);
+	left: 50%;
+	top: 50%;
+}
+.pleca-tit{
+	position: relative;
+	height: 60px;
+	background: #005046;
+	padding: 10px;
+	color: #fff;
+	text-align: center;
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 50px;
+}
+.pleca-tit-bis {
+    position: relative;
+    background: #005046;
+    padding: 15px;
+    color: #fff;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+}
+.pleca-tit-bis img{
+	height: 40px;
+	position: absolute;
+	top: 20px;
+	left: 20px;
+}
+.tit-seccion {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 0;
+    color: #235B4E;
+}
+.pf{
+	width: 100%;
+	position: fixed;
+	z-index: 30;
+}
+.a-lft{
+	transform: translateY(-50%);
+	left: 20px;
+}
+.a-rgt{
+	transform: translateY(-50%);
+	right: 20px;
+}
+
+main#contPrerregistro{
+	min-height: calc(100vh - 58px);
+}
+main#contRegistro{
+	min-height: calc(100vh - -190px);
+}
+.cabezalGral{
+	position: relative;
+	z-index: 2;
+	height: 70px;
+	text-align: center;
+	padding: 10px;
+	background: #235B4E;
+	border-bottom: 5px solid #BB965C;
+}
+.banner{
+	height: 60px;
+}
+.banner_web{
+		display: block;
+		height: 150px;
+		margin: auto;
+	}
+.banner_movil{
+	display: none;
+}
+
+.boxGral{
+	position: relative;
+}
+
+.bloquea{
+	background: #454141cc;
+	position: absolute;
+	z-index: 999;
+	width: 100%;
+	height: 100%;
+	top: -10px;
+	left: 0px;
+	opacity: .7;
+}
+
+.plecaTtit{
+    background: #8E2C2D;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/*COLORES BACK*/
+
+.oro{
+	background: #B98D68;
+}
+
+.guinda{
+	background: #8E2C2D;
+}
+.vino{
+	background: #3D1A1B;
+}
+
+.brown{
+    background: #5A3D2B;
+}
+
+.verde_b{
+	background: #159d15;
+}
+.rojo{
+	background: #cc171e;
+}
+.black{
+    background: #000;
+}
+.blanco{
+	background: #fff;
+}
+
+/*COLORES TEXT*/
+
+.oro_t{
+	color: #B98D68;
+}
+.guinda_t{
+	color: #8E2C2D;
+}
+.vino_t{
+	color: #3D1A1B;
+}
+.brown_t{
+    color: #5A3D2B;
+}
+.verde_b_t{
+	color: #159d15;
+}
+.rojo_t{
+	color: #cc171e;
+}
+.black_t{
+    color: #000;
+}
+.blanco_t{
+	color: #fff;
+}
+
+/* Titulos */
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 1200px;
+    margin: auto;
+    width: 100%;
+}
+
+.sectionTitle h2 {
+    font-size: 24px;
+    font-weight: 400;
+    color: #8e2c2d;
+    margin: 0;
+    white-space: nowrap; /* Asegura que el título esté en un solo renglón */
+}
+
+.sectionTitle .bold {
+    font-weight: 700;
+}
+
+/* Estilo de las líneas */
+.shortLine {
+    height: 2px;
+    background-color: #8e2c2d;
+    width: 100px; /* Longitud fija para la línea corta */
+}
+
+.longLine {
+    height: 2px;
+    background-color: #8e2c2d;
+    flex-grow: 1; /* Se adapta al espacio restante */
+}

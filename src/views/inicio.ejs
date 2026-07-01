@@ -1,0 +1,44 @@
+    <%- include('partials/header'); %>
+    <%- include('partials/menu'); %>
+    <link rel="stylesheet" href="/assets/css/inicio.css">
+
+    <!-- BODY -->
+    <div id="templateDer" class="pagina-inicio">
+        <div class="inicio-wrap">
+            <!-- Hero / Bienvenida -->
+            <section class="inicio-hero">
+                <span class="inicio-hero-badge">Sistema de gestión</span>
+                <h1>Bienvenido al sistema de <strong>gestión de contenido de las páginas de MORENA</strong></h1>
+                <p class="inicio-hero-subtitle">
+                    Consulta el videotutorial para conocer el funcionamiento general del CMS y el uso de los componentes.
+                </p>
+                <div class="inicio-hero-line" aria-hidden="true"></div>
+            </section>
+
+            <!-- Videotutorial -->
+            <div class="inicio-cards">
+                <article class="inicio-card inicio-card-video">
+                    <div class="inicio-card-header">
+                        <div class="inicio-card-icon">
+                            <i class="fas fa-play-circle" aria-hidden="true"></i>
+                        </div>
+                        <h2 class="inicio-card-title">Videotutorial</h2>
+                    </div>
+                    <div class="inicio-card-body">
+                        <p>Reproduce el video para conocer el funcionamiento del sistema y el uso de los componentes.</p>
+                        <h3 class="inicio-video-title">CMS — videotutorial completo</h3>
+                        <div class="inicio-video-wrap">
+                            <video
+                                src="/assets/img/CMS-completo-videotutorial.mp4"
+                                controls
+                                playsinline
+                                preload="metadata"
+                            >
+                                Tu navegador no admite reproducción de video HTML5.
+                            </video>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,344 @@
+<%- include('partials/header'); %>
+<%- include('partials/menu'); %>
+
+<div id="templateDer">
+    <div id="metrics-page">
+        <div class="limit-home">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8 col-sm-12 col-12 t-c">
+                    <h5 class="tit-seccion guinda_t">Métricas de <b>búsqueda</b></h5>
+                    <div class="l-div">
+                        <label class="borde-izq oroMorena"><span class="diagonal gris_t"></span></label>
+                        <label class="borde-der solid_bg"><span></span></label>
+                    </div>
+                </div>
+                <div class="subenun ma-t2">
+                    <p class="subtit">Datos de Google Search Console por instancia. Solo se muestran las instancias a las que tienes acceso. Los datos se actualizan diariamente.</p>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-4">
+        <div class="metrics-toolbar">
+            <div class="d-flex align-items-center gap-2">
+                <label for="metrics-range">Rango</label>
+                <select id="metrics-range" class="form-select form-select-sm">
+                    <option value="7">Últimos 7 días</option>
+                    <option value="28" selected>Últimos 28 días</option>
+                    <option value="90">Últimos 90 días</option>
+                </select>
+            </div>
+            <% if (instances && instances.length > 1) { %>
+            <div class="d-flex align-items-center gap-2">
+                <label for="metrics-instance">Instancia</label>
+                <select id="metrics-instance" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <% instances.forEach(inst => { %>
+                    <option value="<%= inst.id_sysapp %>"><%= inst.app_name %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <% } %>
+            <button type="button" class="btn-refresh" id="metrics-refresh">
+                <i class="fas fa-sync-alt"></i> Actualizar
+            </button>
+            <a href="#" class="btn btn-outline-secondary btn-sm ms-2" id="metrics-diagnostic" title="Ver por qué no hay datos">¿Sin datos?</a>
+        </div>
+
+        <div id="metrics-no-data-alert" class="alert alert-info mb-3" style="display:none;" role="alert">
+            <strong>Diagnóstico:</strong> <span id="metrics-diagnostic-msg"></span>
+            <br><small class="text-muted">Suele bastar con ejecutar <code>cd app && npm run sync-metrics</code> para traer datos de GSC.</small>
+        </div>
+
+        <div class="metrics-cards">
+            <div class="metric-card metric-clicks">
+                <div class="metric-icon"><i class="fas fa-mouse-pointer"></i></div>
+                <div class="metric-label">Clics</div>
+                <div class="metric-value" id="m-clicks">—</div>
+            </div>
+            <div class="metric-card metric-impressions">
+                <div class="metric-icon"><i class="fas fa-eye"></i></div>
+                <div class="metric-label">Impresiones</div>
+                <div class="metric-value" id="m-impressions">—</div>
+            </div>
+            <div class="metric-card metric-ctr">
+                <div class="metric-icon"><i class="fas fa-percentage"></i></div>
+                <div class="metric-label">CTR</div>
+                <div class="metric-value" id="m-ctr">—</div>
+            </div>
+            <div class="metric-card metric-position">
+                <div class="metric-icon"><i class="fas fa-sort-numeric-down"></i></div>
+                <div class="metric-label">Posición media</div>
+                <div class="metric-value" id="m-position">—</div>
+            </div>
+        </div>
+
+        <div class="metrics-chart-wrap">
+            <div class="chart-title"><i class="fas fa-chart-line me-2"></i>Clics e impresiones en el tiempo</div>
+            <div id="metrics-chart"></div>
+        </div>
+
+        <div class="metrics-tabs">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-queries" data-bs-toggle="tab" data-bs-target="#panel-queries" type="button" role="tab">
+                        <i class="fas fa-search me-1"></i> Consultas
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-pages" data-bs-toggle="tab" data-bs-target="#panel-pages" type="button" role="tab">
+                        <i class="fas fa-file-alt me-1"></i> Páginas
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="panel-queries" role="tabpanel">
+                    <div class="metrics-table-wrap">
+                        <table class="table metrics-table" id="tb-queries">
+                            <thead>
+                                <tr>
+                                    <th>Consulta</th>
+                                    <th class="text-end">Clics</th>
+                                    <th class="text-end">Impresiones</th>
+                                    <th class="text-end">Posición</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <p class="metrics-empty" id="queries-empty">Sin datos de consultas en el rango seleccionado.</p>
+                </div>
+                <div class="tab-pane fade" id="panel-pages" role="tabpanel">
+                    <div class="metrics-table-wrap">
+                        <table class="table metrics-table" id="tb-pages">
+                            <thead>
+                                <tr>
+                                    <th>Página</th>
+                                    <th class="text-end">Clics</th>
+                                    <th class="text-end">Impresiones</th>
+                                    <th class="text-end">Posición</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <p class="metrics-empty" id="pages-empty">Sin datos de páginas en el rango seleccionado.</p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script>
+(function() {
+    var chartInstance = null;
+
+    function dateRange(days) {
+        var end = new Date();
+        end.setDate(end.getDate() - 2);
+        var start = new Date(end);
+        start.setDate(start.getDate() - Math.max(0, days - 1));
+        return {
+            dateFrom: start.toISOString().split('T')[0],
+            dateTo: end.toISOString().split('T')[0]
+        };
+    }
+
+    function fetchMetrics() {
+        var days = parseInt(document.getElementById('metrics-range').value, 10) || 28;
+        var instEl = document.getElementById('metrics-instance');
+        var idSysapp = instEl ? instEl.value : '';
+        var range = dateRange(days);
+
+        var q = new URLSearchParams({ dateFrom: range.dateFrom, dateTo: range.dateTo });
+        if (idSysapp) q.set('id_sysapp', idSysapp);
+
+        $('#lockscreen').show();
+        fetch('/api/metrics/data?' + q.toString(), { credentials: 'same-origin' })
+            .then(function(r) {
+                if (!r.ok) throw new Error(r.statusText || 'Error');
+                return r.json();
+            })
+            .then(function(data) {
+                $('#lockscreen').hide();
+                if (data && data.success === false) {
+                    console.error(data.message);
+                    return;
+                }
+                renderOverview(data.overview || {});
+                renderChart(data.byDate || []);
+                renderTable('tb-queries', data.queries || [], 'query', 'queries-empty');
+                renderTable('tb-pages', data.pages || [], 'page', 'pages-empty');
+                var ov = data.overview || {};
+                var empty = (ov.clicks || 0) === 0 && (ov.impressions || 0) === 0 && !(data.byDate && data.byDate.length);
+                if (empty) fetchDiagnostic();
+                else hideDiagnostic();
+            })
+            .catch(function(e) {
+                $('#lockscreen').hide();
+                console.error(e);
+            });
+    }
+
+    function fetchDiagnostic() {
+        fetch('/api/metrics/status', { credentials: 'same-origin' })
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(s) {
+                var el = document.getElementById('metrics-no-data-alert');
+                var msg = document.getElementById('metrics-diagnostic-msg');
+                if (!el || !msg) return;
+                msg.textContent = (s && s.message) ? s.message : 'Revisa permisos o ejecuta el sync.';
+                el.style.display = 'block';
+            })
+            .catch(function() {
+                var el = document.getElementById('metrics-no-data-alert');
+                var msg = document.getElementById('metrics-diagnostic-msg');
+                if (el && msg) { msg.textContent = 'No se pudo obtener el diagnóstico.'; el.style.display = 'block'; }
+            });
+    }
+
+    function hideDiagnostic() {
+        var el = document.getElementById('metrics-no-data-alert');
+        if (el) el.style.display = 'none';
+    }
+
+    function renderOverview(o) {
+        document.getElementById('m-clicks').textContent = (o && o.clicks != null) ? o.clicks.toLocaleString() : '—';
+        document.getElementById('m-impressions').textContent = (o && o.impressions != null) ? o.impressions.toLocaleString() : '—';
+        document.getElementById('m-ctr').textContent = (o && o.ctr != null) ? (o.ctr + '%') : '—';
+        document.getElementById('m-position').textContent = (o && o.position != null) ? o.position : '—';
+    }
+
+    function renderChart(byDate) {
+        var chartEl = document.getElementById('metrics-chart');
+        if (!chartEl) return;
+        if (typeof Highcharts === 'undefined') {
+            chartEl.innerHTML = '<div class="d-flex align-items-center justify-content-center text-muted" style="min-height:320px"><i class="fas fa-exclamation-triangle me-2"></i>No se pudo cargar la librería de gráficas.</div>';
+            return;
+        }
+        var clicks = [];
+        var impressions = [];
+        byDate.forEach(function(r) {
+            var t = new Date(r.date + 'T12:00:00').getTime();
+            clicks.push([t, r.clicks || 0]);
+            impressions.push([t, r.impressions || 0]);
+        });
+
+        if (chartInstance) chartInstance.destroy();
+
+        if (!byDate.length) {
+            document.getElementById('metrics-chart').innerHTML = '<div class="d-flex align-items-center justify-content-center text-muted" style="min-height:320px">Sin datos en el rango seleccionado.</div>';
+            return;
+        }
+
+        chartInstance = Highcharts.chart('metrics-chart', {
+            chart: { type: 'area', backgroundColor: 'transparent', height: 320 },
+            title: { text: null },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: { day: '%e %b', week: '%e %b', month: '%b %y' },
+                crosshair: true,
+                lineColor: '#e8eaed',
+                tickColor: '#e8eaed'
+            },
+            yAxis: [{
+                title: { text: 'Clics', style: { color: '#8e2c2d' } },
+                labels: { style: { color: '#5a6c7d' } },
+                gridLineColor: '#e8eaed',
+                min: 0
+            }, {
+                title: { text: 'Impresiones', style: { color: '#005046' } },
+                labels: { style: { color: '#5a6c7d' } },
+                gridLineColor: 'transparent',
+                opposite: true,
+                min: 0
+            }],
+            tooltip: {
+                shared: true,
+                useHTML: true,
+                formatter: function() {
+                    var d = Highcharts.dateFormat('%e %b %Y', this.x);
+                    var s = '<b>' + d + '</b><br/>';
+                    (this.points || []).forEach(function(p) {
+                        s += '<span style="color:' + p.color + '">●</span> ' + p.series.name + ': <b>' + (p.y || 0).toLocaleString() + '</b><br/>';
+                    });
+                    return s;
+                }
+            },
+            plotOptions: {
+                area: {
+                    fillOpacity: 0.2,
+                    marker: { radius: 3 },
+                    lineWidth: 2
+                }
+            },
+            legend: {
+                align: 'center',
+                verticalAlign: 'bottom',
+                itemStyle: { color: '#5a6c7d', fontWeight: '600' }
+            },
+            credits: { enabled: false },
+            exporting: { enabled: true, buttons: { contextButton: { theme: { fill: '#f0f2f5' } } } },
+            series: [{
+                name: 'Clics',
+                data: clicks,
+                color: '#8e2c2d',
+                fillColor: 'rgba(142, 44, 45, 0.15)',
+                yAxis: 0
+            }, {
+                name: 'Impresiones',
+                data: impressions,
+                color: '#005046',
+                fillColor: 'rgba(0, 80, 70, 0.12)',
+                yAxis: 1
+            }]
+        });
+    }
+
+    function escapeHtml(s) {
+        if (s == null || s === '') return '';
+        var t = String(s);
+        return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function renderTable(tableId, rows, labelKey, emptyId) {
+        var tbody = document.querySelector('#' + tableId + ' tbody');
+        var emptyEl = document.getElementById(emptyId);
+        tbody.innerHTML = '';
+        if (!rows || !rows.length) {
+            if (emptyEl) emptyEl.classList.add('show');
+            return;
+        }
+        if (emptyEl) emptyEl.classList.remove('show');
+        rows.forEach(function(r) {
+            var tr = document.createElement('tr');
+            var raw = r[labelKey] || '';
+            tr.innerHTML =
+                '<td class="text-truncate" style="max-width:360px" title="' + escapeHtml(raw) + '">' + escapeHtml(raw) + '</td>' +
+                '<td class="text-end">' + (r.clicks != null ? r.clicks.toLocaleString() : '—') + '</td>' +
+                '<td class="text-end">' + (r.impressions != null ? r.impressions.toLocaleString() : '—') + '</td>' +
+                '<td class="text-end">' + (r.position != null ? r.position : '—') + '</td>';
+            tbody.appendChild(tr);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchMetrics();
+        var rng = document.getElementById('metrics-range');
+        var inst = document.getElementById('metrics-instance');
+        var btn = document.getElementById('metrics-refresh');
+        if (rng) rng.addEventListener('change', fetchMetrics);
+        if (inst) inst.addEventListener('change', fetchMetrics);
+        if (btn) btn.addEventListener('click', fetchMetrics);
+        var diag = document.getElementById('metrics-diagnostic');
+        if (diag) diag.addEventListener('click', function(e) { e.preventDefault(); fetchDiagnostic(); });
+    });
+})();
+</script>
+
+<%- include('partials/footerNoMx'); %>

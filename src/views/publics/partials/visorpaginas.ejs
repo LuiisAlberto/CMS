@@ -1,0 +1,119 @@
+<div id="contPub" class="container">
+    <%
+    let i=0;
+            for (const seccion of datapagina.secciones) {
+                
+    %>
+    <div class="row pub_seccion " id="seccion_<%=seccion.dataValues.id_wb_pag_seccion%>" data-origen="saved" data-sec="<%=seccion.dataValues.id_wb_pag_seccion%>"  data-orden="<%= typeof seccion.dataValues.orden_visible === 'number' ? seccion.dataValues.orden_visible : (i + 1) %>">
+        <%
+            let c=0;
+            let cols=parseInt(seccion.dataValues.wb_num_col)
+            let colvalue=12/cols;
+                for (const columna of seccion.columnas) {
+        %>
+        <div class="col-md-<%=colvalue%> pub_columna" id="columna_<%=columna.dataValues.id_wb_pag_columna%>" data-origen="saved" data-idcol="<%=columna.dataValues.id_wb_pag_columna%>" data-orden="<%=columna.dataValues.orden_visible%>">
+            <%
+                let cp=0;
+                for (const componente of columna.componentes) {
+                let validcomp=i+'-'+c+'-'+cp;
+            %>
+            <div class="pub_componente" id="comp_<%=validcomp%>" data-comp="<%=componente.idcypher%>" data-sec="<%=seccion.dataValues.id_wb_pag_seccion%>" data-col="<%=columna.dataValues.id_wb_pag_columna%>" data-orden="<%=componente.dataValues.orden_visible%>"></div>
+            <%
+                cp++;
+            }
+            %>
+        </div>
+        <%
+            c++;
+        }
+        %>
+    </div>
+    <%
+        i++;
+    } %>
+    <!-- <div class="row pub_seccion" id="seccion_nueva" data-sec="" data-orden="">
+    </div> -->
+</div>
+
+<script>
+
+    $(function () {
+        let componentesParaRenderizar = [];
+
+        $('.pub_componente').each(function(index) {
+            let idc = $(this).attr('id')
+            let compData = $(this).data('comp');
+
+            componentesParaRenderizar.push({
+                element: $(this),
+                ordenListado: index + 1,
+                data: {
+                    idp: '<%=dataapp.id_sysapp%>',
+                    id_comp: idc,
+                    data_comp: compData
+                }
+            });
+        });
+
+        // Procesar y renderizar en orden
+        let componentesEnOrden = [];
+
+        Promise.all(componentesParaRenderizar.map(item => {
+            return fetch('/public/getComponente',{
+                method: 'POST',
+                body: JSON.stringify(item.data),
+                headers: { "Content-Type": "application/json" },
+            }).then(response => response.json());
+        }))
+        .then(results => {
+            results.forEach((data, index) => {
+                const item = componentesParaRenderizar[index];
+
+                if (data.success) {
+                    item.element.html(data.templateComponenteHtml);
+                    if (data.tipocomp != null) {
+                        item.element.attr('data-tipcomp', data.tipocomp);
+                    }
+
+                    const ordNum = item.ordenListado;
+                    
+                    // Almacenar el HTML del listado para inserción ordenada
+                    componentesEnOrden[index] = `
+                        <li class="list-group-item all_items_comps" data-idcomp="${data.idcomp}">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="nom_comp">
+                                        <p class="comp-list-titulo">${data.nameComp}</p>
+                                        <p class="comp-list-ubic" title="Orden en el listado">${ordNum}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 d-flex justify-content-center text-center">
+                                    <button type="button" class="btn_edit_comp" data-idcompedit="${data.idcomp}" onclick="if(typeof invokeCanvasEditComp==='function')invokeCanvasEditComp(${data.idcomp});">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button type="button" class="btn_edit_comp" data-idcompedit="${data.idcomp}" onclick="if(typeof invokeCanvasDeleteComp==='function')invokeCanvasDeleteComp(${data.idcomp})">
+                                        <i class="fa-solid fa-square-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    `;
+                }
+            });
+
+            // Unir e insertar todos los elementos de la lista a la vez (#compListCreate está en el menú del padre si el lienzo va en iframe)
+            var $compListUl = (window.parent && window.parent !== window && window.parent.jQuery)
+                ? window.parent.jQuery('#compListCreate ul', window.parent.document)
+                : $('#compListCreate ul');
+            /* Cada recarga del iframe vuelve a ejecutar este script: sin vaciar, se duplican filas en el padre */
+            $compListUl.find('li.all_items_comps').remove();
+            $compListUl.append(componentesEnOrden.join(''));
+            try {
+                if (typeof window.refreshEditorColumnSlots === 'function') {
+                    window.refreshEditorColumnSlots();
+                }
+            } catch (e) { /* editor lienzo opcional */ }
+        });
+    });
+
+</script>
